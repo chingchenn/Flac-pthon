@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Created on Fri Jul  9 20:08:41 2020
+Created on Sun May  9 20:08:41 2020
 
 @author: jiching
 
@@ -8,6 +8,18 @@ Created on Fri Jul  9 20:08:41 2020
 import numpy as np
 import pandas as pd
 from pandas.core.frame import DataFrame
+
+
+def read_data(title,path):
+    file=pd.read_csv(path+'/'+title+'.csv')
+    file=np.array(file)
+    return file
+
+def read_data_column(title,path,column_index):
+    file=pd.read_csv(path+'/'+title+'.csv')
+    temp2=file[(column_index-1)]
+    temp2=temp2.tolist()
+    return temp2
 
 def save_1array(title,path,array1,name1):
     aaa=DataFrame(array1,columns=[str(name1)])
@@ -43,13 +55,3 @@ def save_5array(title,path,array1,array2,array3,array4,array5,name1,name2,name3,
     n5 = pd.concat([aaa,bbb,ccc,ddd,eee],axis=1)
     n5.to_csv(path+'/'+str(title)+'.csv',index=False)
 
-def read_data(title,path):
-    file=pd.read_csv(path+'/'+title+'.csv')
-    file=np.array(file)
-    return file
-
-def read_data_column(title,path,column_index):
-    file=pd.read_csv(path+'/'+title+'.csv')
-    temp2=file[(column_index-1)]
-    temp2=temp2.tolist()
-    return temp2
