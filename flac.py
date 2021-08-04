@@ -108,6 +108,26 @@ class Flac(object):
         return density
 
 
+    def read_area(self, frame):
+        columns = 1
+        f = open('area.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        area = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(area)
+        return area
+
+
+    def read_area(self, frame):
+        columns = 1
+        f = open('area.0')
+        offset = (frame-1) * columns * self.nelements * sizeoffloat
+        f.seek(offset)
+        area = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(area)
+        return area
+
+
     def read_strain(self, frame):
         columns = 1
         f = open('exx.0')
@@ -261,6 +281,8 @@ class Flac(object):
         dead = self._read_data(f2, count=n, dtype=np.int32)
         tmp = self._read_data(f2, count=n, dtype=np.int32)
         phase = self._remove_dead_markers(tmp, dead)
+        tmp = self._read_data(f2, count=n, dtype=np.int32)
+        ntriag = self._remove_dead_markers(tmp, dead)
         f2.close()
 
         f1 = open('marker1' + suffix)
@@ -273,10 +295,16 @@ class Flac(object):
         tmp = self._read_data(f1, count=n)
         age = self._remove_dead_markers(tmp, dead)
 
+        tmp = self._read_data(f1, count=n)
+        a1 = self._remove_dead_markers(tmp, dead)
+
+        tmp = self._read_data(f1, count=n)
+        a2 = self._remove_dead_markers(tmp, dead)
+
         tmp = np.arange(1, n+1)
         ID = self._remove_dead_markers(tmp, dead)
         f1.close()
-        return x, z, age, phase, ID
+        return x, z, age, phase, ID, a1, a2, ntriag
 
 
     def read_tracers(self):
@@ -386,6 +414,7 @@ class FlacFromVTK(object):
         self.frames = list(range(1, self.nrec+1))
         self.steps = np.zeros(self.nrec)
         self.time = np.zeros(self.nrec)
+        self._read_vtk(1) # get grid size
         return
 
 
@@ -525,6 +554,14 @@ class FlacFromVTK(object):
         return density
 
 
+    def read_area(self, frame):
+        data = self._get_vtk_data(frame)
+        a = self._locate_line(data, "Area")
+        area = np.frombuffer(a, dtype=np.float32)
+        area.shape = (self.nx-1, self.nz-1)
+        return area
+
+
     def read_strain(self, frame):
         return NotImplemented
 
@@ -627,6 +664,15 @@ class FlacFromVTK(object):
         a = self._locate_line(data, "ID", dtype="Int32")
         ID = np.frombuffer(a, dtype=np.int32)
 
+        a = self._locate_line(data, "a1")
+        a1 = np.frombuffer(a, dtype=np.float32)
+
+        a = self._locate_line(data, "a2")
+        a2 = np.frombuffer(a, dtype=np.float32)
+
+        a = self._locate_line(data, "ntriag", dtype="Int32")
+        ntriag = np.frombuffer(a, dtype=np.int32)
+
         # read point coordinate
         s = '<Points>'
         for n, line in enumerate(data):
@@ -645,7 +691,7 @@ class FlacFromVTK(object):
         x, z = a[:,0], a[:,1]
 
         # True if not using thermochron
-        if (True): return x, z, age, phase, ID
+        if (True): return x, z, age, phase, ID, a1, a2, ntriag
 
         # Thermochronology from Chase Shyu's work
         '''
@@ -692,6 +738,62 @@ class FlacFromVTK(object):
 #
 ################################################################
 
+
+
+def marker_ntriag2elem(ntriag, nz):
+    '''Convert markers' ntriag to element number (i,j) and triangle number (k)
+    nz is the # of nodes in z direction.'''
+    k = ((ntriag - 1) % 2) + 1
+    j = ((ntriag - k) // 2) % (nz - 1)
+    i = (ntriag - k) // 2 // (nz - 1)
+    return i, j, (k-1)
+
+
+def marker_interpolate_elem(ntriag, nz, efield):
+    '''Interpolation elemental field (e.g. stress) onto markers
+    '''
+    if efield.shape[1] != nz-1:
+        raise ValueError('The array length in 2nd dimension is %d, excepting %d' % (nfield.shape[1], nz-1))
+
+    i, j, k = marker_ntriag2elem(ntriag, nz)
+    f = np.zeros(ntriag.shape, dtype=efield.dtype)
+    f = efield[i[:], j[:]]
+    return f
+
+
+def marker_interpolate_node(ntriag, a1, a2, nz, nfield):
+    '''Interpolation nodal field (e.g. temperature) onto markers
+    '''
+    if nfield.shape[1] != nz:
+        raise ValueError('The array length in 2nd dimension is %d, excepting %d' % (nfield.shape[1], nz))
+
+    f = np.zeros_like(a1)
+    a3 = 1.0 - a1 - a2
+
+    # Upper triangle:
+    # 1 --- 3
+    # |   /
+    # |  /
+    # | /
+    # 2
+    #
+    # Lower triangle:
+    #       1
+    #     / |
+    #    /  |
+    #   /   |
+    # 2 --- 3
+    i, j, k = marker_ntriag2elem(ntriag, nz)
+    u = (k == 0)  # uppper triangles
+    l = (k == 1)  # lower triangles
+
+    f[u] = (nfield[i[u]  , j[u]  ] * a1[u] +
+            nfield[i[u]  , j[u]+1] * a2[u] +
+            nfield[i[u]+1, j[u]  ] * a3[u])
+    f[l] = (nfield[i[l]+1, j[l]  ] * a1[l] +
+            nfield[i[l]  , j[l]+1] * a2[l] +
+            nfield[i[l]+1, j[l]+1] * a3[l])
+    return f
 
 
 def elem_coord(x, z):

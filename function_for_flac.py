@@ -10,9 +10,6 @@ import flac
 import sys,os, math
 import numpy as np
 import function_savedata as fs
-import numpy as np
-from numpy.linalg import inv
-
 
 sys.path.append('/home/jiching/geoflac/util')
 
@@ -23,12 +20,8 @@ def get_topo(xmesh,zmesh,frame):
 
 def find_trench_index(z):
     zz = z[:,0]
-    if zz.all()==0:
-        imax=0
-        i=0
-    else:
-        imax = zz.argmax()
-        i = zz[:imax].argmin()
+    imax = zz.argmax()
+    i = zz[:imax].argmin()
     return imax,i
 """   
 def nodes_to_elements(xmesh,zmesh,frame):
@@ -88,9 +81,9 @@ def chamber_element(xmesh,zmesh,frame,mm):
     return chamber_xele,chamber_zele,chamber_number
 
 def moving_window_smooth(array,window_width):
-    new_array=[]
+    new_array=[0]
     temp=int(window_width/2)    
-    for kk in range(1,temp+1):
+    for kk in range(2,temp+1):
         new_array.append(array[kk-1])
     for kk in range(temp,len(array)-(temp)):
         q=sum(array[kk-temp:kk+temp+1])/window_width
@@ -98,27 +91,3 @@ def moving_window_smooth(array,window_width):
     for kk in range((len(array)-temp+1),len(array)+1):
         new_array.append(array[kk-1])
     return new_array
-
-def rate_compute(data_array,time_array):
-    new_data_array=np.zeros(len(data_array))
-    for qq in range(1,len(data_array)):
-        q=data_array[qq]/(time_array[qq]-time_array[qq-1])
-        new_data_array[qq]=q
-    return new_data_array
-
-def rate_compute_step(data_array,time_array):
-    new_data_array=np.zeros(len(data_array))
-    for qq in range(1,len(data_array)):
-        q=(data_array[qq]-data_array[qq-1])/(time_array[qq]-time_array[qq-1])
-        new_data_array[qq]=q
-    return new_data_array
-
-def least_square(x,y):
-    G = np.array([np.ones(len(x)),x]).T
-    m = np.dot(np.dot(inv(np.dot(G.T,G)),G.T),y)
-    f_list=[]
-    for k in x:
-        f=m[0]+m[1]*float(k)
-        f_list.append(f)
-        ff=np.array(f_list)
-    return m[0],m[1],ff
