@@ -54,8 +54,6 @@ def read_time(start_vts,model_steps):
     # timestep=np.array(timestep)
     return timestep
 """
-
-#find melt element
 def melt_element(xmesh,zmesh,frame,mm):
     melt_xele=[]
     melt_zele=[]
