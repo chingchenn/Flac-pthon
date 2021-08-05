@@ -125,10 +125,10 @@ def get_gravity(start=1,end_frame=end):
     return dis,time,to,tom,fa,bg
 def get_magma(start_vts=1,model_steps=end-1):
     melt=np.zeros(end)
-    chamber=np.zeros(end)
+    magma=np.zeros(end)
     yymelt=np.zeros(end)
     yychamber=np.zeros(end)
-    rrr.np=zeros(end)
+    rrr=np.zeros(end)
     for i in range(1,end):
         x,z=fl.read_mesh(i)
         mm=fl.read_fmelt(i)
@@ -139,7 +139,7 @@ def get_magma(start_vts=1,model_steps=end-1):
             rrr[i]=np.max(mm)/np.max(chamber)
         yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
         yychamber[i]=(fl.read_chamber(i)*fl.read_area(i)/1e6).sum()
-    return melt,chamber,yymelt,yychamber,rrr
+    return melt,magma,yymelt,yychamber,rrr
 magmafile=path+'data/magma_for_'+model+'.csv' 
 def count_marker(phase,start=1,end_frame=end):
     mr = np.zeros(end_frame-start)
@@ -186,7 +186,7 @@ if magma:
     print('-----creat magma database-----')
     name='magma_for_'+model
     melt,chamber,yymelt,yychamber,rrr=get_magma()      
-    fs.save_6array(name,savepath,time,melt,chamber,yymelt,yychamber,rrr
+    fs.save_6array(name,savepath,time,melt,chamber,yymelt,yychamber,rrr,
                    'time','fmelt','chamber','production','volume','ratio')
     print('=========== DONE =============')
 
@@ -234,13 +234,14 @@ if magma_plot:
     ax4.tick_params(axis='y', labelsize=16 )
     ax3.set_title('Model : '+model,fontsize=25)
     fig.savefig(figpath+model+'_magma.png')
-    fig2,(ax,ax2)=plt.subplots(1,2,fogsize=(25,8))
+    fig2,(ax,ax2)=plt.subplots(1,2,figsize=(25,8))
     cb_plot=ax.scatter(df.fmelt,df.chamber,c=df.time,cmap='rainbow')
-    ax_cbin = fig2.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
+    ax_cbin =fig2.add_axes([0.13,0.78,0.23,0.03]) 
+    cb = fig2.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Myr')
     rrr=np.array(df.ratio)
     rrr1=f2.moving_window_smooth(rrr,10)
-    ax2.plot(df.time,rrr1,color='k',lw-3)
+    ax2.plot(df.time,rrr1,color='k',lw=3)
     ax2.plot(df.time,rrr,color='gray',linestyle=':')
     fig2.savefig(figpath+model+'_ratio.png')
 if marker_number != 0:
