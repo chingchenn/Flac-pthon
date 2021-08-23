@@ -108,26 +108,6 @@ class Flac(object):
         return density
 
 
-    def read_area(self, frame):
-        columns = 1
-        f = open('area.0')
-        offset = (frame-1) * columns * self.nelements * sizeoffloat
-        f.seek(offset)
-        area = self._read_data(f, columns, count=self.nelements)
-        self._reshape_elemental_fields(area)
-        return area
-
-
-    def read_area(self, frame):
-        columns = 1
-        f = open('area.0')
-        offset = (frame-1) * columns * self.nelements * sizeoffloat
-        f.seek(offset)
-        area = self._read_data(f, columns, count=self.nelements)
-        self._reshape_elemental_fields(area)
-        return area
-
-
     def read_strain(self, frame):
         columns = 1
         f = open('exx.0')
@@ -230,14 +210,14 @@ class Flac(object):
         return fmelt
 
 
-    def read_fmagma(self, frame):
+    def read_chamber(self, frame):
         columns = 1
-        f = open('fmagma.0')
+        f = open('chamber.0')
         offset = (frame-1) * columns * self.nelements * sizeoffloat
         f.seek(offset)
-        fmagma = self._read_data(f, columns, count=self.nelements)
-        self._reshape_elemental_fields(fmagma)
-        return fmagma
+        chamber = self._read_data(f, columns, count=self.nelements)
+        self._reshape_elemental_fields(chamber)
+        return chamber
 
 
     def read_diss(self, frame):
@@ -414,7 +394,6 @@ class FlacFromVTK(object):
         self.frames = list(range(1, self.nrec+1))
         self.steps = np.zeros(self.nrec)
         self.time = np.zeros(self.nrec)
-        self._read_vtk(1) # get grid size
         return
 
 
@@ -554,14 +533,6 @@ class FlacFromVTK(object):
         return density
 
 
-    def read_area(self, frame):
-        data = self._get_vtk_data(frame)
-        a = self._locate_line(data, "Area")
-        area = np.frombuffer(a, dtype=np.float32)
-        area.shape = (self.nx-1, self.nz-1)
-        return area
-
-
     def read_strain(self, frame):
         return NotImplemented
 
@@ -618,22 +589,6 @@ class FlacFromVTK(object):
         return NotImplemented
 
 
-    def read_fmelt(self, frame):
-        data = self._get_vtk_data(frame)
-        a = self._locate_line(data, "Melt fraction")
-        fmelt = np.frombuffer(a, dtype=np.float32)
-        fmelt.shape = (self.nx-1, self.nz-1)
-        return fmelt
-
-
-    def read_fmagma(self, frame):
-        data = self._get_vtk_data(frame)
-        a = self._locate_line(data, "Magma fraction")
-        fmagma = np.frombuffer(a, dtype=np.float32)
-        fmagma.shape = (self.nx-1, self.nz-1)
-        return fmagma
-
-
     def read_diss(self, frame):
         return NotImplemented
 
@@ -680,15 +635,6 @@ class FlacFromVTK(object):
         a = self._locate_line(data, "ID", dtype="Int32")
         ID = np.frombuffer(a, dtype=np.int32)
 
-        a = self._locate_line(data, "a1")
-        a1 = np.frombuffer(a, dtype=np.float32)
-
-        a = self._locate_line(data, "a2")
-        a2 = np.frombuffer(a, dtype=np.float32)
-
-        a = self._locate_line(data, "ntriag", dtype="Int32")
-        ntriag = np.frombuffer(a, dtype=np.int32)
-
         # read point coordinate
         s = '<Points>'
         for n, line in enumerate(data):
@@ -707,7 +653,7 @@ class FlacFromVTK(object):
         x, z = a[:,0], a[:,1]
 
         # True if not using thermochron
-        if (True): return x, z, age, phase, ID, a1, a2, ntriag
+        if (True): return x, z, age, phase, ID
 
         # Thermochronology from Chase Shyu's work
         '''
@@ -746,7 +692,7 @@ class FlacFromVTK(object):
         '''
 
 ################################################################
-### Replace Flac by FlacFromVTK if only vts files are available
+### Replace Flac by Flac2 if only vts files are available
 ################################################################
 #
 #if (not os.path.exists('_contents.0')) and os.path.exists('flac.000001.vts'):
@@ -932,27 +878,17 @@ def printing(*args, **kwd):
 
 
 
+## This is an example on how to use this module.
 ## Before running this module, 'cd' to a directory containing the flac data.
 if __name__ == '__main__':
-    import sys
-
-    if (len(sys.argv) < 3):
-        print('''Usage: flac.py frame fieldname''')
-        sys.exit(1)
 
     fl = Flac()
 
-    frame = int(sys.argv[1])
-    if frame == -1: frame = fl.nrec
+    # read the last record of the mesh and temperature
+    x, z = fl.read_mesh(fl.nrec-1)
+    T = fl.read_temperature(fl.nrec-1)
 
-    #results = []
-    fieldname = sys.argv[2]
-    fn = fl.__getattribute__('read_' + fieldname)
-    field = fn(frame)
-    #results.append(field)
+    # print (x, z, T) to screen
+    printing(x, z, T)
 
-    # print to screen
-    printing(field)
-
-    #print('# time =', fl.time[fl.nrec-1], 'Myrs')
-
+    print('# time =', fl.time[fl.nrec-1], 'Myrs')
