@@ -8,10 +8,8 @@ matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-#model_list=['w0410','w0412','w0506','w0413','w0538','w0537','w0414','w0415','w0540','w0541','w0542','w0543']
-model_list=['w0601','w0602','w0603','w0604','w0605','w0606','w0607','w0608','w0609','w0610']
-#name_list=['50-5.5','60-5.5','70-5.5','80-5.5','50-6.5','55-6.5','60-6.5','70-6.5','55-7.5','60-7.5','70-7.5','80-7.5']
-name_list=['50-8.5','55-8.5','60-8.5','70-8.5','80-8.5','80-9.5','70-9.5','60-9.5','55-9.5','50-9.5']
+model_list=['w0725','w0726']
+name_list=['no root ','root','80-7.5']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
 case =sys.argv[1]
@@ -22,7 +20,7 @@ if int(case)==2:
     print(22222222222222222)
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(10,10))
 for qq,model in enumerate(model_list):
-    #path = '/scratch2/jiching/'+model+'/'
+    path = '/scratch2/jiching/'+model+'/'
     path = '/home/jiching/geoflac/'+model+'/'
     os.chdir(path)
     fl = flac.Flac();end = fl.nrec
@@ -63,7 +61,7 @@ for qq,model in enumerate(model_list):
     if int(case)==2:
         nnewangle = f2.moving_window_smooth(angle[angle>0],2)
         ax.plot(fl.time[angle>0],nnewangle,c=newcolors[qq],lw=2,label=name_list[qq])
-        ax.legend(title = "convergent velocity mm/year",fontsize=8)
+        ax.legend(title = "convergent velocity mm/year")
         ax.set_xlim(0,40)
         ax.set_title('Angle Variation')
         ax.set_ylabel('Angel ($^\circ$)')
