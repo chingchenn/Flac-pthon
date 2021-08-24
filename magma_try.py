@@ -1,13 +1,21 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
+"""
+Created on Mon Aug 23 10:31:31 2021
+
+@author: ji-chingchen
+"""
 import math
 import flac
 import os,sys
 import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
-model = str(sys.argv[1])
-path = '/home/jiching/geoflac/'+model+'/'
-path = model
+# model = str(sys.argv[1])
+# path = '/home/jiching/geoflac/'+model+'/'
+# path = model
+# print(model)
+model = 'w0711'
+path = '/Volumes/My Book/model/'+model+'/'
 print(model)
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
@@ -18,7 +26,7 @@ magma = np.zeros(end)
 cc=0
 for i in range(1,end):
     mm=fl.read_fmelt(i)
-    chamber=fl.read_chamber(i)
+    chamber=fl.read_fmagma(i)
     melt[i]=np.max(mm)
     magma[i]=np.max(chamber)
     if magma[i] >= 0.01:
@@ -33,11 +41,3 @@ print("-------------------")
 print('magma=',np.max(magma))
 print(fl.time[np.argmax(magma)])
 print("-------------------")
-
-#----------------------------------------------------------------------------
-lam0 = 1e-12
-lam_tdep = 4e-2
-delT=40
-lam = lam0*(1+np.exp(lam_tdep*delT))
-prod = 6e-13
-#----------------------------------------------------------------------------
