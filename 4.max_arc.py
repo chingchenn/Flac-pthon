@@ -18,7 +18,7 @@ magma = np.zeros(end)
 cc=0
 for i in range(1,end):
     mm=fl.read_fmelt(i)
-    chamber=fl.read_chamber(i)
+    chamber=fl.read_fmagma(i)
     melt[i]=np.max(mm)
     magma[i]=np.max(chamber)
     if magma[i] >= 0.01:

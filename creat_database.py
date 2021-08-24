@@ -131,13 +131,13 @@ def get_magma(start_vts=1,model_steps=end-1):
     for i in range(1,end):
         x,z=fl.read_mesh(i)
         mm=fl.read_fmelt(i)
-        chamber=fl.read_chamber(i)
+        chamber=fl.read_fmagma(i)
         melt[i] = np.max(mm)
         magma[i] = np.max(chamber)
         if np.max(chamber) !=0:
             rrr[i]=np.max(mm)/np.max(chamber)
         yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
-        yychamber[i]=(fl.read_chamber(i)*fl.read_area(i)/1e6).sum()
+        yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,rrr
 magmafile=path+'data/magma_for_'+model+'.csv' 
 def count_marker(phase,start=1,end_frame=end):
@@ -220,14 +220,14 @@ if magma_plot:
     ax2.set_ylabel('chamber *area',fontsize=20)
     ax3.set_ylabel('max melt',fontsize=20)
     ax4.set_ylabel('max magma fraction',fontsize=20)
-    ax.set_ylim(0,0.8)
-    ax2.set_ylim(0,10*1e-3)
-    ax3.set_ylim(0,10*1e-3)
-    ax4.set_ylim(0,3*1e-5)
-    ax.set_xlim(0,40)
-    ax2.set_xlim(0,40)
-    ax3.set_xlim(0,40)
-    ax4.set_xlim(0,40)
+    #ax.set_ylim(0,0.8)
+    #ax2.set_ylim(0,10*1e-3)
+    #ax3.set_ylim(0,10*1e-3)
+    #ax4.set_ylim(0,3*1e-5)
+    ax.set_xlim(0,24)
+    ax2.set_xlim(0,24)
+    ax3.set_xlim(0,24)
+    ax4.set_xlim(0,24)
     ax.grid()
     ax2.grid()
     ax3.grid()
@@ -242,6 +242,8 @@ if magma_plot:
     ax4.tick_params(axis='y', labelsize=16 )
     ax.set_title('Model : '+model,fontsize=25)
     fig.savefig(figpath+model+'_magma.png')
+#--------------------------------------------------------------------
+'''
     fig2,(ax,ax2)=plt.subplots(1,2,figsize=(25,8))
     cb_plot=ax.scatter(df.fmelt,df.chamber,c=df.time,cmap='rainbow')
     ax_cbin =fig2.add_axes([0.13,0.78,0.23,0.03]) 
@@ -258,6 +260,8 @@ if magma_plot:
     ax2.set_ylim(0,max(df.ratio))
     ax2.set_xlim(0,max(df.time))
     fig2.savefig(figpath+model+'_ratio.png')
+'''
+#--------------------------------------------------------------------
 if marker_number != 0:
     mr = count_marker(marker_number)
     #plt.plot(mr,c='b')
