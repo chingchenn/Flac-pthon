@@ -127,18 +127,18 @@ def get_magma(start_vts=1,model_steps=end-1):
     magma=np.zeros(end)
     yymelt=np.zeros(end)
     yychamber=np.zeros(end)
-    rrr=np.zeros(end)
+    arc_vol=np.zeros(end)
     for i in range(1,end):
         x,z=fl.read_mesh(i)
+        phase = fl.read_phase(i)
         mm=fl.read_fmelt(i)
         chamber=fl.read_fmagma(i)
         melt[i] = np.max(mm)
         magma[i] = np.max(chamber)
-        if np.max(chamber) !=0:
-            rrr[i]=np.max(mm)/np.max(chamber)
+        arc_vol[i]=np.sum(fl.read_area(i)[phase ==14])/1e6
         yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
-    return melt,magma,yymelt,yychamber,rrr
+    return melt,magma,yymelt,yychamber,arc_vol
 magmafile=path+'data/magma_for_'+model+'.csv' 
 def count_marker(phase,start=1,end_frame=end):
     mr = np.zeros(end_frame-start)

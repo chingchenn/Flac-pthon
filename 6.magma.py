@@ -31,6 +31,14 @@ def get_magma(start_vts=1,model_steps=end-1):
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,arc_vol
 time =cd.read_time(1,end-1) 
+#----------------------------------------------------------------------------
+lam0 = 1e-12
+lam_tdep = 4e-2
+delT=1440 #temperature diffence from surface to depth
+lam = lam0*(1+np.exp(lam_tdep*delT))
+prod = 6e-13
+total_magma = prod*dt - fmagma*np.exp(-lam*dt)
+#----------------------------------------------------------------------------
 melt,magma,yymelt,yychamber,arc_vol=get_magma(1,end)
 fig, (ax,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(15,15))
 ax.plot(time,yymelt,color='tomato')
