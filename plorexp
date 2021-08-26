@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Aug 24 22:50:47 2021
+
+@author: ji-chingchen
+"""
+import numpy as np
+# import matplotlib
+# matplotlib.use('TkAgg') 
+import matplotlib.pyplot as plt
+magma=1e-14
+dt=2
+lam0 = 1e-12
+# lam0 = np.logspace(-10,-15)
+lam_tdep = 8e-3
+lam_tdep = np.logspace(-2,-8)
+delT=600-10
+lam = lam0*(1+np.exp(-lam_tdep*delT))
+prod = 6e-13
+dt = 2
+total_magma=prod * dt - magma * np.exp(-lam * dt)
+# print(lam_tdep,lam)
+
+fig, (ax)= plt.subplots(1,1,figsize=(12,8))
+# x = np.linspace(-1, 2, 100)
+# y = np.exp(x)
+ax.plot(lam_tdep,lam,'r--')
+
+l12t2=lam0*(1+np.exp(-1e-2*delT))
+l12t3=lam0*(1+np.exp(-1e-3*delT))
+l12t4=lam0*(1+np.exp(-1e-4*delT))
+l12t5=lam0*(1+np.exp(-1e-5*delT))
+l12t6=lam0*(1+np.exp(-1e-6*delT))
+l12t7=lam0*(1+np.exp(-1e-7*delT))
+ax.scatter(1e-7,l12t7,c='r')
+ax.scatter(1e-3,l12t3,c='r')
+ax.scatter(1e-2,l12t2,c='r')
+
+# lam0=2e-12
+# l12t2=lam0*(1+np.exp(-1e-2*delT))
+# l12t3=lam0*(1+np.exp(-1e-3*delT))
+# l12t4=lam0*(1+np.exp(-1e-4*delT))
+# l12t5=lam0*(1+np.exp(-1e-5*delT))
+# l12t6=lam0*(1+np.exp(-1e-6*delT))
+# l12t7=lam0*(1+np.exp(-1e-7*delT))
+# ax.scatter(1e-7,l12t7,c='b')
+# ax.scatter(1e-3,l12t3,c='b')
+# ax.scatter(1e-2,l12t2,c='b')
+# lam = lam0*(1+np.exp(-lam_tdep*delT))
+# ax.plot(lam_tdep,lam,'b--')
+ax.set_xscale("log")
+# ax.set_yscale("log")
+# fig.savefig('test.png')
+# fig2, (ax2)= plt.subplots(1,1,figsize=(12,8))
+# ax2.plot(lam,np.exp(-lam * dt),'k')
+# ax2.set_xscale("log")
+# ax2.set_yscale("log")
