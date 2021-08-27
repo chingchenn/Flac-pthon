@@ -4,10 +4,10 @@ import flac
 import os,sys
 import numpy as np
 from matplotlib import cm
-import creat_database as cd
 import matplotlib.pyplot as plt
 model = str(sys.argv[1])
-path = '/home/jiching/geoflac/'+model+'/'
+#path = '/home/jiching/geoflac/'+model+'/'
+path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
 #path = model
 print(model)
 os.chdir(path)
@@ -30,18 +30,24 @@ def get_magma(start_vts=1,model_steps=end-1):
         yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,arc_vol
-time =cd.read_time(1,end-1) 
+def read_time(start_vts,model_steps):
+    timestep=[0]
+    for step in range(start_vts,model_steps+1):
+        timestep.append(fl.time[step])
+    # timestep=np.array(timestep)
+    return timestep
+time =read_time(1,end-1) 
 #----------------------------------------------------------------------------
-lam0 = 1e-12
-lam_tdep = 4e-2
-delT=1440 #temperature diffence from surface to depth
-lam = lam0*(1+np.exp(lam_tdep*delT))
-prod = 6e-13
-total_magma = prod*dt - fmagma*np.exp(-lam*dt)
+#lam0 = 1e-12
+#lam_tdep = 4e-2
+#delT=1440 #temperature diffence from surface to depth
+#lam = lam0*(1+np.exp(lam_tdep*delT))
+#prod = 6e-13
+#total_magma = prod*dt - fmagma*np.exp(-lam*dt)
 #----------------------------------------------------------------------------
 melt,magma,yymelt,yychamber,arc_vol=get_magma(1,end)
 fig, (ax,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(15,15))
-ax.plot(time,yymelt,color='tomato')
+ax.bar(time,yymelt,width=0.1,color='tomato')
 ax2.plot(time,yychamber,color='orange')
 ax3.bar(time,melt,width=0.1,color='tomato',label='fmelt')
 ax4.plot(time,arc_vol,color='orange',label='magma')
@@ -74,4 +80,5 @@ ax2.tick_params(axis='y', labelsize=16 )
 ax3.tick_params(axis='y', labelsize=16 )
 ax4.tick_params(axis='y', labelsize=16 )
 ax.set_title('Model : '+model,fontsize=25)
-fig.savefig('/home/jiching/geoflac/figure/'+model+'_arc+magma.png')
+#fig.savefig('/home/jiching/geoflac/figure/'+model+'_arc+magma.png')
+fig.savefig('/Users/ji-chingchen/Desktop/figure/'+model+'_arc+magma.png')
