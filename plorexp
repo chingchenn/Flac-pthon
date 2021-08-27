@@ -27,6 +27,7 @@ range_lam0 = np.logspace(-11,-12,20)
 for kk,lam0 in enumerate (range_lam0):
     for lam_ttdep in lam_tdep:
         llt = lam(lam0,lam_ttdep)
+<<<<<<< HEAD
         ax.scatter(lam_ttdep,llt,c=color_list[kk],label=str(range_lam0[kk]))
         # ax.scatter(lam0,llt,c=color_list[kk],label=str(lam0))
 ax.set_xscale("log")
@@ -54,3 +55,8 @@ ax.tick_params(axis='x', labelsize=16 )
 ax2.tick_params(axis='x', labelsize=16 )
 ax.tick_params(axis='y', labelsize=16 )
 ax2.tick_params(axis='y', labelsize=16 )
+=======
+        ax.scatter(lam_ttdep,llt,c=color_list[kk],label=str(lam0))
+ax.set_xscale("log")
+# ax.set_yscale("log")
+>>>>>>> e4c36bbaaf1778e9d19e1b7ae7f8287768da1f19
