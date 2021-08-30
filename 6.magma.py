@@ -5,8 +5,8 @@ import os,sys
 import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
-# model = str(sys.argv[1])
-model = 'w0934'
+model = str(sys.argv[1])
+# model = 'w0934'
 #path = '/home/jiching/geoflac/'+model+'/'
 path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
 #path = model
@@ -64,7 +64,7 @@ ax3.set_ylabel('max fmelt',fontsize=20)
 ax4.set_ylabel('max fmagma',fontsize=20)
 ax5.set_ylabel('arc area',fontsize=20)
 ax.set_ylim(0,3)
-ax2.set_ylim(0,500)
+ax2.set_ylim(0,100)
 ax3.set_ylim(0,0.025)
 ax4.set_ylim(0,0.051)
 ax5.set_ylim(0,300)
