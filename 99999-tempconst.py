@@ -3,67 +3,91 @@ import math
 import flac
 import os,sys
 import numpy as np
+import pandas as pd
 from matplotlib import cm
 import matplotlib.pyplot as plt
-model = str(sys.argv[1])
-path = '/home/jiching/geoflac/'+model+'/'
-#path = '/scratch2/jiching/'+model+'/'
+import function_savedata as fs
+
+
+
+model = 'w0823'
+#path = '/home/jiching/geoflac/'+model+'/'
+path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
+savepath='/Users/ji-chingchen/Desktop/model/data/'
+print(model)
 os.chdir(path)
-fl = flac.Flac();end = fl.nrec
-nex = fl.nx - 1;nez = fl.nz - 1
-fig, (ax,ax2)= plt.subplots(2,1,figsize=(10,12))
+# fl = flac.Flac()
+fl = flac.FlacFromVTK();end = fl.nrec
+melting_plot = 1
+melting = 1
 
-phase_oceanic = 3
-phase_ecolgite = 13
-phase_oceanic_1 = 17
-phase_ecolgite_1 = 18
-angle = np.zeros(end)
 
-rainbow = cm.get_cmap('gray_r',end)
-newcolors = rainbow(np.linspace(0, 1, end))
-
-for i in range(1,end):
-    x, z = fl.read_mesh(i)
-    ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
-    ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
-    phase = fl.read_phase(i)
-    trench_ind = np.argmin(z[:,0])
-    temp = fl.read_temperature(i)
-    if z[trench_ind,0] > -2:  
-        print (i)
-        continue
-    crust_x = np.zeros(nex)
-    crust_z = np.zeros(nex)
-    for j in range(trench_ind,nex):
-        ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
-        if True in ind_oceanic:
-            crust_x[j] = np.average(ele_x[j,ind_oceanic])
-            crust_z[j] = np.average(ele_z[j,ind_oceanic])
-    ax.plot(crust_x[crust_z < 0],crust_z[crust_z < 0],color=newcolors[i],zorder=1)
-    
-    ind_within_80km = (crust_z >= -80) * (crust_z < -25)
-    if not True in (crust_z < -80):
-        continue
-
-    crust_xmin = np.amin(crust_x[ind_within_80km])
-    crust_xmax = np.amax(crust_x[ind_within_80km])
-    crust_zmin = np.amin(crust_z[ind_within_80km])
-    crust_zmax = np.amax(crust_z[ind_within_80km])
-    dx = crust_xmax - crust_xmin
-    dz = crust_zmax - crust_zmin
-    angle[i] = math.degrees(math.atan(dz/dx))
-ax.plot([100,600],[-100,-100],'--',zorder=0,color='grey')
-ax.set_aspect('equal')
-ax.set_xlabel('Distance (km)')
-ax.set_ylabel('Depth (km)')
-# ax.set_xlim(100,600)
-ax.set_title('Geometry of Subducted Slab')
-
-ax2.plot(fl.time[angle>0],angle[angle>0],c='blue',lw=2)
-# ax2.set_xlim(0,24)
-ax2.set_xticks(np.linspace(0,30,6))
-# ax2.set_ylim(15,30)
-ax2.set_title('Angle Variation')
-ax2.set_xlabel('Time (Myr)')
-ax2.set_ylabel('Angel ($^\circ$)')
-#plt.savefig('/home/jiching/geoflac/'+'figure/'+model+'_tempdip.jpg')
+def get_magma(start_vts=1,model_steps=end-1):
+    melt=np.zeros(end)
+    magma=np.zeros(end)
+    yymelt=np.zeros(end)
+    yychamber=np.zeros(end)
+    arc_vol=np.zeros(end)
+    for i in range(1,end):
+        x,z=fl.read_mesh(i)
+        phase = fl.read_phase(i)
+        mm=fl.read_fmelt(i)
+        chamber=fl.read_fmagma(i)
+        melt[i] = np.max(mm)
+        magma[i] = np.max(chamber)
+        arc_vol[i]=np.sum(fl.read_area(i)[phase ==14])/1e6
+        yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
+        yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
+    return melt,magma,yymelt,yychamber,arc_vol
+time =fl.time
+def melting_phase(start_vts=1,model_steps=end-1):
+    melt_num = np.zeros(end)
+    phase_p4=np.zeros(end)
+    phase_p9=np.zeros(end)
+    phase_p10=np.zeros(end)
+    po=np.zeros(end)
+    for i in range(1,end):
+        c=0;p9=0;p4=0;pk=0;p10=0
+        x, z = fl.read_mesh(i)
+        mm=fl.read_fmelt(i)
+        phase=fl.read_phase(i)
+        for xx in range(len(mm)):
+            for zz in range(len(mm[0])):
+                if mm[xx,zz] != 0:
+                    if phase[xx,zz]==9:
+                        p9 += 1
+                    elif phase[xx,zz]==4:
+                        p4 += 1
+                    elif phase[xx,zz]==10:
+                        p10 += 1
+                    c +=1
+        pk=c-p4-p9-p10
+        melt_num[i]=c
+        phase_p4[i]=p4
+        phase_p9[i]=p9
+        phase_p10[i]=p10
+        po[i]=pk
+    return phase_p4,phase_p9,phase_p10,po
+if melting:
+    print('-----creat magma database-----')
+    name='melting_'+model
+    phase_p4,phase_p9,phase_p10,po=melting_phase()
+    fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
+                'time','phase_4','phase_9','phase_10','others')
+    print('=========== DONE =============')       
+if melting_plot:
+    path = '/Users/ji-chingchen/Desktop/model/'
+    name='melting_'+model
+    df=pd.read_csv(path+'data/'+name+'.csv')
+    fig, (ax) = plt.subplots(1,1,figsize=(18,12))
+    ax.bar(df.time,df.phase_9,width=0.17,color='orange',label='serpentinite ')
+    ax.bar(df.time,df.phase_4,bottom=df.phase_9,width=0.17,color='seagreen',label='olivine')
+    ax.bar(df.time,df.phase_10,bottom=df.phase_9+df.phase_4,width=0.17,color='tomato',label='sediments')
+    ax.bar(df.time,df.others,bottom=df.phase_9+df.phase_4+df.phase_10,width=0.17,color='k',label='serpentinite')
+    ax.set_xlim(0,24)
+    ax.grid()
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
+    ax.set_title('Model : '+model,fontsize=25)
+    ax.set_xlabel('Time (Myr)',fontsize=20)
+    ax.set_ylabel('number of elements in phases',fontsize=20)

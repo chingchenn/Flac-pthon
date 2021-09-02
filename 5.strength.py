@@ -19,7 +19,7 @@ import function_for_flac as f2
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import figure
 print('wwwww')
-model='w0611'
+model='w1011'
 yy=70
 path = '/home/jiching/geoflac/'+model+'/'
 path = '/Volumes/My Book/model/'+model+'/'
@@ -155,8 +155,8 @@ visco_strength=visco_strength
 ax.plot(visco_strength,-z/1000,'--r',alpha=0.5)
 ax.plot(frico_strength2,depth,'--b',alpha=0.5)
 # ax.plot(applied_strength,depth,'k',lw=3)
-ax.set_ylim(-60,0)                                     
-ax.set_xlim(0,100000000000)
+ax.set_ylim(-80,0)                                     
+# ax.set_xlim(0,1000000)
 ax.set_title('Rock Strength',fontsize=26)
 ax.set_xlabel('Strength (MPa)',fontsize=22)
 ax.set_ylabel('Depth (km)',fontsize=22)

@@ -15,25 +15,25 @@ from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as f2
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import figure
-
 
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
 trench_location = 0
-magma = 1
+magma = 0
 gravity = 0
-gravity_frame=0
+gravity_frame = 0
+melting = 1
 # plot data
 trench_plot = 0
-magma_plot = 1
+magma_plot = 0
 marker_number = 0
 gravity_plot = 0
 phase_plot=0
 phase_accre = 0
+melting_plot = 1
 
-#---------------------------------- setting -----------------------------------
+#---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/'
 savepath='/home/jiching/geoflac/data/'
@@ -47,7 +47,6 @@ end = fl.nrec
 nex = fl.nx - 1
 nez = fl.nz - 1
 #------------------------------------------------------------------------------
-
 def read_time(start_vts,model_steps):
     timestep=[0]
     for step in range(start_vts,model_steps+1):
@@ -156,6 +155,35 @@ def count_marker(phase,start=1,end_frame=end):
                 count += 1
         mr[end_frame-i-1]=count   
     return mr
+def melting_phase(start_vts=1,model_steps=end-1):
+    melt_num = np.zeros(end)
+    phase_p4=np.zeros(end)
+    phase_p9=np.zeros(end)
+    phase_p10=np.zeros(end)
+    po=np.zeros(end)
+    for i in range(1,end):
+        c=0;p9=0;p4=0;pk=0;p10=0
+        x, z = fl.read_mesh(i)
+        mm=fl.read_fmelt(i)
+        phase=fl.read_phase(i)
+        for xx in range(len(mm)):
+            for zz in range(len(mm[0])):
+                if mm[xx,zz] != 0:
+                    if phase[xx,zz]==9:
+                        p9 += 1
+                    elif phase[xx,zz]==4:
+                        p4 += 1
+                    elif phase[xx,zz]==10:
+                        p10 += 1
+                    c +=1
+        pk=c-p4-p9-p10
+        melt_num[i]=c
+        phase_p4[i]=p4
+        phase_p9[i]=p9
+        phase_p10[i]=p10
+        po[i]=pk
+    return phase_p4,phase_p9,phase_p10,po
+time=fl.time
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -164,8 +192,6 @@ cd %(file)s
 python /home/jiching/geoflac/util/flacmarker2vtk.py . -1
 ''' % locals()
    os.system(cmd)
-# if not os.path.exists(trenchfile):
-
 if trench_location:
     print('-----creat trench database-----')
     name='trench_for_'+model
@@ -188,6 +214,13 @@ if magma:
     fs.save_6array(name,savepath,time,melt,chamber,yymelt,yychamber,rrr,
                    'time','fmelt','chamber','production','volume','ratio')
     print('=========== DONE =============')
+if melting:
+    print('-----creat magma database-----')
+    name='melting_'+model
+    phase_p4,phase_p9,phase_p10,po=melting_phase()
+    fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
+                'time','phase_4','phase_9','phase_10','others')
+    print('=========== DONE =============')
 
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
@@ -203,7 +236,7 @@ if trench_plot:
     ax.set_ylabel('Time (Myr)',fontsize=20)
     ax.set_xlabel('distance (km)',fontsize=20)
     cbar.set_label('topography (km)',fontsize=20)
-    plt.savefig(figpath+model+'_topo.jpg')
+    plt.savefig(figpath+model+'_topo.png')
 if magma_plot:
     name='magma_for_'+model
     df = pd.read_csv(path+'data/'+name+'.csv')
@@ -274,7 +307,7 @@ if gravity_plot:
     fig.colorbar(qqq,ax=ax)
     ax2.set_title('bourger gravoty anomaly')
     ax.set_title('free-air gravity anomaly')
-    plt.savefig(figpath+model+'_gravity.jpg')
+    plt.savefig(figpath+model+'_gravity.png')
 if phase_plot:
     name = 'phase_for'+model
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
@@ -294,7 +327,7 @@ if phase_plot:
     ax_cbin = fig.add_axes([0.27, 0.03, 0.23, 0.03])
     cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Phase')
-    fig.savefig(figpath+model+'_phase.jpg')
+    fig.savefig(figpath+model+'_phase.png')
 if phase_accre:
     name='trench_for_'+model
     df = pd.read_csv(path+'data/'+name+'.csv')
@@ -317,4 +350,20 @@ if phase_accre:
     cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Phase')
     ax.plot(df.trench_x,df.time,c='k',lw=2)    
-    fig.savefig(figpath+model+'_acc.jpg')
+    fig.savefig(figpath+model+'_acc.png')
+if melting_plot:
+    name='melting_'+model
+    df=pd.read_csv(path+'data/'+name+'.csv')
+    fig, (ax) = plt.subplots(1,1,figsize=(18,12))
+    ax.bar(df.time,df.phase_p9,width=0.17,color='orange',label='serpentinite ')
+    ax.bar(df.time,df.phase_p4,bottom=df.phase_p9,width=0.17,color='seagreen',label='olivine')
+    ax.bar(df.time,df.phase_p10,bottom=df.phase_p9+df.phase_p4,width=0.17,color='tomato',label='sediments')
+    ax.bar(df.time,df.others,bottom=df.phase_p9+df.phase_p4+df.phase_p10,width=0.17,color='k',label='serpentinite')
+    ax.set_xlim(0,24)
+    ax.grid()
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
+    ax.set_title('Model : '+model,fontsize=25)
+    ax.set_xlabel('Time (Myr)',fontsize=20)
+    ax.set_ylabel('number of elements in phases',fontsize=20)
+    fig.savefig(figpath+model+'_bar_plot_melting.png')
