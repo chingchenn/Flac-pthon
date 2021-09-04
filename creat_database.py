@@ -48,12 +48,18 @@ nex = fl.nx - 1
 nez = fl.nz - 1
 time=fl.time
 #------------------------------------------------------------------------------
-def read_time(start_vts,model_steps):
-    timestep=[0]
-    for step in range(start_vts,model_steps+1):
-        timestep.append(fl.time[step])
-    # timestep=np.array(timestep)
-    return timestep
+def trench(start_vts=1,model_steps=end):
+    trench_x=[0]
+    trench_z=[0]
+    trench_index=[0]
+    for i in range(start_vts,model_steps):
+        x,z = fl.read_mesh(i+1)
+        sx,sz=f2.get_topo(x,z,i+1)
+        arc_ind,trench_ind=f2.find_trench_index(z)
+        trench_index.append(sx[trench_ind])
+        trench_x.append(sx[trench_ind])
+        trench_z.append(sx[trench_ind])
+    return trench_index,trench_x,trench_z
 
 def get_topo(start=1,end_frame=end):
     topo = [];dis = [];time = []
@@ -286,6 +292,17 @@ if magma_plot:
 #--------------------------------------------------------------------
 if marker_number != 0:
     mr = count_marker(marker_number)
+     #plt.plot(mr,c='b')
+if gravity_plot:
+    name='gravity_for_'+model
+    fig, (ax,ax2)= plt.subplots(1,2,figsize=(22,12)) 
+    dis,time,to,tom,fa,bg=get_gravity(1,end)
+    qqq=ax.scatter(dis,time,c=fa,cmap='Spectral',vmax=400,vmin=-400)
+    ax2.scatter(dis,time,c=bg,cmap='Spectral',vmax=400,vmin=-400)
+    fig.colorbar(qqq,ax=ax)
+    ax2.set_title('bourger gravoty anomaly')
+    ax.set_title('free-air gravity anomaly')
+    plt.savefig(figpath+model+'_gravity.png')
 
 if phase_plot:
     name = 'phase_for'+model
