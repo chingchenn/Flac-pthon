@@ -39,14 +39,6 @@ def read_time(start_vts,model_steps):
     # timestep=np.array(timestep)
     return timestep
 time =fl.time
-#----------------------------------------------------------------------------
-#lam0 = 1e-12
-#lam_tdep = 4e-2
-#delT=1440 #temperature diffence from surface to depth
-#lam = lam0*(1+np.exp(lam_tdep*delT))
-#prod = 6e-13
-#total_magma = prod*dt - fmagma*np.exp(-lam*dt)
-#----------------------------------------------------------------------------
 melt,magma,yymelt,yychamber,arc_vol=get_magma(1,end)
 fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,figsize=(15,17))
 ax.bar(time,yymelt,width=0.1,color='tomato')

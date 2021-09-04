@@ -6,10 +6,13 @@ Created on Thu May  8 13:28:16 2021
 @author: jiching
 """
 
-import flac
-import sys,os, math
+
+import sys
 import numpy as np
-import function_savedata as fs
+from math import sqrt
+from scipy.special import erf
+
+
 
 sys.path.append('/home/jiching/geoflac/util')
 
@@ -91,3 +94,91 @@ def moving_window_smooth(array,window_width):
     for kk in range((len(array)-temp+1),len(array)+1):
         new_array.append(array[kk-1])
     return new_array
+def half_space_cooling_T(z, Tsurf, Tmantle,  age_in_myrs):
+    diffusivity = 1e-6
+    myrs2sec = 86400 * 365.2425e6
+
+    T = Tsurf + (Tmantle - Tsurf) * erf(z /
+            sqrt(4 * diffusivity * age_in_myrs * myrs2sec) )
+    return T
+
+def continental_geothermal_T(z,cond1,cond2,depth):
+    T = np.zeros_like(z)
+    for kk,zz in enumerate(z):
+        if zz/1000 > depth:
+            T[kk]= depth * cond1 + (zz/1000-depth) * cond2
+        else:T[kk] = cond1 * zz/1000
+    return T
+def get_visc(edot, T, n, A, E):
+    '''edot: second invariant of strain rate
+    T: temperature in Celsius
+    n, A, E: viscosity parameters
+    return viscosity in Pascal.s
+    '''
+    R = 8.31448  # gas constant
+    pow = 1.0/n - 1
+    pow1 = -1.0/n
+    visc = 0.25 * (edot**pow) * (0.75*A)**pow1 * np.exp(E / (n * R * (T + 273))) * 1e6
+    return visc
+
+def visc_profile(z, T, edot, layerz, nAEs):
+    '''Viscosity profile of multi-layers
+    z: numpy array of depth (in meters)
+    T: array of temperature (in Celsius)
+    edot: strain rate (in 1/second)
+    layerz: (0, z1, z2, ...) the depth interface of the layers
+    nAEs: ( ..., (n, A, E), ...) visc parameters of each layers
+    '''
+
+    if layerz[0] != 0:
+        print("Error: layerz[0] is not 0", layerz)
+    nlayers = len(layerz)
+    layerz = tuple(layerz) + (z[-1],)  # deepest depth
+
+    viscp = np.zeros_like(z)
+    for i in range(nlayers):
+        n, A, E = nAEs[i][:]
+        vs = get_visc(edot, T, n, A, E)
+
+        # find depth range of each layer
+        z0, z1 = layerz[i], layerz[i+1]
+        n0 = (z >= z0).argmax()
+        n1 = (z >= z1).argmax()
+        #print(i, z0, fz1, n0, n1)
+
+        viscp[n0:n1] = vs[n0:n1]
+    return viscp
+
+def plastic_stress(z,layerz,Dfc,g=9.81):
+    if layerz[0] != 0:
+        print("Error: layerz[0] is not 0", layerz)
+    nlayers = len(layerz)
+    layerz = tuple(layerz) + (z[-1],)  # deepest depth
+
+    plast = np.zeros_like(z)
+    for i in range(nlayers):
+        den, fric1, coh1 = Dfc[i][:]
+        ps= z * den * g * np.tan(np.pi*(fric1/180.0))+coh1 
+        z0, z1 = layerz[i], layerz[i+1]
+        n0 = (z >= z0).argmax()
+        n1 = (z >= z1).argmax()
+        plast[n0:n1] = ps[n0:n1]
+    return plast
+
+def get_strength():
+    layerz = (0, 18e3, 30e3)   # 1st elem must be 0
+    Dfc = ((2800,30,4e7),
+           (2900,30,4e7),
+           (3300,30,4e7))
+    nAEs = ( (3.05, 1.25e-1, 2.76e+5),
+           (3.05, 1.25e-1, 3.76e+5),
+           (3.00, 7.00e+4, 5.20e+5))
+    edot = 1e-14  # high strain rate
+    edot = 1e-15  # low strain rate
+    deepz = layerz[-1] * 3
+    z = np.linspace(0, deepz, num=1000)
+    frico_strength = plastic_stress(z,layerz,Dfc)
+    con_T = continental_geothermal_T(z,20, 6,45)
+    visc = visc_profile(z, con_T, edot, layerz, nAEs)
+    visco_strength=visc* edot *2 #Pa
+    return frico_strength,visco_strength

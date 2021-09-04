@@ -76,4 +76,3 @@ if __name__ == "__main__":
     T = half_space_cooling_T(z, 10, 1330, 150)
 
     visc = visc_profile(z, T, edot, layerz, nAEs)
-

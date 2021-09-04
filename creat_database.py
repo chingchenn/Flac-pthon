@@ -31,7 +31,7 @@ marker_number = 0
 gravity_plot = 0
 phase_plot=0
 phase_accre = 0
-melting_plot = 1
+melting_plot = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -46,6 +46,7 @@ fl = flac.Flac()
 end = fl.nrec
 nex = fl.nx - 1
 nez = fl.nz - 1
+time=fl.time
 #------------------------------------------------------------------------------
 def read_time(start_vts,model_steps):
     timestep=[0]
@@ -53,19 +54,7 @@ def read_time(start_vts,model_steps):
         timestep.append(fl.time[step])
     # timestep=np.array(timestep)
     return timestep
-time=read_time(1,end-1)
-def trench(start_vts=1,model_steps=end):
-    trench_x=[0]
-    trench_z=[0]
-    trench_index=[0]
-    for i in range(start_vts,model_steps):
-        x,z = fl.read_mesh(i+1)
-        sx,sz=f2.get_topo(x,z,i+1)
-        arc_ind,trench_ind=f2.find_trench_index(z)
-        trench_index.append(sx[trench_ind])
-        trench_x.append(sx[trench_ind])
-        trench_z.append(sx[trench_ind])
-    return trench_index,trench_x,trench_z
+
 def get_topo(start=1,end_frame=end):
     topo = [];dis = [];time = []
     trench_index, xtrench, ztrench=trench(start,end_frame)
@@ -155,20 +144,21 @@ def count_marker(phase,start=1,end_frame=end):
                 count += 1
         mr[end_frame-i-1]=count   
     return mr
-def melting_phase(start_vts=1,model_steps=end-1):
+def melting_phase():
     melt_num = np.zeros(end)
     phase_p4=np.zeros(end)
     phase_p9=np.zeros(end)
     phase_p10=np.zeros(end)
     po=np.zeros(end)
     for i in range(1,end):
-        c=0;p9=0;p4=0;pk=0;p10=0
+        c=0;p9=0;p4=0;p10=0
         x, z = fl.read_mesh(i)
         mm=fl.read_fmelt(i)
         phase=fl.read_phase(i)
         for xx in range(len(mm)):
             for zz in range(len(mm[0])):
                 if mm[xx,zz] != 0:
+                    print()
                     if phase[xx,zz]==9:
                         p9 += 1
                     elif phase[xx,zz]==4:
@@ -183,7 +173,6 @@ def melting_phase(start_vts=1,model_steps=end-1):
         phase_p10[i]=p10
         po[i]=pk
     return phase_p4,phase_p9,phase_p10,po
-time=fl.time
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -297,17 +286,7 @@ if magma_plot:
 #--------------------------------------------------------------------
 if marker_number != 0:
     mr = count_marker(marker_number)
-    #plt.plot(mr,c='b')
-if gravity_plot:
-    name='gravity_for_'+model
-    fig, (ax,ax2)= plt.subplots(1,2,figsize=(22,12)) 
-    dis,time,to,tom,fa,bg=get_gravity(1,end)
-    qqq=ax.scatter(dis,time,c=fa,cmap='Spectral',vmax=400,vmin=-400)
-    ax2.scatter(dis,time,c=bg,cmap='Spectral',vmax=400,vmin=-400)
-    fig.colorbar(qqq,ax=ax)
-    ax2.set_title('bourger gravoty anomaly')
-    ax.set_title('free-air gravity anomaly')
-    plt.savefig(figpath+model+'_gravity.png')
+
 if phase_plot:
     name = 'phase_for'+model
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
@@ -358,7 +337,7 @@ if melting_plot:
     ax.bar(df.time,df.phase_p9,width=0.17,color='orange',label='serpentinite ')
     ax.bar(df.time,df.phase_p4,bottom=df.phase_p9,width=0.17,color='seagreen',label='olivine')
     ax.bar(df.time,df.phase_p10,bottom=df.phase_p9+df.phase_p4,width=0.17,color='tomato',label='sediments')
-    ax.bar(df.time,df.others,bottom=df.phase_p9+df.phase_p4+df.phase_p10,width=0.17,color='k',label='serpentinite')
+    ax.bar(df.time,df.others,bottom=df.phase_p9+df.phase_p4+df.phase_p10,width=0.17,color='k',label='others')
     ax.set_xlim(0,24)
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
@@ -366,4 +345,5 @@ if melting_plot:
     ax.set_title('Model : '+model,fontsize=25)
     ax.set_xlabel('Time (Myr)',fontsize=20)
     ax.set_ylabel('number of elements in phases',fontsize=20)
+    ax.legend(fontsize=25)
     fig.savefig(figpath+model+'_bar_plot_melting.png')

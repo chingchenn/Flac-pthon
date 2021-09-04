@@ -66,10 +66,10 @@ def get_strength(xindex,frame=end,edot=1e-15,g=9.81):
     visco_strength=visco_strength/1e8
     frico_strength2=frico_strength2/1e3
     #-------------------
-    return visco_strength, firco_strength2 
+    return visco_strength, frico_strength2 
 
 if strength_profile:
-    visco_strength, frico_strength = get_strength(strength_profile,frame=end,edot=1e-15,g=9.81):
+    visco_strength, frico_strength2 = get_strength(strength_profile,frame=end,edot=1e-15,g=9.81)
     fig, ax = plt.subplots(1,1,figsize=(6,10))
     applied_strength = np.amin((visco_strength,frico_strength2),axis=0)
     ax.plot(visco_strength,depth,'--r',alpha=0.5)
@@ -81,4 +81,4 @@ if strength_profile:
     ax.set_xlabel('Strength (MPa)',fontsize=22)
     ax.set_ylabel('Depth (km)',fontsize=22)
     ax.grid()
-    fig.savefig('/home/jiching/geoflac/figure/'+str(model)+'_'+str(frame)+str(strength_profile)+'strengthfortest'+'.png')
+    
