@@ -10,13 +10,22 @@ import numpy as np
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 
-layerz = (0, 18e3, 30e3)   # 1st elem must be 0
-Dfc = ((2800,30,4e7),
-       (2900,30,4e7),
-       (3300,30,4e7))
+# layerz = (0, 18e3, 36e3)   # 1st elem must be 0
+# Dfc = ((2800,30,4e7), #phase 2
+       # (2900,30,4e7), #phase 6
+       # (3300,30,4e7)) #phase 4
+# nAEs = ((3.05, 1.25e-1, 2.76e+5),
+        # (3.05, 1.25e-1, 2.76e+5),
+       # (3.05, 7.00e+4, 5.20e+5))
+layerz = (0, 18e3, 30e3, 40e3)   # 1st elem must be 0
+Dfc = ((2800,30,4e7), #phase 2
+        (2900,30,4e7), #phase 6
+        (3100,30,4e7), #phase19
+        (3300,30,4e7)) #phase 4
 nAEs = ((3.05, 1.25e-1, 2.76e+5),
-       (3.05, 1.25e-1, 2.76e+5),
-       (3.00, 7.00e+4, 5.76e+5))
+        (3.05, 1.25e-1, 3.76e+5),
+        (3.1, 7.00e+5, 5.76e+5),
+        (3.00, 1.25e-1, 5.76e+5))
 edot = 1e-14  # high strain rate
 edot = 1e-16  # low strain rate
 deepz = layerz[-1] * 4
@@ -25,7 +34,7 @@ z = np.linspace(0, deepz, num=1000)
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
 frico_strength = f2.plastic_stress(z,layerz,Dfc)
-con_T = f2.continental_geothermal_T(z,22,6,45)
+con_T = f2.continental_geothermal_T(z,20,6,45)
 visc = f2.visc_profile(z, con_T, edot, layerz, nAEs)
 visco_strength=visc* edot *2 #Pa
 #------------------------------------------------------------------------------
