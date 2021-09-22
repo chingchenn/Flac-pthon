@@ -150,10 +150,9 @@ def visc_profile(z, T, edot, layerz, nAEs):
     return viscp
 
 def plastic_stress(z,layerz,Dfc,g=9.81):
-    if layerz[0] != 0:
-        print("Error: layerz[0] is not 0", layerz)
+
     nlayers = len(layerz)
-    layerz = tuple(layerz) + (z[-1],)  # deepest depth
+    layerz = tuple(layerz) + (z[-1],)  
 
     plast = np.zeros_like(z)
     for i in range(nlayers):
