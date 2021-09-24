@@ -14,10 +14,11 @@ import matplotlib.pyplot as plt
 import function_for_flac as f2
 # model = str(sys.argv[1])
 # path = '/home/jiching/geoflac/'+model+'/'
-model='w1202'
+model='w1261'
     # path = '/scratch2/jiching/'+model+'/'
     # path = '/home/jiching/geoflac/'+model+'/'
-path = '/Volumes/My Book/model/'+model+'/'
+# path = '/Volumes/My Book/model/'+model+'/'
+path = '/Volumes/SSD500/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 # flk = flac.FlacFromVTK()
@@ -28,14 +29,15 @@ phase_ecolgite = 13
 phase_oceanic_1 = 17
 phase_ecolgite_1 = 18
 angle = np.zeros(end)
+bet = 1.2
 
 rainbow = cm.get_cmap('gray_r',end)
 newcolors = rainbow(np.linspace(0, 1, end))
 
-for i in range(117,118):
+for i in range(137,138):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
-    trench_ind = np.argmin(z[:,0]) # node的id
+    trench_ind = np.argmin(z[:,0]) 
     x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
 
     m=[]; m2=[]
@@ -49,10 +51,10 @@ for i in range(117,118):
     bbb.set_ylim(-100,0)
     bbb.set_xlim(start,final)
     bbb.set_aspect('equal')
-    x_grid = np.arange(start,final,2)
+    x_grid = np.arange(start,final,bet)
     ox = np.zeros(len(x_grid))
     oz = np.zeros(len(x_grid))
-    px = start-2
+    px = start-bet
     for yy,xx in enumerate(x_grid):
         oz[yy] = np.average(z_ocean[(x_ocean>=px) *(x_ocean<=xx)])
         ox[yy] = np.average(x_ocean[(x_ocean>=px) *(x_ocean<=xx)])
@@ -82,7 +84,7 @@ for i in range(117,118):
     
     aaa.plot(qq,m,color='gray',zorder=1)
     aaa.plot(qq,mmm,color='k',zorder=1)
-    aaa.plot([start,final],[0,0],'--',zorder=0,color='red')
+    ccc.plot([start,final],[0,0],'--',zorder=0,color='red')
     bbb.set_title('frame='+str(i))
     aaa.set_xlim(start,final)
     aaa.grid();ccc.grid() 
