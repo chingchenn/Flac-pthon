@@ -37,7 +37,7 @@ z = np.linspace(0, deepz, num=1000)
 frico_strength = f2.plastic_stress(z,layerz,Dfc)
 con_T = f2.continental_geothermal_T(z,20,6,45)
 visc = f2.visc_profile(z, con_T, edot, layerz, nAEs)
-visco_strength=visc* edot *2 #Pa
+visco_strength = visc* edot *2 #Pa
 #------------------------------------------------------------------------------
 fig, ax = plt.subplots(1,1,figsize=(6,10))
 applied_strength = np.amin((visco_strength,frico_strength),axis=0)
@@ -50,8 +50,8 @@ ax.set_title('Rock Strength',fontsize=26)
 ax.set_xlabel('Strength (MPa)',fontsize=22)
 ax.set_ylabel('Depth (km)',fontsize=22)
 ax.grid()
-ax2=ax.twinx()
-temp=z/1000*0.6+con_T
+ax2 = ax.twinx()
+temp = z/1000*0.6+con_T
 ax2.plot(temp,-z/1000,color='green')
 ax2.set_xlim(0,1500)
 ax2.set_ylim(-120+1,0)
