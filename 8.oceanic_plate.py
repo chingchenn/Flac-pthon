@@ -34,7 +34,7 @@ bet = 2
 rainbow = cm.get_cmap('gray_r',end)
 newcolors = rainbow(np.linspace(0, 1, end))
 
-for i in range(12,end):
+for i in range(137,138):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
     trench_ind = np.argmin(z[:,0]) 
@@ -65,12 +65,11 @@ for i in range(12,end):
         oz[yy] = np.average(z_ocean[(x_ocean>=px) *(x_ocean<=xx)])
         ox[yy] = np.average(x_ocean[(x_ocean>=px) *(x_ocean<=xx)])
         px = xx
-    bbb.scatter(ox,oz,color='k',s=10)
+    bbb.scatter(ox,oz,color='cyan',s=10)
     kkx=(f2.moving_window_smooth(ox,5))[1:-10]
     kkz=(f2.moving_window_smooth(oz,5))[1:-10]
     kkz=(f2.moving_window_smooth(kkz,5))[1:]
     kkx=kkx[1:]
-
       
     for kk in range(1,len(kkx)):
         cx1=kkx[kk-1];cx2=kkx[kk]
@@ -113,7 +112,7 @@ for i in range(12,end):
     p4=np.poly1d(z1)
     w1=p4(ox)
     q1.plot(ox,w1,c='k',lw=3)
-    q1.scatter(ox,oz,c='orange',s=20)
+    q1.scatter(ox,oz,c='cyan',s=20)
     q1.set_xlim(start,final)
     
     p3=np.polyder(p4,1)
