@@ -7,17 +7,16 @@ Created on Thu Aug 31 13:28:16 2021
 """
 import math
 import flac
-import os
+import os,sys
 import numpy as np
-from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-# model = str(sys.argv[1])
+model = str(sys.argv[1])
+path = '/home/jiching/geoflac/'+model+'/'
+#model='w1261'
+# path = '/scratch2/jiching/'+model+'/'
 # path = '/home/jiching/geoflac/'+model+'/'
-model='w1261'
-    # path = '/scratch2/jiching/'+model+'/'
-    # path = '/home/jiching/geoflac/'+model+'/'
-path = '/Volumes/My Book/model/'+model+'/'
+#path = '/Volumes/My Book/model/'+model+'/'
 # path = '/Volumes/SSD500/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
@@ -30,15 +29,13 @@ phase_ecolgite_1 = 18
 angle = np.zeros(end)
 bet = 2
 
-rainbow = cm.get_cmap('gray_r',end)
-newcolors = rainbow(np.linspace(0, 1, end))
 find_flat_dz1=[]
 find_flat_dz2=[]
 figg=0
-figg2=1
+figg2=0
 rrrrr=np.zeros(end)
 
-for i in range(190,205):
+for i in range(1,end):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
     trench_ind = np.argmin(z[:,0]) 
@@ -63,11 +60,12 @@ for i in range(190,205):
         ox[yy] = np.average(x_ocean[(x_ocean>=px) *(x_ocean<=xx)])
         px = xx
     
-    kkx=(f2.moving_window_smooth(ox,5))[1:-10]
-    kkz=(f2.moving_window_smooth(oz,5))[1:-10]
+    kkx=(f2.moving_window_smooth(ox,5))[1:-5]
+    kkz=(f2.moving_window_smooth(oz,5))[1:-5]
     kkz=(f2.moving_window_smooth(kkz,5))[1:]
     kkx=kkx[1:]
-      
+    if len(kkx)<10:
+	continue  
     for kk in range(1,len(kkx)):
         cx1=kkx[kk-1];cx2=kkx[kk]
         cz1=kkz[kk-1];cz2=kkz[kk]
@@ -142,22 +140,28 @@ for i in range(190,205):
         q2.tick_params(axis='y', labelsize=16)
         q3.tick_params(axis='y', labelsize=16)
         q3.set_xlim(start,final) 
-        
-        # fig2.savefig(path+model+'frame='+str(i)+'_fig2.png')
+        fig2.savefig(path+model+'frame='+str(i)+'_fig2.png')
     cc=-1;ff1=[]
     for rr,oo in enumerate(w2):
         if cc*oo<0:
-            #print('first dz',ox[rr]) 
             ff1.append(ox[rr])
         cc = oo
     mm=-1;ff2=[]
     for pp,uu in enumerate(w3):
         if mm*uu<0:
-            #print('second dz',ox[pp])
             ff2.append(ox[pp])
         mm = uu  
-    if len(ff2)>1 and (ff2[1]-ff2[0])>20:
+    if len(ff2)>1 and (ff2[1]-ff2[0])>15:
         find_flat_dz2.append(i)
         if len(ff1)>1:
             find_flat_dz1.append(i)
-    
+filename2='/home/jiching/geoflac/data/'+model+'_flat_slab_time2'
+f = open(filename2 ,'w')
+for trep in range(len(find_flat_dz2)):
+    f.write('%f\n'%find_flat_dz2[trep])
+f.close()
+filename1='/home/jiching/geoflac/data/'+model+'_flat_slab_time1'
+f = open(filename1 ,'w')
+for trep in range(len(find_flat_dz1)):
+    f.write('%f\n'%find_flat_dz1[trep])
+f.close()
