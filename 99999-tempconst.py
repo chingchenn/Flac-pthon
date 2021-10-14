@@ -1,82 +1,139 @@
-#!/usr/bin/env python
-import os
+#!/usr/bin/env python3
+
+import math
 import flac
+import os
 import numpy as np
-import pandas as pd
-from matplotlib import cm
 import matplotlib.pyplot as plt
+import function_for_flac as f2
+# model = str(sys.argv[1])
+# path = '/home/jiching/geoflac/'+model+'/'
+model='w1261'
+    # path = '/scratch2/jiching/'+model+'/'
+    # path = '/home/jiching/geoflac/'+model+'/'
+path = '/Volumes/My Book/model/'+model+'/'
+# path = '/Volumes/SSD500/model/'+model+'/'
+os.chdir(path)
+fl = flac.Flac();end = fl.nrec
+nex = fl.nx - 1;nez = fl.nz - 1
 
-model_list=['w0940','w1013']
-# name_list=['1.2e-12','6e-13 ','9e-13']
-name_list=['1.6e-11','3.2e-11']
-rainbow = cm.get_cmap('rainbow',len(model_list))
-newcolors = rainbow(np.linspace(0, 1, len(model_list)))
-fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,figsize=(15,17))
-for qq,model in enumerate(model_list):
-    path = '/scratch2/jiching/'+model+'/'
-    path = '/home/jiching/geoflac/'+model+'/'
-    path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
-    os.chdir(path)
-    # fl = flac.Flac();end = fl.nrec
-    fl = flac.FlacFromVTK();end = fl.nrec
-    nex = fl.nx - 1;nez = fl.nz - 1
-    print(model)    
-    
-    def get_magma(start_vts=1,model_steps=end-1):
-        melt=np.zeros(end)
-        magma=np.zeros(end)
-        yymelt=np.zeros(end)
-        yychamber=np.zeros(end)
-        arc_vol=np.zeros(end)
-        for i in range(1,end):
-            x,z=fl.read_mesh(i)
-            phase = fl.read_phase(i)
-            mm=fl.read_fmelt(i)
-            chamber=fl.read_fmagma(i)
-            melt[i] = np.max(mm)
-            magma[i] = np.max(chamber)
-            arc_vol[i]=np.sum(fl.read_area(i)[phase ==14])/1e6
-            yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
-            yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
-        return melt,magma,yymelt,yychamber,arc_vol
-    time =fl.time
-    melt,magma,yymelt,yychamber,arc_vol=get_magma(1,end)
-    
-    ax.plot(time,yymelt,color=newcolors[qq],label=name_list[qq])
-    ax2.plot(time,yychamber,color=newcolors[qq],label=name_list[qq])
-    ax3.plot(time,melt,color=newcolors[qq],label=name_list[qq])
-    ax4.plot(time,magma,color=newcolors[qq],label=name_list[qq])
-    ax5.plot(time,arc_vol,color=newcolors[qq],label=name_list[qq])
+phase_oceanic = 3
+phase_ecolgite = 13
+phase_oceanic_1 = 17
+phase_ecolgite_1 = 18
+bet = 2
 
-ax5.set_xlabel('Time (Myr)',fontsize=20)
-ax.set_ylabel('melt * area',fontsize=20)
-ax2.set_ylabel('chamber *area',fontsize=20)
-ax3.set_ylabel('max fmelt',fontsize=20)
-ax4.set_ylabel('max fmagma',fontsize=20)
-ax5.set_ylabel('arc area',fontsize=20)
-ax.set_ylim(0,5)
-ax2.set_ylim(0,100)
-ax3.set_ylim(0,0.04)
-ax4.set_ylim(0,0.051)
-ax5.set_ylim(0,300)
-ax.set_xlim(0,24)
-ax2.set_xlim(0,24)
-ax3.set_xlim(0,24)
-ax4.set_xlim(0,24)
-ax5.set_xlim(0,24)
-ax.tick_params(axis='x', labelsize=16 )
-ax2.tick_params(axis='x', labelsize=16 )
-ax3.tick_params(axis='x', labelsize=16 )
-ax4.tick_params(axis='x', labelsize=16 )
-ax5.tick_params(axis='x', labelsize=16 )
-ax.tick_params(axis='y', labelsize=16 )
-ax2.tick_params(axis='y', labelsize=16 )
-ax3.tick_params(axis='y', labelsize=16 )
-ax4.tick_params(axis='y', labelsize=16 )
-ax5.tick_params(axis='y', labelsize=16 )
-ax5.legend(title = "productivity",fontsize = 16,loc=2)
-ax.grid()
-ax2.grid()
-ax3.grid()
-ax4.grid()
-ax5.grid()
+
+frame=126
+def oceanic_crust_geometry(frame,bet):
+    
+    phase_oceanic = 3
+    phase_ecolgite = 13
+    phase_oceanic_1 = 17
+    phase_ecolgite_1 = 18
+    
+    x, z = fl.read_mesh(frame)
+    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(frame)
+    trench_ind = np.argmin(z[:,0]) 
+    x_trench = x[trench_ind,0]
+
+    x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)+(phase==phase_ecolgite_1)+(phase==phase_oceanic_1)]
+    z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)+(phase==phase_ecolgite_1)+(phase==phase_oceanic_1)]
+
+    start = math.floor(x_trench)
+    final = math.floor(np.max(x_ocean))
+
+    #find initial basalt depth to remove the weage basalt
+    kk = np.max(z_ocean[(x_ocean>=start) * (x_ocean<=start+bet)])
+    x_ocean = x_ocean[z_ocean<kk]
+    z_ocean = z_ocean[z_ocean<kk]
+    
+    #cut basalt into small grid, where bet is the gap between different grid
+    x_grid = np.arange(start,final,bet)
+    ox = np.zeros(len(x_grid))
+    oz = np.zeros(len(x_grid))
+    px = start-bet
+        
+    for yy,xx in enumerate(x_grid):
+        oz[yy] = np.average(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+        ox[yy] = np.average(x_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+        px = xx
+
+    kkx=(f2.moving_window_smooth(ox,5))[1:-10]
+    kkz=(f2.moving_window_smooth(oz,5))[1:-10]
+    kkz=(f2.moving_window_smooth(kkz,5))[1:]
+    kkx=kkx[1:]
+    m=[]; m2=[]
+    for kk in range(1,len(kkx)):
+        cx1=kkx[kk-1];cx2=kkx[kk]
+        cz1=kkz[kk-1];cz2=kkz[kk]
+        if (cx2-cx1) != 0:
+          m.append((cz2-cz1)/(cx2-cx1))
+    qq = kkx[1:]
+    for ww in range(1,len(m)):
+        cz1=m[ww-1];cz2=m[ww]
+        cx1=qq[ww-1];cx1=qq[ww]
+        if (cx2-cx1) != 0:
+            m2.append((cz2-cz1)/(cx2-cx1))
+        else: www = ww
+    qq2=qq[1:ww]
+    mmm=f2.moving_window_smooth(m,5)
+    mmm2=f2.moving_window_smooth(m2,6)
+
+    #Raw data without any fitting
+    
+    # fig, (bbb,aaa,ccc)= plt.subplots(3,1,figsize=(9,12))    
+    # bbb.scatter(x_ocean,z_ocean,color='orange',s=20)
+    # bbb.scatter(ox,oz,color='cyan',s=10)
+    # bbb.grid()
+    # bbb.set_ylim(-100,0)
+    # bbb.set_xlim(start,final)
+    # bbb.set_aspect('equal')
+    # aaa.plot(qq,m,color='gray',zorder=1)
+    # aaa.plot(qq,mmm,color='k',zorder=1)
+    # ccc.plot([start,final],[0,0],'--',zorder=0,color='red')
+    # bbb.set_title('frame='+str(frame))
+    # aaa.set_xlim(start,final)
+    # aaa.grid();ccc.grid() 
+    # aaa.tick_params(axis='x', labelsize=16)
+    # aaa.tick_params(axis='y', labelsize=16)
+    # bbb.tick_params(axis='x', labelsize=16)
+    # bbb.tick_params(axis='y', labelsize=16)
+    # ccc.plot(qq2,m2,color='gray')
+    # ccc.plot(qq2,mmm2,color='k')
+    # ccc.tick_params(axis='y', labelsize=16)
+    # ccc.set_xlim(start,final)
+    # ccc.set_ylim(-0.0005,0.0005)
+    # fig.savefig(path+model+'frame='+str(frame)+'_fig1.png')
+    
+    # Fitting data into poly
+    ox = ox[oz>-100]
+    oz = oz[oz>-100]
+    z1=np.polyfit(ox,oz,4)
+    p4=np.poly1d(z1)
+    w1=p4(ox)
+    
+    p3=np.polyder(p4,1)
+    p2=np.polyder(p4,2)
+    w2=p3(ox)
+    w3=p2(ox)
+    
+    # Plot fitting data 
+    fig2,(q1,q2,q3)= plt.subplots(3,1,figsize=(9,12))
+    q1.plot(ox,w1,c='k',lw=3)
+    q1.scatter(ox,oz,c='cyan',s=20)
+    q1.set_xlim(start,final)
+    q2.plot(ox,w2,c='k')
+    q3.plot(ox,w3,c='k')
+    q1.set_ylim(-100,0)
+    q3.plot([start,final],[0,0],'--',zorder=0,color='red')
+    q1.set_title('frame='+str(frame))
+    q2.set_xlim(start,final)
+    q1.grid();q2.grid();q3.grid() 
+    q1.tick_params(axis='x', labelsize=16)
+    q1.tick_params(axis='y', labelsize=16)
+    q2.tick_params(axis='x', labelsize=16)
+    q2.tick_params(axis='y', labelsize=16)
+    q3.tick_params(axis='y', labelsize=16)
+    q3.set_xlim(start,final)
+    fig2.savefig(path+model+'frame='+str(frame)+'_fig2.png')
