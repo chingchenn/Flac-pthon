@@ -14,8 +14,7 @@ import function_for_flac as f2
 model = str(sys.argv[1])
 path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
-# path = '/scratch2/jiching/'+model+'/'
-# path = '/home/jiching/geoflac/'+model+'/'
+#path = '/scratch2/jiching/'+model+'/'
 #path = '/Volumes/My Book/model/'+model+'/'
 # path = '/Volumes/SSD500/model/'+model+'/'
 os.chdir(path)
@@ -32,7 +31,7 @@ bet = 2
 find_flat_dz1=[]
 find_flat_dz2=[]
 figg=0
-figg2=0
+figg2=1
 rrrrr=np.zeros(end)
 
 for i in range(1,end):
@@ -64,7 +63,7 @@ for i in range(1,end):
     kkz=(f2.moving_window_smooth(oz,5))[1:-5]
     kkz=(f2.moving_window_smooth(kkz,5))[1:]
     kkx=kkx[1:]
-    if len(kkx)<10:
+    if len(ox[oz>-100])<30:
 	continue  
     for kk in range(1,len(kkx)):
         cx1=kkx[kk-1];cx2=kkx[kk]
@@ -96,9 +95,8 @@ for i in range(1,end):
     for tt,cal in enumerate(oz):
         rid+=(cal-w1[tt])**2
     rrrrr[i]=rid/len(oz)
-    if rrrrr[i]>1.2:
+    if rrrrr[i]>6:
         continue
-    
     if figg:
         fig, (bbb,aaa,ccc)= plt.subplots(3,1,figsize=(9,12)) 
         bbb.set_ylim(-100,0)
@@ -140,7 +138,7 @@ for i in range(1,end):
         q2.tick_params(axis='y', labelsize=16)
         q3.tick_params(axis='y', labelsize=16)
         q3.set_xlim(start,final) 
-        fig2.savefig(path+model+'frame='+str(i)+'_fig2.png')
+        fig2.savefig(path+'frame='+str(i)+'_fig2.png')
     cc=-1;ff1=[]
     for rr,oo in enumerate(w2):
         if cc*oo<0:
@@ -151,10 +149,11 @@ for i in range(1,end):
         if mm*uu<0:
             ff2.append(ox[pp])
         mm = uu  
-    if len(ff2)>1 and (ff2[1]-ff2[0])>15:
+    if len(ff2)>1 and (ff2[1]-ff2[0])>30 and ff2[0]>start:
         find_flat_dz2.append(i)
-        if len(ff1)>1:
+        if len(ff1)>1 and (ff1[1]-start)>50:
             find_flat_dz1.append(i)
+    
 filename2='/home/jiching/geoflac/data/'+model+'_flat_slab_time2'
 f = open(filename2 ,'w')
 for trep in range(len(find_flat_dz2)):
@@ -165,3 +164,5 @@ f = open(filename1 ,'w')
 for trep in range(len(find_flat_dz1)):
     f.write('%f\n'%find_flat_dz1[trep])
 f.close()
+print(find_flat_dz2)
+print(find_flat_dz1)

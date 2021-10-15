@@ -19,13 +19,13 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
-trench_location = 0
+trench_location = 1
 magma = 0
 gravity = 0
 gravity_frame = 0
-melting = 1
+melting = 0
 # plot data
-trench_plot = 0
+trench_plot = 1
 magma_plot = 0
 marker_number = 0
 gravity_plot = 0
@@ -227,7 +227,7 @@ if trench_plot:
     cbar=fig.colorbar(qqq,ax=ax)
     ax.plot(df.trench_x,df.time,c='k',lw=2)
     ax.set_xlim(0,dis[-1][-1])
-    ax.set_ylim(0,40)
+    ax.set_ylim(0,55)
     ax.set_ylabel('Time (Myr)',fontsize=20)
     ax.set_xlabel('distance (km)',fontsize=20)
     cbar.set_label('topography (km)',fontsize=20)
