@@ -10,14 +10,24 @@ import numpy as np
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 
-layerz = (0, 6e3, 16e3)   # 1st elem must be 0
-Dfc = ((2880,30,4e7),  #phase  3
+layerz = (0, 2e3, 6e3, 16e3)   # 1st elem must be 0
+Dfc = ((2800, 11,4e7),  #phase  11
+        (2880,30,4e7), #phase 3
         (3200,30,4e7), #phase 16
         (3300,30,4e7)) #phase  4
          
-nAEs = ((3.05, 1.25e-1, 3.76e+5),
+nAEs = ((3.00, 5.00e+2, 2.00e+5),
+        (3.05, 1.25e-1, 3.76e+5),
         (3.00, 7.00e+4, 5.20e+5),
         (3.00, 7.00e+4, 5.20e+5))
+#layerz = (0, 6e3, 16e3)   # 1st elem must be 0
+#Dfc = ( (2880,30,4e7), #phase 3
+#        (3200,30,4e7), #phase 16
+#        (3300,30,4e7)) #phase  4
+         
+#nAEs = ((3.05, 1.25e-1, 3.76e+5),
+#        (3.00, 7.00e+4, 5.20e+5),
+#        (3.00, 7.00e+4, 5.20e+5))
 # layerz = (0, 18e3, 30e3, 40e3)   # 1st elem must be 0
 # Dfc = ((2800,30,4e7), #phase 2
 #         (2900,30,4e7), #phase 6
@@ -27,7 +37,7 @@ nAEs = ((3.05, 1.25e-1, 3.76e+5),
 #         (3.05, 1.25e-1, 3.76e+5),
 #         (3.1, 7.00e+5, 5.76e+5),
 #         (3.00, 7.00e+5, 5.76e+5))
-edot = 1e-14  # high strain rate
+#edot = 1e-14  # high strain rate
 edot = 1e-15  # low strain rate
 deepz = layerz[-1] * 10
 z = np.linspace(0, deepz, num=1000)
@@ -35,8 +45,9 @@ z = np.linspace(0, deepz, num=1000)
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
 frico_strength = f2.plastic_stress(z,layerz,Dfc)
-con_T = f2.continental_geothermal_T(z,20,6,45)
-visc = f2.visc_profile(z, con_T, edot, layerz, nAEs)
+#T = f2.continental_geothermal_T(z,20,6,45)
+T = f2.half_space_cooling_T(z, 10, 1330, 15)
+visc = f2.visc_profile(z, T, edot, layerz, nAEs)
 visco_strength = visc* edot *2 #Pa
 #------------------------------------------------------------------------------
 fig, ax = plt.subplots(1,1,figsize=(6,10))
@@ -51,7 +62,7 @@ ax.set_xlabel('Strength (MPa)',fontsize=22)
 ax.set_ylabel('Depth (km)',fontsize=22)
 ax.grid()
 ax2 = ax.twinx()
-temp = z/1000*0.6+con_T
+temp = z/1000*0.6+T
 ax2.plot(temp,-z/1000,color='green')
 ax2.set_xlim(0,1500)
 ax2.set_ylim(-120+1,0)
