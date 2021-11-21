@@ -35,7 +35,7 @@ melting_plot = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
-#path = '/scratch2/jiching/'
+#path = '/scratch2/jiching/sem02model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 sys.path.append("/home/jiching/geoflac/util")
@@ -58,7 +58,7 @@ def trench(start_vts=1,model_steps=end):
         arc_ind,trench_ind=f2.find_trench_index(z)
         trench_index.append(sx[trench_ind])
         trench_x.append(sx[trench_ind])
-        trench_z.append(sx[trench_ind])
+        trench_z.append(sz[trench_ind])
     return trench_index,trench_x,trench_z
 
 def get_topo(start=1,end_frame=end):
@@ -220,7 +220,8 @@ if melting:
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
     name='trench_for_'+model
-    df = pd.read_csv(path+'data/'+name+'.csv')
+    #df = pd.read_csv(path+'data/'+name+'.csv')
+    df = pd.read_csv(savepath+name+'.csv')
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
     qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=8,vmin=-10)

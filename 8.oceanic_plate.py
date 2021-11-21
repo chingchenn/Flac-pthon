@@ -14,6 +14,8 @@ import function_for_flac as f2
 model = str(sys.argv[1])
 path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
+#path = '/scratch2/jiching/sem02model/'+model+'/'
+#path = '/scratch/jiching/summer2021/week11/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = '/Volumes/My Book/model/'+model+'/'
 # path = '/Volumes/SSD500/model/'+model+'/'
@@ -31,7 +33,7 @@ bet = 2
 find_flat_dz1=[]
 find_flat_dz2=[]
 figg=0
-figg2=1
+figg2=0
 rrrrr=np.zeros(end)
 
 for i in range(1,end):
@@ -150,7 +152,7 @@ for i in range(1,end):
             ff2.append(ox[pp])
         mm = uu  
     if len(ff2)>1 and (ff2[1]-ff2[0])>30 and ff2[0]>start:
-        find_flat_dz2.append(i)
+        find_flat_dz2.append(fl.time[i])
         if len(ff1)>1 and (ff1[1]-start)>50:
             find_flat_dz1.append(i)
     
