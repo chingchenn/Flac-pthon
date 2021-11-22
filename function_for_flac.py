@@ -8,6 +8,7 @@ Created on Thu May  8 13:28:16 2021
 
 
 import sys
+import math
 import numpy as np
 from math import sqrt
 from scipy.special import erf
@@ -182,3 +183,23 @@ def get_strength():
     visc = visc_profile(z, con_T, edot, layerz, nAEs)
     visco_strength=visc* edot *2 #Pa
     return frico_strength,visco_strength
+
+def getDistance(latA, lonA, latB, lonB):
+    ra = 6378140  
+    rb = 6356755  
+    flatten = (ra - rb) / ra  # Partial rate of the earth
+    # change angle to radians
+    radLatA = math.radians(latA)
+    radLonA = math.radians(lonA)
+    radLatB = math.radians(latB)
+    radLonB = math.radians(lonB)
+
+    pA = math.atan(rb / ra * math.tan(radLatA))
+    pB = math.atan(rb / ra * math.tan(radLatB))
+    x = math.acos(math.sin(pA) * math.sin(pB) + math.cos(pA) * math.cos(pB) * math.cos(radLonA - radLonB))
+    c1 = (math.sin(x) - x) * (math.sin(pA) + math.sin(pB)) ** 2 / math.cos(x / 2) ** 2
+    c2 = (math.sin(x) + x) * (math.sin(pA) - math.sin(pB)) ** 2 / math.sin(x / 2) ** 2
+    dr = flatten / 8 * (c1 - c2)
+    distance = ra * (x + dr)
+    distance = round(distance / 1000, 4)
+    return distance
