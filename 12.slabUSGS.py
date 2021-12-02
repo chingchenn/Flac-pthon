@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
+import scipy.optimize as so
 import matplotlib.pyplot as plt
 import function_savedata as fs
 import function_for_flac as f2
@@ -130,7 +131,6 @@ w3=np.polyval(z3,x)
 res3=sum((w3-z)**2)
 R3=1-(res3/sst)
 
-
 ## Polynomial 2
 z2=np.polyfit(x,z,2)
 w2=np.polyval(z2,x)
@@ -169,7 +169,6 @@ if figure4:
 if figure3:
     p3=np.poly1d(z3)
     fp2=np.ployder(p3,1)
-
 
 
 #cmd = 'rm %(grd)s table.txt' %locals()
