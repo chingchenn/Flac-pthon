@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import function_savedata as fs
 import function_for_flac as f2
 
-fig = 1
-figure4=1
-figure3=1
+fig = 0
+figure4=0
+figure3=0
 path = '/home/jiching/geoflac/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
@@ -84,71 +84,70 @@ mv  %(input)s_cross_section* ~/geoflac/figure/.
 #print cmd
 os.system(cmd)
 # #------------------------------------------------------------------------------------------
-temp2 = np.loadtxt('table.txt')
-data = temp2[~np.isnan(temp2).any(axis=1)]
-x,y,z = data.T
-sx = x[0]
-sy = y[0]
-new_cord=np.zeros(len(x))
-for uu in range(1,len(x)):
-    new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
-def find_Ct(A):
-    C=np.zeros((len(A),len(A[0])))
-    for kk in range(len(A)):
-        new_array = np.delete(A,kk,axis=0)
-        for qq in range(len(A[0])): 
-            new_array_2 = np.delete(new_array,qq,axis=1)
-            ww=np.linalg.det(new_array_2)
-            C[kk][qq] = ww*(-1)**(kk+qq) 
-            cc=C.T
-    return cc
-def find_inv(A):
-    adjA = find_Ct(A)
-    detA = abs(np.linalg.det(A))
-    return adjA/detA
-plt.plot(new_cord,z)
-plt.savefig(path+input+'wwcross+poly.png')
-mindepth=-150
-x=new_cord[z>mindepth]
-z=z[z>mindepth]
-N=len(x)
-G = np.array([np.ones(N),x])
-GT=G.T
-#m1=find_inv(GT.dot(G)).dot(GT).dot(x)
+#temp2 = np.loadtxt('table.txt')
+#data = temp2[~np.isnan(temp2).any(axis=1)]
+#x,y,z = data.T
+#sx = x[0]
+#sy = y[0]
+#new_cord=np.zeros(len(x))
+#for uu in range(1,len(x)):
+#    new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
+#def find_Ct(A):
+#    C=np.zeros((len(A),len(A[0])))
+#    for kk in range(len(A)):
+#        new_array = np.delete(A,kk,axis=0)
+#        for qq in range(len(A[0])): 
+#            new_array_2 = np.delete(new_array,qq,axis=1)
+#            ww=np.linalg.det(new_array_2)
+#            C[kk][qq] = ww*(-1)**(kk+qq) 
+#            cc=C.T
+#    return cc
+#def find_inv(A):
+#    adjA = find_Ct(A)
+#    detA = abs(np.linalg.det(A))
+#    return adjA/detA
+#plt.plot(new_cord,z)
+#plt.savefig(path+input+'wwcross+poly.png')
+#mindepth=-150
+#x=new_cord[z>mindepth]
+#z=z[z>mindepth]
+#N=len(x)
+#G = np.array([np.ones(N),x])
+#GT=G.T
+##m1=find_inv(GT.dot(G)).dot(GT).dot(x)
 
 ## Polynomail 4
-z4=np.polyfit(x,z,4)
-w4=np.polyval(z4,x)
-res4=sum((w4-z)**2)
-sst=sum((z-np.mean(z))**2)
-R4=1-(res4/sst)
-
-
+#z4=np.polyfit(x,z,4)
+#w4=np.polyval(z4,x)
+#res4=sum((w4-z)**2)
+#sst=sum((z-np.mean(z))**2)
+#R4=1-(res4/sst)
 
 ## Polynomial 3
-z3=np.polyfit(x,z,3)
-w3=np.polyval(z3,x)
-res3=sum((w3-z)**2)
-R3=1-(res3/sst)
+#z3=np.polyfit(x,z,3)
+#w3=np.polyval(z3,x)
+#res3=sum((w3-z)**2)
+#R3=1-(res3/sst)
 
 ## Polynomial 2
-z2=np.polyfit(x,z,2)
-w2=np.polyval(z2,x)
-res2=sum((w2-z)**2)
-R2=1-(res2/sst)
-rr=[R4,R3,R2]
+#z2=np.polyfit(x,z,2)
+#w2=np.polyval(z2,x)
+#res2=sum((w2-z)**2)
+#R2=1-(res2/sst)
+#rr=[R4,R3,R2]
 
 if fig:
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
     ax.plot(x,w4,c='#4169E1',lw=2)
     ax.plot(x,w3,c='r',lw=4)
     ax.plot(x,w2,c='orange',lw=3)
+    ax.grid()
     ax.set_aspect('equal', adjustable='box')
     ax.set_ylim(mindepth,0)
     ax.plot(x,z,color='#4169E1') 
     #ax.set_xlim(-0.25,400)
     ax.set_ylim(-150,0)
-    ax.set_xlim(0,800)
+    ax.set_xlim(0,400)
     fig.savefig(path+input+'cross+poly.png')
     fig2, ax2 = plt.subplots(1,1,figsize=(6,8))
     ax2.plot(rr)
@@ -165,11 +164,11 @@ if figure4:
     ax3.plot(x,w4,c='k')
     ax4.plot(x,f3,c='k')
     ax5.plot(x,f2,c='k')
+    ax3.grid();ax4.grid();ax5.grid()
     fig3.savefig(path+input+'poly4_analyses.png')
 if figure3:
     p3=np.poly1d(z3)
-    fp2=np.ployder(p3,1)
-
+    fp2=np.polyder(p3,1)
 
 #cmd = 'rm %(grd)s table.txt' %locals()
 #os.system(cmd)
