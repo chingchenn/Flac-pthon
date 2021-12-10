@@ -87,10 +87,7 @@ input = 'g'
 #print cmd
 # os.system(cmd)
 # #------------------------------------------------------------------------------------------
-path='/Users/ji-chingchen/OneDrive - 國立台灣大學/resarch/slab 2.0/slab/'
-file='Gline.txt'
-temp2=np.loadtxt(path+file)
-# temp2 = np.loadtxt('S.txt')
+temp2 = np.loadtxt('table.txt')
 data = temp2[~np.isnan(temp2).any(axis=1)]
 x,y,z = data.T
 sx = x[0]
@@ -112,11 +109,11 @@ def find_inv(A):
     adjA = find_Ct(A)
     detA = abs(np.linalg.det(A))
     return adjA/detA
+
 # plt.plot(new_cord,z)
 # plt.savefig(path+input+'wwcross+poly.png')
-xx=new_cord
-zz=z
-mindepth=-250
+mindepth=-150
+
 x=new_cord[z>mindepth]
 z=z[z>mindepth]
 N=len(x)
@@ -124,26 +121,27 @@ G = np.array([np.ones(N),x])
 GT=G.T
 #m1=find_inv(GT.dot(G)).dot(GT).dot(x)
 
-# Polynomail 4
+
+## Polynomail 4
 z4=np.polyfit(x,z,4)
 w4=np.polyval(z4,x)
 res4=sum((w4-z)**2)
 sst=sum((z-np.mean(z))**2)
 R4=1-(res4/sst)
 
-# Polynomial 3
+## Polynomial 3
 z3=np.polyfit(x,z,3)
 w3=np.polyval(z3,x)
 res3=sum((w3-z)**2)
 R3=1-(res3/sst)
 
-# Polynomial 2
+## Polynomial 2
 z2=np.polyfit(x,z,2)
 w2=np.polyval(z2,x)
 res2=sum((w2-z)**2)
 R2=1-(res2/sst)
 
-# Polynomial 1
+## Polynomial 1
 z1=np.polyfit(x,z,1)
 w1=np.polyval(z1,x)
 res1=sum((w1-z)**2)
@@ -162,14 +160,15 @@ if fig:
     ax.plot(x,w1,c='green',lw=2,label='linear')
     ax.grid()
     ax.set_aspect('equal', adjustable='box')
-    # ax.set_ylim(mindepth,0)
     ax.plot(x,z,'k--',label='observation') 
-    ax.plot(xx,zz,'k--')#,label='observation') 
     # ax.set_ylim(-300,0)
     # ax.set_xlim(0,600)
     ax.legend()
-    # fig.savefig(path+input+'cross+poly.png')
-
+    ax.set_ylim(mindepth,0)
+    ax.plot(x,z,color='#4169E1') 
+    ax.set_ylim(-150,0)
+    ax.set_xlim(0,400)
+    fig.savefig(path+input+'cross+poly.png')
 if figure2:
     fig2, ax2 = plt.subplots(1,1,figsize=(6,8))
     ax2.scatter(nn,rr,s=50,c='r')
