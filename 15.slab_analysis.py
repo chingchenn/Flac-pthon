@@ -16,13 +16,14 @@ import function_savedata as fs
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 
-fig_spline=1
-fig_poly=1
-fig_Rsquare=1
-fig_quartic=1
-fig_cubic=1
-fig_residual=1
-fig_spline_quartic=1
+# ===================================initial set up ======================================
+fig_spline         = 1
+fig_poly           = 1
+fig_Rsquare        = 1
+fig_quartic        = 1
+fig_cubic          = 1
+fig_residual       = 1
+fig_spline_quartic = 1
 path = '/home/jiching/geoflac/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
@@ -33,7 +34,11 @@ for kk in range(len(ff)):
         break
 area,rlon1,rlon2,rlat1,rlat2,grd,lon,lat,az,non,leng=ff.loc[kk].tolist()
 #-------------------------------call gmt to cut the trace----------------------------------
-cmd = 'cp /home/jiching/GMT/slab/depgrd/%(grd)s .' %locals()
+cmd = '''
+cp /home/jiching/GMT/slab/depgrd/%(grd)s .
+cp /home/jiching/GMT/slab/global_model/CAM2016Litho.nc .
+cp /home/jiching/GMT/slab/global_model/depthtomoho.xyz .
+''' %locals()
 os.system(cmd)
 cmd = 'gmt grdtrack -E%(lon)f/%(lat)f+a%(az)f+l%(leng)f+i0.5k -G%(grd)s>table.txt' %locals()
 os.system(cmd)
@@ -82,10 +87,12 @@ lon2=`awk '(NR==2){print $1}' line.txt`
 lat2=`awk '(NR==2){print $2}' line.txt`
     gmt project -C$lon/$lat -E$lon2/$lat2 -Q -G0.1 | gmt grdtrack -Gdepthtomoho.xyz > %(area)s-moho.txt
     awk '{print $2, (-1)*$4}' %(area)s-moho.txt | gmt plot -W2p,72/61/139,-- 
+    gmt project -C$lon/$lat -E$lon2/$lat2 -Q -G0.1 | gmt grdtrack -GCAM2016Litho.nc > %(area)s-litho.txt
+    awk '{print $2, $4}' %(area)s-litho.txt | gmt plot -W2p,240/128/128,-- 
     gmt plot -R%(minlat)f/%(maxlat)f/-6500/5000 -Bxafg1000+l"Topography (m)" -BWsne -Bya2000f1000+l"height (m)" -JX15c/4c -W2p table.txt -Yh+0c
     gmt project -C$lon/$lat -E$lon2/$lat2 -G0.1 -Q | gmt grdtrack -Gcut.nc | awk '{print $2,$4}' >table2.txt
     gmt plot -W3p table2.txt
-    rm -f line.txt table2.txt cut.nc %(area)s-moho.txt table.txt
+    rm -f line.txt table2.txt cut.nc %(area)s-moho.txt table.txt %(area)s-litho.txt CAM2016Litho.nc depthtomoho.xyz
 gmt end
 mv  %(input)s_cross_section* ~/geoflac/figure/.
 ''' %locals()
@@ -103,7 +110,7 @@ mindepth=-250
 x=new_cord[z>mindepth]
 z=z[z>mindepth]
 new_cord=x
-## ====================BSpline====================
+#==================================================BSpline==========================================
 kk=3
 ss=0.001
 mean_list=np.zeros(len(x))
@@ -131,6 +138,7 @@ if fig_spline:
     q3.tick_params(axis='x', labelsize=16)
     fig0.savefig(path+str(input)+'_slab_spline.png')
 
+#==============================================Polynomail============================================
 ## Polynomail 4
 z4=np.polyfit(x,z,4)
 w4=np.polyval(z4,x)
@@ -159,6 +167,7 @@ R1=1-(res1/sst)
 rr=[R1,R2,R3,R4]
 nn=[1,2,3,4]
 
+#-------------------------------------call pyhton to plot---------------------------------------
 if fig_poly:
     fig, (ax)= plt.subplots(1,1,figsize=(10,8))
     ax.plot(x,w4,c='#4169E1',lw=3,label='quartic')
