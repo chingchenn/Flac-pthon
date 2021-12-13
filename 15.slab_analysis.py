@@ -17,13 +17,14 @@ import function_for_flac as f2
 import matplotlib.pyplot as plt
 
 # ===================================initial set up ======================================
-fig_spline         = 1
-fig_poly           = 1
-fig_Rsquare        = 1
-fig_quartic        = 1
-fig_cubic          = 1
-fig_residual       = 1
-fig_spline_quartic = 1
+fig_GMT            = 0
+fig_spline         = 0
+fig_poly           = 0
+fig_Rsquare        = 0
+fig_quartic        = 0
+fig_cubic          = 0
+fig_residual       = 0
+fig_spline_quartic = 0
 path = '/home/jiching/geoflac/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
@@ -32,7 +33,7 @@ ff=pd.read_csv(DIR+'/'+'kkk.csv')
 for kk in range(len(ff)):
     if ff.name[kk] == input:
         break
-area,rlon1,rlon2,rlat1,rlat2,grd,lon,lat,az,non,leng=ff.loc[kk].tolist()
+area,rlon1,rlon2,rlat1,rlat2,grd,lon,lat,az,mindepth,leng=ff.loc[kk].tolist()
 #-------------------------------call gmt to cut the trace----------------------------------
 cmd = '''
 cp /home/jiching/GMT/slab/depgrd/%(grd)s .
@@ -51,7 +52,6 @@ os.system(cmd)
 temp=np.loadtxt('table.txt')
 x,y,z=temp.T
 minlat=min(y);maxlat=max(y);minlon=min(x);maxlon=max(x)
-print(lat,lon,az)
 #-------------------------------------call gmt to plot---------------------------------------
 cmd = '''
 grd=%(grd)s
@@ -72,7 +72,7 @@ gmt begin %(input)s_cross_section jpg
     gmt coast -W0.3p
     gmt makecpt -T-600/0/50
     gmt grdcontour $grd -C -W1p+cl -A50
-    gmt colorbar -DjMR+w5c/0.3c+o-2.3c/-2.8c -Bx -By+l"km"
+#    gmt colorbar -DjMR+w5c/0.3c+o-2.3c/-2.8c -Bx -By+l"km"
     gmt inset begin -DjBL+w3.2c+o0.3c/0.3c -F+gwhite+p1p+c0.1c
         gmt coast  -Rg -JG$clon/$clat/? -Bg -Wfaint -G67/205/128 -A5000
         echo $rlon1 $rlat1 $rlon2 $rlat2 | gmt plot -Sr+s -W1p,blue
@@ -89,6 +89,10 @@ lat2=`awk '(NR==2){print $2}' line.txt`
     awk '{print $2, (-1)*$4}' %(area)s-moho.txt | gmt plot -W2p,72/61/139,-- 
     gmt project -C$lon/$lat -E$lon2/$lat2 -Q -G0.1 | gmt grdtrack -GCAM2016Litho.nc > %(area)s-litho.txt
     awk '{print $2, $4}' %(area)s-litho.txt | gmt plot -W2p,240/128/128,-- 
+    gmt legend -DjLB+w5.5c+o0.5c -F+p1p+gbeige <<- EOF
+S 0.5c - 0.9c - 2p,240/128/128 1.2c  LAB (CAM2016)
+S 0.5c - 0.9c - 2p,72/61/139 1.2c  Moho Depth
+EOF
     gmt plot -R%(minlat)f/%(maxlat)f/-6500/5000 -Bxafg1000+l"Topography (m)" -BWsne -Bya2000f1000+l"height (m)" -JX15c/4c -W2p table.txt -Yh+0c
     gmt project -C$lon/$lat -E$lon2/$lat2 -G0.1 -Q | gmt grdtrack -Gcut.nc | awk '{print $2,$4}' >table2.txt
     gmt plot -W3p table2.txt
@@ -96,7 +100,8 @@ lat2=`awk '(NR==2){print $2}' line.txt`
 gmt end
 mv  %(input)s_cross_section* ~/geoflac/figure/.
 ''' %locals()
-os.system(cmd)
+if fig_GMT:
+    os.system(cmd)
 #==================================================================================================
 temp2=np.loadtxt(str(input)+'_table4.txt')
 data = temp2[~np.isnan(temp2).any(axis=1)]
@@ -106,9 +111,12 @@ sy = y[0]
 new_cord=np.zeros(len(x))
 for uu in range(1,len(x)):
     new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
-mindepth=-250
+#mindepth=-300
+
 x=new_cord[z>mindepth]
 z=z[z>mindepth]
+x=x[z<-10]
+z=z[z<-10]
 new_cord=x
 #==================================================BSpline==========================================
 kk=3
@@ -122,20 +130,21 @@ zz2=interpolate.splev(x,tck,der=2)
 yders = interpolate.spalde(x, tck)
 #print('k=',kk,'s=',ss,'mean=',np.mean(zz0-z),'median=',np.median(zz0-z))
 if fig_spline:
-    fig0,(q1,q2,q3)= plt.subplots(3,1,figsize=(7,15))
+    fig0,(q1)= plt.subplots(1,1,figsize=(10,8))
     q1.plot(x,zz0,c='r')
-    q1.scatter(new_cord,z,c='cyan',s=20)
+    q1.plot(new_cord,z,'k--')
     q1.set_aspect('equal', adjustable='box')
-    q2.plot(x,zz1,c='r')
-    q3.plot(x,zz2,c='r')
-    q1.set_ylim(-300,0)
-    q1.grid();q2.grid();q3.grid()
+#    q2.plot(x,zz1,c='r')
+#    q3.plot(x,zz2,c='r')
+    q1.set_ylim(mindepth,0)
+    q1.grid()
+#    q2.grid();q3.grid()
     q1.tick_params(axis='x', labelsize=16)
     q1.tick_params(axis='y', labelsize=16)
-    q2.tick_params(axis='x', labelsize=16)
-    q2.tick_params(axis='y', labelsize=16)
-    q3.tick_params(axis='y', labelsize=16)
-    q3.tick_params(axis='x', labelsize=16)
+#    q2.tick_params(axis='x', labelsize=16)
+#    q2.tick_params(axis='y', labelsize=16)
+#    q3.tick_params(axis='y', labelsize=16)
+#    q3.tick_params(axis='x', labelsize=16)
     fig0.savefig(path+str(input)+'_slab_spline.png')
 
 #==============================================Polynomail============================================
@@ -164,9 +173,39 @@ w1=np.polyval(z1,x)
 res1=sum((w1-z)**2)
 R1=1-(res1/sst)
 
-rr=[R1,R2,R3,R4]
+RR=[R1,R2,R3,R4]
 nn=[1,2,3,4]
-
+#---------------------------------data result without fitting-----------------------------------
+m=[]; m2=[]
+for kk in range(1,len(x)):
+    cx1=x[kk-1];cx2=x[kk]
+    cz1=z[kk-1];cz2=z[kk]
+    if (cx2-cx1) != 0:
+      m.append((cz2-cz1)/(cx2-cx1))
+qq = x[1:]
+for ww in range(1,len(qq)):
+    cx1=qq[ww-1];cx2=qq[ww]
+    cz1=m[ww-1];cz2=m[ww]
+    if (cx2-cx1) != 0:
+        m2.append((cz2-cz1)/(cx2-cx1))
+qq2=qq[1:ww+1]
+#-------------------------defint flat slab or not by Bspline result ---------------------------
+cc=-2;ff1=[];start=x[0];end=x[-1];therd=0.0
+for rr,oo in enumerate(zz1): # first derivative
+    if (cc+therd)*(oo+therd)<0:
+        ff1.append(x[rr])
+    cc = oo
+mm=-1;ff2=[]
+for pp,uu in enumerate(zz2): # second derivative
+    if mm*uu<0:
+        ff2.append(x[pp])
+    mm = uu  
+if len(ff2)>1 and (ff2[1]-ff2[0])>100 :
+    print(str(input)+' has the possibility to be a flat slab')
+    #if len(ff1)>1 and (ff1[1]-start)>50:
+    #    print(str(input)+' is flat slab')
+else: print(str(input)+' is not a flat slab')
+print(ff2)
 #-------------------------------------call pyhton to plot---------------------------------------
 if fig_poly:
     fig, (ax)= plt.subplots(1,1,figsize=(10,8))
@@ -187,7 +226,7 @@ if fig_poly:
     fig.savefig(path+input+'_slab_poly.png')
 if fig_Rsquare:
     fig2, ax2 = plt.subplots(1,1,figsize=(6,8))
-    ax2.scatter(nn,rr,s=50,c='r')
+    ax2.scatter(nn,RR,s=50,c='r')
     ax2.set_ylim(0.7,1.1)
     ax2.set_xlim(0,5)
     ax2.grid()
@@ -238,20 +277,20 @@ if fig_spline_quartic:
     fp2=np.polyder(p4,2)
     f3=fp3(x)
     f2=fp2(x)
-    fig6,(ax11,ax12,ax13)=plt.subplots(3,1,figsize=(7,15))
-    ax11.plot(x,z,c='#4169E1',lw=2)
-    ax11.plot(x,w4,c='k')
-    ax12.plot(x,f3,c='k')
-    ax13.plot(x,f2,c='k')
-    ax11.grid();ax4.grid();ax5.grid()
-    ax11.set_title('quartic',fontsize=20)
-    ax11.plot(x,zz0,c='r')
-    ax11.set_aspect('equal', adjustable='box')
-    ax12.plot(x,zz1,c='r')
-    ax13.plot(x,zz2,c='r')
-    ax13.set_ylim(-0.03,0.01)
-    ax11.set_ylim(-300,0)
-    ax11.grid();q2.grid();q3.grid()
+    fig6,(ax11,ax12,ax13)=plt.subplots(3,1,figsize=(10,15))
+    ax11.plot(x,z,c='g',lw=5)
+    ax11.plot(x,z,c='#4169E1',lw=5,label='data')
+    ax12.plot(qq,m,c='#4169E1',lw=5,label='data')
+    ax13.plot(qq2,m2,c='#4169E1',lw=5,label='data')
+    ax11.plot(x,w4,c='k',label='quartic')
+    ax12.plot(x,f3,c='k',label='quartic')
+    ax13.plot(x,f2,c='k',label='quartic')
+    ax11.grid();ax12.grid();ax13.grid()
+    ax11.set_title('quartic, spline and data',fontsize=20)
+    ax11.plot(x,zz0,c='r',label='Bspline')
+    ax12.plot(x,zz1,c='r',label='Bspline')
+    ax13.plot(x,zz2,c='r',label='Bspline')
+    ax11.set_ylim(mindepth,0)
     ax11.tick_params(axis='x', labelsize=16)
     ax11.tick_params(axis='y', labelsize=16)
     ax12.tick_params(axis='x', labelsize=16)
