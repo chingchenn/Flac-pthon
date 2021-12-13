@@ -12,9 +12,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 model = str(sys.argv[1])
-path = '/home/jiching/geoflac/'+model+'/'
+#path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
-#path = '/scratch2/jiching/sem02model/'+model+'/'
+path = '/scratch2/jiching/sem02model/'+model+'/'
 #path = '/scratch/jiching/summer2021/week11/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = '/Volumes/My Book/model/'+model+'/'
@@ -29,7 +29,6 @@ phase_oceanic_1 = 17
 phase_ecolgite_1 = 18
 angle = np.zeros(end)
 bet = 2
-
 find_flat_dz1=[]
 find_flat_dz2=[]
 figg=0
@@ -41,7 +40,6 @@ for i in range(1,end):
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
     trench_ind = np.argmin(z[:,0]) 
     x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
-
     m=[]; m2=[]
     x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
     z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
@@ -66,7 +64,7 @@ for i in range(1,end):
     kkz=(f2.moving_window_smooth(kkz,5))[1:]
     kkx=kkx[1:]
     if len(ox[oz>-100])<30:
-	continue  
+	    continue  
     for kk in range(1,len(kkx)):
         cx1=kkx[kk-1];cx2=kkx[kk]
         cz1=kkz[kk-1];cz2=kkz[kk]
@@ -75,14 +73,13 @@ for i in range(1,end):
     qq = kkx[1:]
     for ww in range(1,len(m)):
         cz1=m[ww-1];cz2=m[ww]
-        cx1=qq[ww-1];cx1=qq[ww]
+        cx1=qq[ww-1];cx2=qq[ww]
         if (cx2-cx1) != 0:
             m2.append((cz2-cz1)/(cx2-cx1))
         else: www = ww
     qq2=qq[1:ww]
     mmm=f2.moving_window_smooth(m,5)
     mmm2=f2.moving_window_smooth(m2,6)
-    
     ox = ox[oz>-100]
     oz = oz[oz>-100]
     z1=np.polyfit(ox,oz,4)
@@ -151,20 +148,20 @@ for i in range(1,end):
         if mm*uu<0:
             ff2.append(ox[pp])
         mm = uu  
-    if len(ff2)>1 and (ff2[1]-ff2[0])>30 and ff2[0]>start:
+    if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
         find_flat_dz2.append(fl.time[i])
-        if len(ff1)>1 and (ff1[1]-start)>50:
-            find_flat_dz1.append(i)
+    #    if len(ff1)>1 and (ff1[1]-start)>50:
+    #        find_flat_dz1.append(i)
     
 filename2='/home/jiching/geoflac/data/'+model+'_flat_slab_time2'
 f = open(filename2 ,'w')
 for trep in range(len(find_flat_dz2)):
     f.write('%f\n'%find_flat_dz2[trep])
 f.close()
-filename1='/home/jiching/geoflac/data/'+model+'_flat_slab_time1'
-f = open(filename1 ,'w')
-for trep in range(len(find_flat_dz1)):
-    f.write('%f\n'%find_flat_dz1[trep])
-f.close()
+#filename1='/home/jiching/geoflac/data/'+model+'_flat_slab_time1'
+#f = open(filename1 ,'w')
+#for trep in range(len(find_flat_dz1)):
+#    f.write('%f\n'%find_flat_dz1[trep])
+#f.close()
 print(find_flat_dz2)
-print(find_flat_dz1)
+
