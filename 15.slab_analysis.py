@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Fri Nov 19 13:14:24 2021
@@ -91,7 +91,7 @@ lat2=`awk '(NR==2){print $2}' line.txt`
     awk '{print $2, $4}' %(area)s-litho.txt | gmt plot -W2p,240/128/128,-- 
     gmt legend -DjLB+w5.5c+o0.5c -F+p1p+gbeige <<- EOF
 S 0.5c - 0.9c - 2p,240/128/128 1.2c  LAB (CAM2016)
-S 0.5c - 0.9c - 2p,72/61/139 1.2c  Moho Depth
+S 0.5c - 0.9c - 2p,72/61/139 1.2c  Moho Depth (Szwillus)
 EOF
     gmt plot -R%(minlat)f/%(maxlat)f/-6500/5000 -Bxafg1000+l"Topography (m)" -BWsne -Bya2000f1000+l"height (m)" -JX15c/4c -W2p table.txt -Yh+0c
     gmt project -C$lon/$lat -E$lon2/$lat2 -G0.1 -Q | gmt grdtrack -Gcut.nc | awk '{print $2,$4}' >table2.txt
@@ -111,8 +111,6 @@ sy = y[0]
 new_cord=np.zeros(len(x))
 for uu in range(1,len(x)):
     new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
-#mindepth=-300
-
 x=new_cord[z>mindepth]
 z=z[z>mindepth]
 x=x[z<-10]
