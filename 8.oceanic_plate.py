@@ -9,12 +9,15 @@ import math
 import flac
 import os,sys
 import numpy as np
+from scipy import interpolate
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 model = str(sys.argv[1])
-#path = '/home/jiching/geoflac/'+model+'/'
+path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
-path = '/scratch2/jiching/sem02model/'+model+'/'
+#path = '/scratch2/jiching/sem02model/'+model+'/'
 #path = '/scratch/jiching/summer2021/week11/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = '/Volumes/My Book/model/'+model+'/'
@@ -33,7 +36,9 @@ find_flat_dz1=[]
 find_flat_dz2=[]
 figg=0
 figg2=0
+fig_spline=0
 rrrrr=np.zeros(end)
+mindepth=-200
 
 for i in range(1,end):
     x, z = fl.read_mesh(i)
@@ -80,8 +85,8 @@ for i in range(1,end):
     qq2=qq[1:ww]
     mmm=f2.moving_window_smooth(m,5)
     mmm2=f2.moving_window_smooth(m2,6)
-    ox = ox[oz>-100]
-    oz = oz[oz>-100]
+    ox = ox[oz>mindepth]
+    oz = oz[oz>mindepth]
     z1=np.polyfit(ox,oz,4)
     p4=np.poly1d(z1)
     w1=p4(ox)
@@ -89,6 +94,33 @@ for i in range(1,end):
     p2=np.polyder(p4,2)
     w2=p3(ox)
     w3=p2(ox)
+    kk=3
+    ss=1
+    tck = interpolate.splrep(ox,oz,k=kk,s=ss)
+    zz0=interpolate.splev(ox,tck,der=0)    
+    zz1=interpolate.splev(ox,tck,der=1)    
+    zz2=interpolate.splev(ox,tck,der=2) 
+    yders = interpolate.spalde(ox, tck)
+    if fig_spline:
+        fig0,(q1)= plt.subplots(1,1,figsize=(10,8))
+        q1.plot(ox,zz0,c='r')
+        q1.plot(ox,oz,'k--')
+        q1.set_aspect('equal', adjustable='box')
+        q1.set_ylim(mindepth,0)
+        q1.grid()
+        q1.tick_params(axis='x', labelsize=16)
+        q1.tick_params(axis='y', labelsize=16)
+        fig0.savefig(path+str(input)+str(i)+'_slab_spline.png')
+    mm=-1;ff2=[]
+    for pp,uu in enumerate(zz2):
+        if mm*uu<0:
+            ff2.append(ox[pp])
+        mm = uu
+    if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
+        find_flat_dz2.append(fl.time[i])
+    #    if len(ff1)>1 and (ff1[1]-start)>50:
+    #        find_flat_dz1.append(i)
+#===========================================================================    
     # calculate residual
     rid=0
     for tt,cal in enumerate(oz):
@@ -138,18 +170,18 @@ for i in range(1,end):
         q3.tick_params(axis='y', labelsize=16)
         q3.set_xlim(start,final) 
         fig2.savefig(path+'frame='+str(i)+'_fig2.png')
-    cc=-1;ff1=[]
-    for rr,oo in enumerate(w2):
-        if cc*oo<0:
-            ff1.append(ox[rr])
-        cc = oo
-    mm=-1;ff2=[]
-    for pp,uu in enumerate(w3):
-        if mm*uu<0:
-            ff2.append(ox[pp])
-        mm = uu  
-    if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
-        find_flat_dz2.append(fl.time[i])
+#    cc=-1;ff1=[]
+   # for rr,oo in enumerate(w2):
+   #     if cc*oo<0:
+#            ff1.append(ox[rr])
+   #     cc = oo
+   # mm=-1;ff2=[]
+   # for pp,uu in enumerate(w3):
+   #     if mm*uu<0:
+   #         ff2.append(ox[pp])
+   #     mm = uu  
+   # if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
+   #     find_flat_dz2.append(fl.time[i])
     #    if len(ff1)>1 and (ff1[1]-start)>50:
     #        find_flat_dz1.append(i)
     
