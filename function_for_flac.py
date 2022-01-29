@@ -107,9 +107,9 @@ def continental_geothermal_T(z,cond1,cond2,depth):
     T = np.zeros_like(z)
     for kk,zz in enumerate(z):
         if zz/1000 > depth:
-            T[kk]= depth * cond1 + (zz/1000-depth) * cond2 + 10 + zz/1000*0.6
-        else:T[kk] = cond1 * zz/1000 + 10 + zz/1000*0.6
-    T[T>1330]=1329
+            T[kk]= depth * cond1 + (zz/1000-depth) * cond2 
+        else:T[kk] = cond1 * zz/1000  
+    T[T>1330]=1330
     return T
 def get_visc(edot, T, n, A, E):
     '''edot: second invariant of strain rate
