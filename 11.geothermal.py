@@ -10,13 +10,13 @@ import numpy as np
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 
-plt.rcParams["font.family"] = "Times New Roman"
+#plt.rcParams["font.family"] = "Times New Roman"
 
 layerz = (0, 2e3, 6e3, 16e3)   # 1st elem must be 0
 
-deepz = layerz[-1] * 10
+deepz = layerz[-1] * 20
 z = np.linspace(0, deepz, num=1000)
-
+depth=170
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
 
@@ -26,14 +26,14 @@ T_con = f2.continental_geothermal_T(z,20,6,45)
     # if T_con[ii]>1330:
         # print(T_con[ii])
         # T_con[ii]=1330
-T_oce = f2.half_space_cooling_T(z, 10, 1330, 15)
-
+T_oce = f2.half_space_cooling_T(z, 10, 1330, 40)
+T_con4 = (1330-0)/depth*z/1000
 #------------------------------------------------------------------------------
-fig, ax = plt.subplots(1,1,figsize=(6,10))
+fig, ax = plt.subplots(1,1,figsize=(9,15))
 bwith = 3
 ax.spines['bottom'].set_linewidth(bwith)
-# ax.spines['top'].set_linewidth(bwith)
-# ax.spines['right'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
 ax.spines['left'].set_linewidth(bwith)
 
 ax.tick_params(axis='x', labelsize=26)
@@ -41,16 +41,29 @@ ax.tick_params(axis='y', labelsize=26)
 ax.set_title('Geotherm',fontsize=30)
 ax.set_xlabel('Temperature ($^\circ$C)',fontsize=26)
 ax.set_ylabel('Depth (km)',fontsize=26)
-# ax.grid()
-temp_con = z/1000*0.6+T_con
+ax.grid()
+#temp_con = z/1000*0.6+T_con
+#T_oce = z/1000*0.6+T_oce
 for ii in range(len(T_con)):
-    if temp_con[ii]>1330:
-        temp_con[ii]=1329
-ax.plot(temp_con,-z/1000,color='#8B008B',lw=6,label='continental geotherm')
+#    print(z[ii]/1000,T_oce[ii])
+#    if T_con[ii]>=1330:
+#        T_con[ii]=1300#+(z[ii]/1000-114)*0.6
+    if T_con4[ii]>=1330:
+        T_con4[ii]=1330#+(z[ii]/1000-depth)*0.6
+    if T_oce[ii]>=1330:
+        T_oce[ii]=1330#+(z[ii]/1000-103)*0.6
+#        print(z[ii],z[ii]/1000-depth)
+T_oce = z/1000*0.6+T_oce
+T_con = z/1000*0.6+T_con
+T_con4 = z/1000*0.6+T_con4
+ax.plot(T_con,-z/1000,color='#8B008B',lw=6,label='continental geotherm')
 ax.plot(T_oce,-z/1000,color='#4169E1',lw=6,label='oceanic geotherm')
-ax.set_xlim(0,1500)
-ax.set_ylim(-100,0)
+ax.plot(T_con4,-z/1000,color='g',lw=6,label='one layer continental geotherm')
+ax.axvline(1330,-z[-1]/1000,0,c='r')
+ax.set_xlim(0,2000)
+ax.set_ylim(-z[-1]/1000,0)
 # ax.legend(fontsize=26)
-ax.legend(fontsize=36,bbox_to_anchor=(1.05, 1))
-ax.spines['right'].set_visible(False)
-ax.spines['top'].set_visible(False)
+ax.legend(fontsize=16)
+#ax.spines['right'].set_visible(False)
+#ax.spines['top'].set_visible(False)
+fig.savefig('/home/jiching/geoflac/figure/goethermal.png')
