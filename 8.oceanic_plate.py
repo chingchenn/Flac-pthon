@@ -14,11 +14,11 @@ from scipy import interpolate
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-# model = str(sys.argv[1])
-# path = '/home/jiching/geoflac/'+model+'/'
+model = str(sys.argv[1])
+path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
-model='s1303'
-path = 'D:/model/'+model+'/'
+#model='s1401'
+#path = 'D:/model/'+model+'/'
 #path = '/scratch2/jiching/sem02model/'+model+'/'
 #path = '/scratch/jiching/summer2021/week11/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
@@ -31,10 +31,10 @@ nex = fl.nx - 1;nez = fl.nz - 1
 phase_oceanic = 3
 phase_ecolgite = 13
 angle = np.zeros(end)
-bet = 2
+bet = 10
 find_flat_dz1=[]
 find_flat_dz2=[]
-figg=1
+figg=0
 figg2=1
 fig_spline=1
 rrrrr=np.zeros(end)
@@ -94,8 +94,7 @@ for i in range(233,234):
     p2=np.polyder(p4,2)
     w2=p3(ox)
     w3=p2(ox)
-    kke=3
-    ss=20
+    kke=3;ss=50
     new_xx=np.linspace(min(ox),max(ox),len(ox))
     tck = interpolate.splrep(new_xx,oz,k=kke,s=ss)
     zz0=interpolate.splev(new_xx,tck,der=0)    
@@ -103,7 +102,7 @@ for i in range(233,234):
     zz2=interpolate.splev(new_xx,tck,der=2) 
     yders = interpolate.spalde(ox, tck)
     if fig_spline:
-        fig0,(aa1,aa2,aa3)= plt.subplots(3,1,figsize=(10,8))
+        fig0,(aa1,aa2,aa3)= plt.subplots(3,1,figsize=(9,12))
         aa1.plot(new_xx,zz0,c='r')
         aa1.plot(ox,oz,'k--')
         # q1.set_aspect('equal', adjustable='box')
@@ -113,7 +112,8 @@ for i in range(233,234):
         aa3.plot(ox,zz2)
         aa1.tick_params(axis='x', labelsize=16)
         aa1.tick_params(axis='y', labelsize=16)
-        # fig0.savefig(path+str(input)+str(i)+'_slab_spline.png')
+        aa3.set_ylim(-0.1,0.1)
+        fig0.savefig(path+str(model)+'_'+str(i)+'_slab_spline.png')
     mm=-1;ff2=[]
     for pp,uu in enumerate(zz2):
         if mm*uu<0:
@@ -153,7 +153,7 @@ for i in range(233,234):
         ccc.tick_params(axis='y', labelsize=16)
         ccc.set_xlim(start,final)
         # ccc.set_ylim(-0.0005,0.0005)
-        # fig.savefig(path+model+'frame='+str(i)+'_fig1.png')
+        fig.savefig(path+model+'frame='+str(i)+'_fig1.png')
     if figg2:
         fig2,(q1,q2,q3)= plt.subplots(3,1,figsize=(9,12))
         q1.plot(ox,w1,c='k',lw=3)
@@ -172,7 +172,7 @@ for i in range(233,234):
         q2.tick_params(axis='y', labelsize=16)
         q3.tick_params(axis='y', labelsize=16)
         q3.set_xlim(start,final) 
-        # fig2.savefig(path+'frame='+str(i)+'_fig2.png')
+        fig2.savefig(path+'frame='+str(i)+'_fig2.png')
 #    cc=-1;ff1=[]
    # for rr,oo in enumerate(w2):
    #     if cc*oo<0:
