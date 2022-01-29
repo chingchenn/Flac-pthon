@@ -9,6 +9,7 @@ Created on Thu May  8 13:28:16 2021
 
 import sys
 import math
+import pandas as pd
 import numpy as np
 from math import sqrt
 from scipy.special import erf
@@ -103,12 +104,17 @@ def half_space_cooling_T(z, Tsurf, Tmantle,  age_in_myrs):
             sqrt(4 * diffusivity * age_in_myrs * myrs2sec) )
     return T
 
-def continental_geothermal_T(z,cond1,cond2,depth):
+def continental_geothermal_T3(z,cond1,cond2,depth):
     T = np.zeros_like(z)
     for kk,zz in enumerate(z):
         if zz/1000 > depth:
             T[kk]= depth * cond1 + (zz/1000-depth) * cond2 
         else:T[kk] = cond1 * zz/1000  
+    T[T>1330]=1330
+    return T
+def continental_geothermal_T4(z, Tsurf, Tmantle, depth):
+    T = np.zeros_like(z)
+    T = Tsurf + (Tmantle - Tsurf)/depth * z/1000
     T[T>1330]=1330
     return T
 def get_visc(edot, T, n, A, E):
@@ -203,3 +209,7 @@ def getDistance(latA, lonA, latB, lonB):
     distance = ra * (x + dr)
     distance = round(distance / 1000, 4)
     return distance
+def phase_pro(phasenumber):
+    ff=pd.read_csv('phase.csv',index_col='phase')
+    density,alfa,bata,n,A,E,rl,rm,plas1,plas2,fric1,fric2,coh1,coh2,dilat1,dilat2,cond,cp,Ts,Tl,Tk,fk=ff.iloc[phasenumber-1]
+    return density,alfa,bata,n,A,E,rl,rm,plas1,plas2,fric1,fric2,coh1,coh2,dilat1,dilat2,cond,cp,Ts,Tl,Tk,fk
