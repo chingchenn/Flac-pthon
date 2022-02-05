@@ -4,17 +4,14 @@ import flac
 import os,sys
 import numpy as np
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-model_list=['w1266','w1265']
+model_list=['k0331','k0332']
 name_list=['155km','115km']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
-case =sys.argv[1]
-depth1=sys.argv[2]
-depth2=sys.argv[3]
 # depth1=-5
 # depth2=-150
 # case =1
@@ -26,6 +23,9 @@ if len(sys.argv) <= 1:
                           Note that [2] [3] is negative
           ''')
     sys.exit()
+case =sys.argv[1]
+depth1=sys.argv[2]
+depth2=sys.argv[3]
 if int(case)==1:
     print(11111111111111111)
     fig, (ax2)= plt.subplots(1,1,figsize=(13,8))
@@ -66,8 +66,8 @@ for qq,model in enumerate(model_list):
                 crust_x[j] = np.average(ele_x[j,ind_oceanic])
                 crust_z[j] = np.average(ele_z[j,ind_oceanic])
 
-        ind_within_80km = (crust_z >= depth2) * (crust_z < depth1)
-        if not True in (crust_z < depth2):
+        ind_within_80km = (crust_z >= int(depth2)) * (crust_z < int(depth1))
+        if not True in (crust_z < int(depth2)):
             continue
     
         crust_xmin = np.amin(crust_x[ind_within_80km])
@@ -85,10 +85,10 @@ for qq,model in enumerate(model_list):
         ax.set_title('Smoothing Angle Variation')
         ax.set_ylabel('Angel ($^\circ$)')
     ax2.plot(fl.time[angle>0],angle[angle>0],c=newcolors[qq],lw=2,label=name_list[qq])
-    # ax2.legend(title = "velocity mm/year",fontsize = 8)
+    ax2.legend(title = "geology zone",fontsize = 16)
     ax2.set_xlim(0,fl.time[-1])
     ax2.grid(axis='y')
     ax2.set_xlabel('Time (Myr)')
     ax2.set_ylabel('Angel ($^\circ$)')
     ax2.set_title('Angle Variation')
-# plt.savefig('/home/jiching/geoflac/'+'figure/'+'convergent dip.png')
+plt.savefig('/home/jiching/geoflac/figure/'+'dip_'+model_list[0]+'_'+model_list[1]+'_'+str(depth2)+'km'+'_.png')
