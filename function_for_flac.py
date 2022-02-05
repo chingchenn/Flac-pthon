@@ -14,8 +14,6 @@ import numpy as np
 from math import sqrt
 from scipy.special import erf
 
-
-
 sys.path.append('/home/jiching/geoflac/util')
 
 def get_topo(xmesh,zmesh,frame):
@@ -85,17 +83,14 @@ def chamber_element(xmesh,zmesh,frame,mm):
                 chamber_number.append(mm[xx,zz])
     return chamber_xele,chamber_zele,chamber_number
 
-def moving_window_smooth(array,window_width):
-    new_array=[0]
-    temp=int(window_width/2)    
-    for kk in range(2,temp+1):
-        new_array.append(array[kk-1])
-    for kk in range(temp,len(array)-(temp)):
-        q=sum(array[kk-temp:kk+temp+1])/window_width
-        new_array.append(q)
-    for kk in range((len(array)-temp+1),len(array)+1):
-        new_array.append(array[kk-1])
-    return new_array
+def moving_window_smooth(A,window_width):
+    MM = np.zeros(len(A))    
+    for kk in range(0,len(A)):
+        if kk>(len(A)-window_width):
+            MM[kk] = A[kk]
+        else:
+            MM[kk] = sum(A[kk:kk+window_width])/window_width
+    return MM
 def half_space_cooling_T(z, Tsurf, Tmantle,  age_in_myrs):
     diffusivity = 1e-6
     myrs2sec = 86400 * 365.2425e6
@@ -171,24 +166,6 @@ def plastic_stress(z,layerz,Dfc,g=9.81):
         n1 = (z >= z1).argmax()
         plast[n0:n1] = ps[n0:n1]
     return plast
-
-def get_strength():
-    layerz = (0, 18e3, 30e3)   # 1st elem must be 0
-    Dfc = ((2800,30,4e7),
-           (2900,30,4e7),
-           (3300,30,4e7))
-    nAEs = ( (3.05, 1.25e-1, 2.76e+5),
-           (3.05, 1.25e-1, 3.76e+5),
-           (3.00, 7.00e+4, 5.20e+5))
-    edot = 1e-14  # high strain rate
-    edot = 1e-15  # low strain rate
-    deepz = layerz[-1] * 3
-    z = np.linspace(0, deepz, num=1000)
-    frico_strength = plastic_stress(z,layerz,Dfc)
-    con_T = continental_geothermal_T(z,20, 6,45)
-    visc = visc_profile(z, con_T, edot, layerz, nAEs)
-    visco_strength=visc* edot *2 #Pa
-    return frico_strength,visco_strength
 
 def getDistance(latA, lonA, latB, lonB):
     ra = 6378140  
