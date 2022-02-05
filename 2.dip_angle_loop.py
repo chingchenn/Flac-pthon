@@ -8,8 +8,8 @@ matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-model_list=['w0725','w0726']
-name_list=['no root ','root','80-7.5']
+model_list=['k0331','k0332']
+name_list=['155km','115km']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
 case =sys.argv[1]
@@ -20,8 +20,8 @@ if int(case)==2:
     print(22222222222222222)
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(10,10))
 for qq,model in enumerate(model_list):
-    path = '/scratch2/jiching/'+model+'/'
-    path = '/home/jiching/geoflac/'+model+'/'
+    path = '/scratch2/jiching/22winter/'+model+'/'
+#    path = '/home/jiching/geoflac/'+model+'/'
     os.chdir(path)
     fl = flac.Flac();end = fl.nrec
     nex = fl.nx - 1;nez = fl.nz - 1
