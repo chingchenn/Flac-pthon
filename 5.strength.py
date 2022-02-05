@@ -18,13 +18,11 @@ normal continental litho, therm 3 =     2
 depleted continental litho, therm 3 =   3
 normal continental litho, therm 4 =     4
 depleted continental litho, therm 4 =   5
-
+s1518 geology                       =   6
 '''
 
-geo = 2
-
+geo = 6
 withregion = 1
-
 max_depth = -150
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
@@ -46,6 +44,10 @@ elif geo==4:
 elif geo==5:
     layerz = (0, 18e3, 30e3, 40e3)
     phase=[2,6,19,4]
+    tem=4
+elif geo==6:
+    layerz = (0, 25e3, 35e3)
+    phase=[2,14,4]
     tem=4
 #---------------------------- read phase from csv -----------------------------
 pu=[]
