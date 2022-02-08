@@ -19,10 +19,10 @@ depleted continental litho, therm 3 =   3
 normal continental litho, therm 4   =   4
 depleted continental litho, therm 4 =   5
 s1518 geology                       =   6
-
+s1518 colser trench geology         =   7
 '''
 
-geo = 4
+geo = 7
 withregion = 1
 max_depth = -200
 # -------------------------------- geology zone ------------------------------- 
@@ -48,8 +48,12 @@ elif geo==5:
     tem=4
 elif geo==6:
     layerz = (0, 25e3, 35e3)
-    phase=[2,14,4]
+    phase=[2,6,4]
     tem=4
+elif geo==7:
+    layerz = (0, 15e3,40e3)
+    phase=[2,4,4]
+    tem=1
 #---------------------------- read phase from csv -----------------------------
 pu=[]
 for yy in range(20):
@@ -74,13 +78,13 @@ edot = 1e-15  # low strain rate
 deepz = layerz[-1] * 10
 z = np.linspace(0, deepz, num=1000)
 if tem == 1:
-    T = f2.half_space_cooling_T(z, 10, 1330, 15)
+    T = f2.half_space_cooling_T(z, 10, 1330, 50)
     print('geo='+str(geo))
 elif tem==3:
     T = f2.continental_geothermal_T3(z,20,6,45)
     print('geo='+str(geo))
 elif tem==4:
-    T = f2.continental_geothermal_T4(z, 10,1330, 110)
+    T = f2.continental_geothermal_T4(z, 10,1330, 120)
     print('geo='+str(geo))
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
