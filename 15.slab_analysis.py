@@ -188,20 +188,27 @@ for ww in range(1,len(qq)):
         m2.append((cz2-cz1)/(cx2-cx1))
 qq2=qq[1:ww+1]
 #-------------------------defint flat slab or not by Bspline result ---------------------------
-cc=-2;ff1=[];start=x[0];end=x[-1];therd=0.0
-for rr,oo in enumerate(zz1): # first derivative
-    if (cc+therd)*(oo+therd)<0:
-        ff1.append(x[rr])
-    cc = oo
+ff1=[];therd=0.2
+#for rr,oo in enumerate(zz1): # first derivative
+#    if (oo+therd)>0:
+#        ff1.append(x[rr])
+#    cc = oo
 mm=-1;ff2=[]
 for pp,uu in enumerate(zz2): # second derivative
     if mm*uu<0:
         ff2.append(x[pp])
-    mm = uu  
-if len(ff2)>1 and (ff2[1]-ff2[0])>100 :
+    mm = uu
+for ee in range(1,len(ff2)):
+    if  zz2[(x>ff2[ee-1])* (x<ff2[ee])].all():
+        cond1=ff2
+        break
+for anyone in (zz1[(x>cond1[0])* (x<cond1[1])]):
+    if (anyone + therd)>0:
+        ff1.append(anyone)
+if len(ff2)>1 and (ff2[1]-ff2[0])>90 :
     print(str(input)+' has the possibility to be a flat slab')
-    #if len(ff1)>1 and (ff1[1]-start)>50:
-    #    print(str(input)+' is flat slab')
+    if len(ff1)>10:
+        print(str(input)+' is flat slab')
 else: print(str(input)+' is not a flat slab')
 print(ff2)
 #-------------------------------------call pyhton to plot---------------------------------------

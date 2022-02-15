@@ -5,7 +5,6 @@ Created on Fri Nov 26 00:00:03 2021
 @author: JiChing Chen
 """
 
-
 import flac
 import os,sys
 import numpy as np
@@ -15,7 +14,6 @@ import matplotlib.pyplot as plt
 import function_savedata as fs
 import function_for_flac as f2
 
-fig = 1
 temp2 = np.loadtxt('D:\\OneDrive - 國立台灣大學\\resarch\\slab 2.0/slab/Gline.txt')
 data = temp2[~np.isnan(temp2).any(axis=1)]
 x,y,z = data.T
@@ -24,9 +22,7 @@ sy = y[0]
 new_cord=np.zeros(len(x))
 for uu in range(1,len(x)):
     new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
-
 mindepth=-250
-
 x=new_cord[z>mindepth]
 z=z[z>mindepth]
 new_cord=x
@@ -39,12 +35,7 @@ zz0=interpolate.splev(x,tck,der=0)
 zz1=interpolate.splev(x,tck,der=1)    
 zz2=interpolate.splev(x,tck,der=2) 
 yders = interpolate.spalde(x, tck)
-
-    
-print('k=',kk,'s=',ss,'mean=',np.mean(zz0-z),'median=',np.median(zz0-z))
-    
-    
-
+print('k=',kk,'s=',ss,'mean=',np.mean(zz0-z),'median=',np.median(zz0-z)) 
 z1=np.polyfit(new_cord,z,1)
 p1=np.poly1d(z1)
 w1=p1(new_cord)
