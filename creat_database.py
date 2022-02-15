@@ -36,12 +36,12 @@ melting_plot = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/sem02model/'
-path = 'F:/model/'
+#path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 sys.path.append("/home/jiching/geoflac/util")
-model = 'k0425'
-# model = sys.argv[1]
+#model = 'k0425'
+model = sys.argv[1]
 os.chdir(path+model)
 
 fl = flac.Flac()
@@ -64,14 +64,15 @@ def trench(start_vts=1,model_steps=end):
     return trench_index,trench_x,trench_z
 
 def get_topo(start=1,end_frame=end):
-    topo = np.zeros(end);dis = np.zeros(end);time = np.zeros(end)
+    topo = [];dis = [];time = []
     trench_index, xtrench, ztrench = trench(start,end_frame)
     for step in range(start,end_frame):
         x,z = fl.read_mesh(step)
         sx,sz=f2.get_topo(x,z)
-        topo[step]=sz 
-        dis[step]=sx
-    time=fl.time
+        topo.append(sz) 
+        dis.append(sx)
+        for ii in range(len(sx)):
+            time.append(fl.time[step])
     return  dis, time, topo
 trenchfile=path+'data/trench_for_'+model+'.csv'
 def nodes_to_elements(xmesh,zmesh,frame):
@@ -227,12 +228,13 @@ if trench_plot:
     dis,time,topo=get_topo(start=1,end_frame=end)
     qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=8,vmin=-10)
     cbar=fig.colorbar(qqq,ax=ax)
-    ax.plot(df.trench_x,df.time,c='k',lw=2)
+    ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],c='k',lw=2)
     ax.set_xlim(0,dis[-1][-1])
-    ax.set_ylim(0,55)
+    ax.set_ylim(0,fl.time[-1])
+    ax.set_title(str(model)+" Bathymetry Evolution",fontsize=24)
     ax.set_ylabel('Time (Myr)',fontsize=20)
-    ax.set_xlabel('distance (km)',fontsize=20)
-    cbar.set_label('topography (km)',fontsize=20)
+    ax.set_xlabel('Distance (km)',fontsize=20)
+    cbar.set_label('Topography (km)',fontsize=20)
     plt.savefig(figpath+model+'_topo.png')
 if magma_plot:
     name='magma_for_'+model
