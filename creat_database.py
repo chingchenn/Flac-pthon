@@ -36,10 +36,12 @@ melting_plot = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/sem02model/'
+path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 sys.path.append("/home/jiching/geoflac/util")
-model = sys.argv[1]
+model = 'k0425'
+# model = sys.argv[1]
 os.chdir(path+model)
 
 fl = flac.Flac()
@@ -49,16 +51,16 @@ nez = fl.nz - 1
 time=fl.time
 #------------------------------------------------------------------------------
 def trench(start_vts=1,model_steps=end):
-    trench_x=[0]
-    trench_z=[0]
-    trench_index=[0]
+    trench_x=np.zeros(end)
+    trench_z=np.zeros(end)
+    trench_index=np.zeros(end)
     for i in range(start_vts,model_steps):
-        x,z = fl.read_mesh(i+1)
-        sx,sz=f2.get_topo(x,z,i+1)
+        x,z = fl.read_mesh(i)
+        sx,sz=f2.get_topo(x,z)
         arc_ind,trench_ind=f2.find_trench_index(z)
-        trench_index.append(sx[trench_ind])
-        trench_x.append(sx[trench_ind])
-        trench_z.append(sz[trench_ind])
+        trench_index[i]=trench_ind
+        trench_x[i]=sx[trench_ind]
+        trench_z[i]=sz[trench_ind]
     return trench_index,trench_x,trench_z
 
 def get_topo(start=1,end_frame=end):

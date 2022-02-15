@@ -17,15 +17,18 @@ from scipy.special import erf
 
 sys.path.append('/home/jiching/geoflac/util')
 
-def get_topo(xmesh,zmesh,frame):
+def get_topo(xmesh,zmesh):
     xtop=xmesh[:,0]
     ztop=zmesh[:,0]
     return xtop,ztop
 
 def find_trench_index(z):
     zz = z[:,0]
-    imax = zz.argmax()
-    i = zz[:imax].argmin()
+    if zz.all()==0:
+        imax,i=0,0
+    else:
+        imax = zz.argmax()
+        i = zz[:imax].argmin()
     return imax,i
 """   
 def nodes_to_elements(xmesh,zmesh,frame):
