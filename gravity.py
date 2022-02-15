@@ -222,11 +222,11 @@ def compute_bg_gravity(frame,sea_rho=1030):
     fl = flac.Flac()
     end = fl.nrec
     x, z = fl.read_mesh(frame)
-    def nodes_to_elements(xmesh,zmesh,frame):
+    def nodes_to_elements(xmesh,zmesh):
         ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
         ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
         return ele_x, ele_z
-    ele_x,ele_z=nodes_to_elements(x,z,frame)
+    ele_x,ele_z=nodes_to_elements(x,z)
     phase = fl.read_phase(frame)
     density = fl.read_density(frame)
     dtop=density[:,0]

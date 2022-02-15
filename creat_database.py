@@ -63,8 +63,8 @@ def trench(start_vts=1,model_steps=end):
         trench_z[i]=sz[trench_ind]
     return trench_index,trench_x,trench_z
 
-def get_topo(start=1,end_frame=end):
-    topo = [];dis = [];time = []
+def get_topo(start=1,end_frame=end): 
+    topo = [];dis = [];time = []  # do not change to array since the topo database is 3D
     trench_index, xtrench, ztrench = trench(start,end_frame)
     for step in range(start,end_frame):
         x,z = fl.read_mesh(step)
@@ -75,7 +75,7 @@ def get_topo(start=1,end_frame=end):
             time.append(fl.time[step])
     return  dis, time, topo
 trenchfile=path+'data/trench_for_'+model+'.csv'
-def nodes_to_elements(xmesh,zmesh,frame):
+def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
     ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
     return ele_x, ele_z
@@ -84,7 +84,7 @@ def plot_phase_in_depth(depth=0):
     for step in range(end):
         x, z = fl.read_mesh(step+1)
         phase=fl.read_phase(step+1)
-        ele_x, ele_z = nodes_to_elements(x,z,step)
+        ele_x, ele_z = nodes_to_elements(x,z)
         xt = ele_x[:,0]
         zt = ele_z[:,0]
         pp = np.zeros(xt.shape)
