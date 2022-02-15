@@ -4,13 +4,14 @@
 Created on Sat Jul 10 13:11:24 2021
 @author: jiching
 """
+import math
 import flac
 import os,sys
 import numpy as np
 import pandas as pd
 import gravity as fg
 import matplotlib
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as f2
@@ -19,13 +20,15 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
-trench_location = 1
+trench_location = 0
+dip = 1
 magma = 0
 gravity = 0
 gravity_frame = 0
 melting = 0
 # plot data
-trench_plot = 1
+trench_plot = 0
+dip_plot = 1
 magma_plot = 0
 marker_number = 0
 gravity_plot = 0
@@ -79,6 +82,44 @@ def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
     ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
     return ele_x, ele_z
+def dip_setting(depth1,depth2):
+    depth1=depth1
+    depth2=depth2
+    return depth1,depth2
+def plate_dip(depth1,depth2):
+    phase_oceanic = 3
+    phase_ecolgite = 13
+    phase_oceanic_1 = 17
+    phase_ecolgite_1 = 18
+    angle = np.zeros(end)
+    for i in range(1,end):
+        x, z = fl.read_mesh(i)
+        ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
+        ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
+        phase = fl.read_phase(i)
+        trench_ind = np.argmin(z[:,0]) 
+        if z[trench_ind,0] > -2: 
+            continue
+        crust_x = np.zeros(nex)
+        crust_z = np.zeros(nex)
+        for j in range(trench_ind,nex):
+            ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
+            if True in ind_oceanic:
+                crust_x[j] = np.average(ele_x[j,ind_oceanic])
+                crust_z[j] = np.average(ele_z[j,ind_oceanic])
+        ind_within_80km = (crust_z >= int(depth2)) * (crust_z < int(depth1))
+        if not True in (crust_z < int(depth2)):
+            continue
+
+        crust_xmin = np.amin(crust_x[ind_within_80km])
+        crust_xmax = np.amax(crust_x[ind_within_80km])
+        crust_zmin = np.amin(crust_z[ind_within_80km])
+        crust_zmax = np.amax(crust_z[ind_within_80km])
+        dx = crust_xmax - crust_xmin
+        dz = crust_zmax - crust_zmin
+        angle[i] = math.degrees(math.atan(dz/dx))
+    return time,angle
+
 def plot_phase_in_depth(depth=0):
     time=[];ph=[];xx=[]
     for step in range(end):
@@ -196,6 +237,13 @@ if trench_location:
     fs.save_3array(name,savepath,time,trench_x,trench_z,
                 'time','trench_x','trench_z')
     print('=========== DONE =============')
+if dip:
+    print('-----creat angle database-----')
+    name='plate_dip_of_'+model
+    depth1,depth2 = dip_setting(-5,-120)
+    time,dip = plate_dip(depth1,depth2)
+    fs.save_2array(name,savepath,time,dip,'time','angle')
+    print("============ DONE ============")
 if gravity:
     print('-----creat gravity database----- ')
     name='gravity_all_'+model
@@ -236,6 +284,18 @@ if trench_plot:
     ax.set_xlabel('Distance (km)',fontsize=20)
     cbar.set_label('Topography (km)',fontsize=20)
     plt.savefig(figpath+model+'_topo.png')
+if dip_plot:
+    name = 'plate_dip_of_'+model
+    depth1,depth2 = dip_setting(-5,-120)
+    df = pd.read_csv(savepath+name+'.csv')
+    fig, (ax2)= plt.subplots(1,1,figsize=(13,8))
+    ax2.plot(fl.time[df.angle>0],df.angle[df.angle>0],c='royalblue',lw=2)
+    ax2.set_xlim(0,fl.time[-1])
+    ax2.set_title('Angle Variation of '+str(model))
+    ax2.set_xlabel('Time (Myr)')
+    ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth')
+    ax2.grid()
+    fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
 if magma_plot:
     name='magma_for_'+model
     df = pd.read_csv(path+'data/'+name+'.csv')
