@@ -6,8 +6,10 @@ import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
 model = str(sys.argv[1])
+# model = 'k0211'
 path = '/home/jiching/geoflac/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
+# path = 'F:/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx - 1;nez = fl.nz - 1
@@ -29,7 +31,7 @@ for i in range(1,end):
     phase = fl.read_phase(i)
     trench_ind = np.argmin(z[:,0]) # node的id
     if z[trench_ind,0] > -2: # 地表如果高度大於-2公里，就當作海溝還沒形成。
-        print (i)
+        # print (i)
         continue
     crust_x = np.zeros(nex)
     crust_z = np.zeros(nex)
@@ -39,8 +41,9 @@ for i in range(1,end):
             crust_x[j] = np.average(ele_x[j,ind_oceanic])
             crust_z[j] = np.average(ele_z[j,ind_oceanic])
     ax.plot(crust_x[crust_z < 0],crust_z[crust_z < 0],color=newcolors[i],zorder=1)
-    ind_within_80km = (crust_z >= -80) * (crust_z < -25)
+    ind_within_80km = (crust_z >= -80) * (crust_z < -5)
     if not True in (crust_z < -80):
+        print(i)
         continue
 
     crust_xmin = np.amin(crust_x[ind_within_80km])
@@ -50,17 +53,17 @@ for i in range(1,end):
     dx = crust_xmax - crust_xmin
     dz = crust_zmax - crust_zmin
     angle[i] = math.degrees(math.atan(dz/dx))
-ax.plot([100,600],[-100,-100],'--',zorder=0,color='grey')
+ax.plot([0,3200],[-100,-100],'--',zorder=0,color='grey')
 ax.set_aspect('equal')
 ax.set_xlabel('Distance (km)')
 ax.set_ylabel('Depth (km)')
-# ax.set_xlim(100,600)
+ax.set_xlim(crust_x[crust_x>0][0],x[:,nez][-1])
+ax.set_ylim(-200,0)
 ax.set_title('Geometry of Subducted Slab')
 
 ax2.plot(fl.time[angle>0],angle[angle>0],c='blue',lw=2)
-# ax2.set_xlim(0,24)
-ax2.set_xticks(np.linspace(0,30,6))
-# ax2.set_ylim(15,30)
+ax2.set_xlim(0,fl.time[-1])
+# ax2.set_xticks(np.linspace(0,30,6))
 ax2.set_title('Angle Variation')
 ax2.set_xlabel('Time (Myr)')
 ax2.set_ylabel('Angel ($^\circ$)')
