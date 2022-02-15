@@ -20,9 +20,10 @@ normal continental litho, therm 4   =   4
 depleted continental litho, therm 4 =   5
 s1518 geology                       =   6
 s1518 colser trench geology         =   7
+s1517 geology 			    =   8
 '''
 
-geo = 7
+geo = 8
 withregion = 1
 max_depth = -200
 # -------------------------------- geology zone ------------------------------- 
@@ -51,6 +52,10 @@ elif geo==6:
     phase=[2,6,4]
     tem=4
 elif geo==7:
+    layerz = (0, 15e3,40e3)
+    phase=[2,4,4]
+    tem=1
+elif geo==8:
     layerz = (0, 15e3,40e3)
     phase=[2,4,4]
     tem=1
@@ -147,3 +152,4 @@ ax.set_yticks(depthmajor_ticks)
 ax3.set_yticks(depthmajor_ticks)
 ax3.grid(which='both')
 ax3.axvspan(5*1e20,1e21,facecolor='green', alpha=0.3)
+fig.savefig('/home/jiching/geoflac/figure/viscosity_and_strength.png')
