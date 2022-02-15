@@ -64,16 +64,15 @@ def trench(start_vts=1,model_steps=end):
     return trench_index,trench_x,trench_z
 
 def get_topo(start=1,end_frame=end):
-    topo = [];dis = [];time = []
-    trench_index, xtrench, ztrench=trench(start,end_frame)
+    topo = np.zeros(end);dis = np.zeros(end);time = np.zeros(end)
+    trench_index, xtrench, ztrench = trench(start,end_frame)
     for step in range(start,end_frame):
-        x,z = fl.read_mesh(step+1)
-        sx,sz=f2.get_topo(x,z,step+1)
-        topo.append(sz) 
-        dis.append(sx)
-        for ii in range(len(sx)):
-            time.append(fl.time[step])
-    return  dis, time,topo
+        x,z = fl.read_mesh(step)
+        sx,sz=f2.get_topo(x,z)
+        topo[step]=sz 
+        dis[step]=sx
+    time=fl.time
+    return  dis, time, topo
 trenchfile=path+'data/trench_for_'+model+'.csv'
 def nodes_to_elements(xmesh,zmesh,frame):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
