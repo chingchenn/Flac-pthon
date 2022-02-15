@@ -29,12 +29,7 @@ def find_trench_index(z):
         imax = zz.argmax()
         i = zz[:imax].argmin()
     return imax,i
-"""   
-def nodes_to_elements(xmesh,zmesh,frame):
-    ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
-    ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
-    return ele_x, ele_z
-"""
+
 def read_depth(z_array,x_index,z_index):
     depth=z_array[x_index,0]-z_array[x_index,z_index]
     return depth
