@@ -13,19 +13,13 @@ import matplotlib.pyplot as plt
 #plt.rcParams["font.family"] = "Times New Roman"
 
 layerz = (0, 2e3, 6e3, 16e3)   # 1st elem must be 0
-
 deepz = layerz[-1] * 20
 z = np.linspace(0, deepz, num=1000)
 depth=170
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
 
-T_con = f2.continental_geothermal_T(z,20,6,45)
-# for ii in range(len(T_con)):
-    
-    # if T_con[ii]>1330:
-        # print(T_con[ii])
-        # T_con[ii]=1330
+T_con = f2.continental_geothermal_T3(z,20,6,45)
 T_oce = f2.half_space_cooling_T(z, 10, 1330, 40)
 T_con4 = (1330-0)/depth*z/1000
 #------------------------------------------------------------------------------
@@ -42,17 +36,12 @@ ax.set_title('Geotherm',fontsize=30)
 ax.set_xlabel('Temperature ($^\circ$C)',fontsize=26)
 ax.set_ylabel('Depth (km)',fontsize=26)
 ax.grid()
-#temp_con = z/1000*0.6+T_con
-#T_oce = z/1000*0.6+T_oce
 for ii in range(len(T_con)):
-#    print(z[ii]/1000,T_oce[ii])
-#    if T_con[ii]>=1330:
-#        T_con[ii]=1300#+(z[ii]/1000-114)*0.6
     if T_con4[ii]>=1330:
-        T_con4[ii]=1330#+(z[ii]/1000-depth)*0.6
+        T_con4[ii]=1330
     if T_oce[ii]>=1330:
-        T_oce[ii]=1330#+(z[ii]/1000-103)*0.6
-#        print(z[ii],z[ii]/1000-depth)
+        T_oce[ii]=1330
+
 T_oce = z/1000*0.6+T_oce
 T_con = z/1000*0.6+T_con
 T_con4 = z/1000*0.6+T_con4
