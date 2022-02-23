@@ -67,7 +67,7 @@ anglee= math.degrees(math.atan((np.amax(crust_ze[ind_withine])-np.amin(crust_ze[
                                /(np.amax(crust_xe[ind_withine])-np.amin(crust_xe[ind_withine]))))
 rc=abs((max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec*np.pi/180))*1e3
 re=abs((max(crust_xe)-max(crust_xc))/np.cos(anglee*np.pi/180))*1e3
-torque = rc*ocden*g*np.sin(90-anglec)+re*ecden*g*np.sin(90-anglee) # m^2 ?
+torque = rc*ocden*g*np.sin((90-anglec)*np.pi/180)+re*ecden*g*np.sin((90-anglee)/180)
 fig, (ax)= plt.subplots(1,1,figsize=(13,8))
 ax.scatter(crust_xc[ind_within],crust_zc[ind_within])
 ax.scatter(crust_xe[ind_withine],crust_ze[ind_withine])
