@@ -20,14 +20,14 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
-trench_location = 0
+trench_location = 1
 dip = 1
 magma = 0
 gravity = 0
 gravity_frame = 0
 melting = 0
 # plot data
-trench_plot = 0
+trench_plot = 1
 dip_plot = 1
 magma_plot = 0
 marker_number = 0
@@ -38,7 +38,7 @@ melting_plot = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
-#path = '/scratch2/jiching/sem02model/'
+#path = '/scratch2/jiching/22winter/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -274,7 +274,7 @@ if trench_plot:
     df = pd.read_csv(savepath+name+'.csv')
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
-    qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=8,vmin=-10)
+    qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=4,vmin=-10)
     cbar=fig.colorbar(qqq,ax=ax)
     ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],c='k',lw=2)
     ax.set_xlim(0,dis[-1][-1])
@@ -288,12 +288,12 @@ if dip_plot:
     name = 'plate_dip_of_'+model
     depth1,depth2 = dip_setting(-5,-120)
     df = pd.read_csv(savepath+name+'.csv')
-    fig, (ax2)= plt.subplots(1,1,figsize=(13,8))
+    fig, (ax2)= plt.subplots(1,1,figsize=(10,7))
     ax2.plot(fl.time[df.angle>0],df.angle[df.angle>0],c='royalblue',lw=2)
     ax2.set_xlim(0,fl.time[-1])
-    ax2.set_title('Angle Variation of '+str(model))
-    ax2.set_xlabel('Time (Myr)')
-    ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth')
+    ax2.set_title('Angle Variation of '+str(model),fontsize=24)
+    ax2.set_xlabel('Time (Myr)',fontsize=20)
+    ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth',fontsize=20)
     ax2.grid()
     fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
 if magma_plot:
