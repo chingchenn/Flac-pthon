@@ -15,10 +15,11 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 # model = str(sys.argv[1])
-model='w1260'
+model='k0421'
 path = '/home/jiching/geoflac/'+model+'/'
 path = '/Volumes/My Book/model/'+model+'/'
-i=97
+path = 'F:/model/'+model+'/'
+i=66
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx - 1;nez = fl.nz - 1
