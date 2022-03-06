@@ -15,10 +15,11 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 # model = str(sys.argv[1])
-model='w1260'
+model='k0421'
 path = '/home/jiching/geoflac/'+model+'/'
 path = '/Volumes/My Book/model/'+model+'/'
-i=97
+path = 'F:/model/'+model+'/'
+i=66
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx - 1;nez = fl.nz - 1
@@ -76,6 +77,3 @@ U = 5
 PA = np.sin(anglec*np.pi/180)/((np.pi-anglec*np.pi/180)+np.sin(anglec*np.pi/180))
 PB = np.sin(anglec*np.pi/180)**2/((anglec*np.pi/180)**2-np.sin(anglec*np.pi/180)**2)
 Torque_H  = 2*viscosity*U*(rc+re)/1e3*(PA+PB) #kg*m/s^2
-
-
-
