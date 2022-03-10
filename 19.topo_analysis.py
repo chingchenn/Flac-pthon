@@ -2,6 +2,7 @@
 # 2022 feb.23
 import flac
 import sys,os
+import pandas as pd
 import numpy as np
 import matplotlib
 # matplotlib.use('Agg')
@@ -26,15 +27,16 @@ trench_t = np.zeros(end)
 xx2 = np.zeros(end) 
 zz2 = np.zeros(end)
 arc_x = np.zeros(end)
-
+savepath = '/home/jiching/geoflac/data/'
 trenchfile='/home/jiching/geoflac/'+'data/trench_for_'+model+'.csv'
+dis, time, topo = get_topo()
 if not os.path.exists(trenchfile):
     trench_index,trench_x,trench_z = trench()
     name='trench_for_'+model
     fs.save_3array(name,savepath,time,trench_x,trench_z,'time','trench_x','trench_z')
 
 df = pd.read_csv(trenchfile)
-dis, time, topo = get_topo()
+
 fig, (ax) = plt.subplots(1,1,figsize=(10,12))
 qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=6,vmin=-10)
 cbar=fig.colorbar(qqq,ax=ax)
