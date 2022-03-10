@@ -37,6 +37,7 @@ phase_accre = 0
 melting_plot = 0
 
 #---------------------------------- SETTING -----------------------------------
+plt.rcParams["font.family"] = "Times New Roman"
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = 'F:/model/'
@@ -269,12 +270,13 @@ if melting:
 
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
+    print('--- start plotting the trench and topography with time ---')
     name='trench_for_'+model
     #df = pd.read_csv(path+'data/'+name+'.csv')
     df = pd.read_csv(savepath+name+'.csv')
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
-    qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=4,vmin=-10)
+    qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=6,vmin=-10)
     cbar=fig.colorbar(qqq,ax=ax)
     ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],c='k',lw=2)
     ax.set_xlim(0,dis[-1][-1])
@@ -283,7 +285,8 @@ if trench_plot:
     ax.set_ylabel('Time (Myr)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
     cbar.set_label('Topography (km)',fontsize=20)
-    plt.savefig(figpath+model+'_topo.png')
+    fig.savefig(figpath+model+'_topo.png')
+    print('=========== DONE =============')
 if dip_plot:
     name = 'plate_dip_of_'+model
     depth1,depth2 = dip_setting(-5,-120)

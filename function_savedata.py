@@ -63,3 +63,14 @@ def read_data_column(title,path,column_index):
     temp2=file[(column_index-1)]
     temp2=temp2.tolist()
     return temp2
+def save_1txt(title,path,array1):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f\n'%array1[kk])
+    f.close()
+def save_2txt(title,path,array1,array2):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f '%array1[kk])
+        f.write('%f\n'%array2[kk])
+    f.close()
