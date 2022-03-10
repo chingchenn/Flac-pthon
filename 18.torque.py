@@ -32,7 +32,7 @@ phase_oceanic_1 = 17
 phase_ecolgite_1 = 18
 ecden = 3480-3300
 ocden=2800-3300
-g=9.8
+g=10
 thickness=6
 angle = np.zeros(end)
 x, z = fl.read_mesh(i)
@@ -40,10 +40,8 @@ ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
 ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
 phase = fl.read_phase(i)
 trench_ind = np.argmin(z[:,0]) 
-crust_xc = np.zeros(nex)
-crust_zc = np.zeros(nex)
-crust_xe = np.zeros(nex)
-crust_ze = np.zeros(nex)
+crust_xc = np.zeros(nex);crust_zc = np.zeros(nex)
+crust_xe = np.zeros(nex);crust_ze = np.zeros(nex)
 for j in range(trench_ind,nex):
     ind_oceanicc = (phase[j,:] == phase_oceanic) 
     ind_oceanice = (phase[j,:] == phase_ecolgite)
@@ -63,13 +61,19 @@ crust_zmin = np.amin(crust_zc[ind_within])
 crust_zmax = np.amax(crust_zc[ind_within])
 dx = crust_xmax - crust_xmin
 dz = crust_zmax - crust_zmin
-anglec= math.degrees(math.atan(dz/dx))
+anglec= math.degrees(math.atan(dz/dx)) 
 anglee= math.degrees(math.atan((np.amax(crust_ze[ind_withine])-np.amin(crust_ze[ind_withine]))
                                /(np.amax(crust_xe[ind_withine])-np.amin(crust_xe[ind_withine]))))
 rc=abs((max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec*np.pi/180))*1e3
 re=abs((max(crust_xe)-max(crust_xc))/np.cos(anglee*np.pi/180))*1e3
-torque = rc*ocden*g*np.sin((90-anglec)*np.pi/180)+re*ecden*g*np.sin((90-anglee)/180)
+Torque_G = rc**2*ocden*g*np.sin((90-anglec)*np.pi/180)-re*ecden*g*np.sin((90-anglee)*np.pi/180) # kg*m/s^2
 fig, (ax)= plt.subplots(1,1,figsize=(13,8))
 ax.scatter(crust_xc[ind_within],crust_zc[ind_within])
 ax.scatter(crust_xe[ind_withine],crust_ze[ind_withine])
 ax.set_aspect('equal')
+## Hydrodynamic 
+viscosity = 1e23
+U = 5
+PA = np.sin(anglec*np.pi/180)/((np.pi-anglec*np.pi/180)+np.sin(anglec*np.pi/180))
+PB = np.sin(anglec*np.pi/180)**2/((anglec*np.pi/180)**2-np.sin(anglec*np.pi/180)**2)
+Torque_H  = 2*viscosity*U*(rc+re)/1e3*(PA+PB) #kg*m/s^2

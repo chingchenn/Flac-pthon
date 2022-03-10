@@ -6,28 +6,49 @@ import numpy as np
 import matplotlib
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import function_savedata as fs
+from creat_database import trench, get_topo, nodes_to_elements
 
-#model = sys.argv[1]
-model = 'k0421'
+model = sys.argv[1]
+#model = 'h0133'
 path = '/home/jiching/geoflac/'+model+'/'
-path = 'F:/model/'+model+'/'
+path='/scratch2/jiching/03model/'+model+'/'
+#path = 'F:/model/'+model+'/'
 os.chdir(path)
     
 fl = flac.Flac()
 end = fl.nrec
-nex = fl.nx - 1;nez = fl.nz - 1
     
 cmap = plt.cm.get_cmap('gist_earth')
 zmax, zmin =10, -10
 trench_x = np.zeros(end)
 trench_t = np.zeros(end)
-xx2 = trench_x
-zz2 = trench_t
+xx2 = np.zeros(end) 
+zz2 = np.zeros(end)
 arc_x = np.zeros(end)
+
+trenchfile='/home/jiching/geoflac/'+'data/trench_for_'+model+'.csv'
+if not os.path.exists(trenchfile):
+    trench_index,trench_x,trench_z = trench()
+    name='trench_for_'+model
+    fs.save_3array(name,savepath,time,trench_x,trench_z,'time','trench_x','trench_z')
+
+df = pd.read_csv(trenchfile)
+dis, time, topo = get_topo()
 fig, (ax) = plt.subplots(1,1,figsize=(10,12))
+qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=6,vmin=-10)
+cbar=fig.colorbar(qqq,ax=ax)
+ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],c='k',lw=2)
+ax.set_xlim(0,dis[-1][-1])
+ax.set_ylim(0,fl.time[-1])
+ax.set_title(str(model)+" Bathymetry Evolution",fontsize=24)
+ax.set_ylabel('Time (Myr)',fontsize=20)
+ax.set_xlabel('Distance (km)',fontsize=20)
+cbar.set_label('Topography (km)',fontsize=20)
+fig.savefig('/home/jiching/geoflac/figure/'+model+'_topo.png')
 
 for i in range(end):
-    x, z = fl.read_mesh(i+1)
+    x, z = fl.read_mesh(i)
     xmax = np.amax(x)
     xmin = np.amin(x)
     
@@ -35,14 +56,12 @@ for i in range(end):
     zt = z[:,0]
     t = np.zeros(xt.shape)
     t[:] = i*0.2
-    ax.scatter(xt,t,c=zt,cmap=cmap,vmin=zmin, vmax=zmax)
     trench_t[i] = t[0]
     trench_x[i] = xt[np.argmin(zt)]
     # print(xt[np.argmin(zt)])
     arc_x[i] = xt[np.argmax(zt)]
-    ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
-    ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
-    qq=99999
+    x_mid = df.trench_x[i]
+    
     zz = zt[xt>xt[np.argmin(zt)]]
     z2 = zt[np.argmin(zt)+np.argmin(zz)]
     xx2[i] = xt[np.argmin(zt)+np.argmin(zz)]
@@ -50,8 +69,6 @@ for i in range(end):
     print(np.argmin(zz))
     # xx2[i] = x2
 
-
-            
 ind_within=(arc_x<900)*(trench_x>100)
 #ax.plot(arc_x[ind_within],trench_t[ind_within],c='r',lw=4)
 ax.plot(trench_x[ind_within],trench_t[ind_within],'k-',lw='4')
@@ -71,4 +88,4 @@ ax_cbin = fig.add_axes([0.67, 0.18, 0.23, 0.03])
 cb_plot = ax.scatter([-1],[-1],s=0.1,c=[1],cmap=cmap,vmin=zmin, vmax=zmax)
 cb = fig.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
 ax_cbin.set_title('Bathymetry (km)')
-# plt.savefig('/home/jiching/geoflac/figure'+'/'+str(model)+'_topo.jpg')
+fig.savefig('/home/jiching/geoflac/figure'+'/'+str(model)+'_topo.jpg')
