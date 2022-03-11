@@ -20,15 +20,15 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
-trench_location = 1
-dip = 1
+trench_location = 0
+dip = 0
 magma = 0
 gravity = 0
 gravity_frame = 0
 melting = 0
 # plot data
-trench_plot = 1
-dip_plot = 1
+trench_plot = 0
+dip_plot = 0
 magma_plot = 0
 marker_number = 0
 gravity_plot = 0
@@ -87,31 +87,30 @@ def dip_setting(depth1,depth2):
     depth1=depth1
     depth2=depth2
     return depth1,depth2
-def plate_dip(depth1,depth2):
+def oceanic_slab(frame):
     phase_oceanic = 3
     phase_ecolgite = 13
     phase_oceanic_1 = 17
     phase_ecolgite_1 = 18
+    x, z = fl.read_mesh(frame)
+    ele_x, ele_z = nodes_to_elements(x,z)
+    phase = fl.read_phase(frame)
+    trench_ind = np.argmin(z[:,0]) 
+    crust_x = np.zeros(nex)
+    crust_z = np.zeros(nex)
+    for j in range(trench_ind,nex):
+        ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
+        if True in ind_oceanic:
+            crust_x[j] = np.average(ele_x[j,ind_oceanic])
+            crust_z[j] = np.average(ele_z[j,ind_oceanic])        
+    return crust_x,crust_z
+def plate_dip(depth1,depth2):
     angle = np.zeros(end)
     for i in range(1,end):
-        x, z = fl.read_mesh(i)
-        ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.
-        ele_z = (z[:fl.nx-1,:fl.nz-1] + z[1:,:fl.nz-1] + z[1:,1:] + z[:fl.nx-1,1:]) / 4.
-        phase = fl.read_phase(i)
-        trench_ind = np.argmin(z[:,0]) 
-        if z[trench_ind,0] > -2: 
-            continue
-        crust_x = np.zeros(nex)
-        crust_z = np.zeros(nex)
-        for j in range(trench_ind,nex):
-            ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
-            if True in ind_oceanic:
-                crust_x[j] = np.average(ele_x[j,ind_oceanic])
-                crust_z[j] = np.average(ele_z[j,ind_oceanic])
+        crust_x,crust_z = oceanic_slab(i)
         ind_within_80km = (crust_z >= int(depth2)) * (crust_z < int(depth1))
         if not True in (crust_z < int(depth2)):
             continue
-
         crust_xmin = np.amin(crust_x[ind_within_80km])
         crust_xmax = np.amax(crust_x[ind_within_80km])
         crust_zmin = np.amin(crust_z[ind_within_80km])
