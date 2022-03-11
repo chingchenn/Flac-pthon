@@ -12,7 +12,7 @@ import function_savedata as fs
 width=400
 fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
 fig3, (ax3) = plt.subplots(1,1,figsize=(8,6))
-model_list=['h0401','h0402','h0403','h0404']
+model_list=['k0429','k0430','k0433']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
 for kk,model in enumerate(model_list):
