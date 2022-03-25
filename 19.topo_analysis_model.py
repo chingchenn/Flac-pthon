@@ -9,10 +9,11 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_savedata as fs
 
-width=400
+width=700
 fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
 fig3, (ax3) = plt.subplots(1,1,figsize=(8,6))
-model_list=['k0429','k0430','k0433']
+model_list=['h0401','h0501','h0402','h0502']
+#model_list=['chi0401','chi0402','chi0403','chi0404','chi0405','Chi01']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
 for kk,model in enumerate(model_list):
@@ -26,11 +27,11 @@ ax2.set_title("Topography comparation")
 ax2.set_ylabel("Bathymetry (km)")
 ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
 ax2.legend(fontsize=16)
-fig2.savefig('/home/jiching/geoflac/figure'+'/'+'multi_topo_analysis.jpg')
+fig2.savefig('/home/jiching/geoflac/figure'+'/'+'multi_topo_analysis'+model_list[0]+'_'+model_list[-1]+'.jpg')
 ax3.grid()
 ax3.legend(fontsize=16)
 ax3.set_ylim(0,time[-1])
 ax3.set_title("ATdis comparation")
 ax3.set_ylabel("Time (Ma)",fontsize=16)
 ax3.set_xlabel("Distance differences (km)",fontsize=16)
-fig3.savefig('/home/jiching/geoflac/figure'+'/'+'multi_distance.jpg')
+fig3.savefig('/home/jiching/geoflac/figure'+'/'+'multi_distance'+model_list[0]+'_'+model_list[-1]+'.jpg')
