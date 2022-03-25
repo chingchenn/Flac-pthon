@@ -1,4 +1,4 @@
-# Flac-pthon
+# Flac-python
 some python code
 
 1. Creat_database.py is the main code for model analysis.
