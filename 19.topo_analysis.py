@@ -12,8 +12,8 @@ import function_savedata as fs
 
 model = sys.argv[1]
 #model = 'h0133'
-path = '/home/jiching/geoflac/'+model+'/'
-#path='/scratch2/jiching/03model/'+model+'/'
+#path = '/home/jiching/geoflac/'+model+'/'
+path='/scratch2/jiching/03model/'+model+'/'
 #path='/scratch2/jiching/22winter/'+model+'/'
 #path = 'F:/model/'+model+'/'
 os.chdir(path)

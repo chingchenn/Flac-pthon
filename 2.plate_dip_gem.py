@@ -10,7 +10,7 @@ from creat_database import oceanic_slab,nodes_to_elements
 model = str(sys.argv[1])
 #model = 'k0211'
 path = '/home/jiching/geoflac/'+model+'/'
-#path = '/scratch2/jiching/03model/'+model+'/'
+path = '/scratch2/jiching/03model/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = 'F:/model/'+model+'/'
 savepath = '/home/jiching/geoflac/data'

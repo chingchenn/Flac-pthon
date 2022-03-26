@@ -20,15 +20,15 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp = 0
-trench_location = 0
-dip = 0
+trench_location = 1
+dip = 1
 magma = 0
 gravity = 0
 gravity_frame = 0
 melting = 0
 # plot data
-trench_plot = 0
-dip_plot = 0
+trench_plot = 1
+dip_plot = 1
 magma_plot = 0
 marker_number = 0
 gravity_plot = 0
@@ -40,6 +40,7 @@ melting_plot = 0
 plt.rcParams["font.family"] = "Times New Roman"
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'

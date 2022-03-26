@@ -8,8 +8,8 @@ matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-model_list=['k0331','k0332']
-name_list=['155km','115km']
+model_list=['Chi01','chi0401','chi0402','chi0403','chi0404','chi0405']
+name_list=['2','3','5','10','20','30']
 rainbow = cm.get_cmap('rainbow',len(model_list))
 newcolors = rainbow(np.linspace(0, 1, len(model_list)))
 # depth1=-5
@@ -34,7 +34,8 @@ if int(case)==2:
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(10,10))
 for qq,model in enumerate(model_list):
     path = '/scratch2/jiching/22winter/'+model+'/'
-    #path = '/home/jiching/geoflac/'+model+'/'
+    path = '/home/jiching/geoflac/'+model+'/'
+    path = '/scratch2/jiching/03model/'+model+'/'
     #path = 'D:/model/'+model+'/'
     #path = '/scratch2/jiching/sem02model/'+model+'/'
     #path = '/scratch/jiching/summer2021/week11/'+model+'/'
@@ -79,12 +80,12 @@ for qq,model in enumerate(model_list):
         angle[i] = math.degrees(math.atan(dz/dx))
     if int(case)==2:
         nnewangle = f2.moving_window_smooth(angle[angle>0],3)
-        ax.plot(fl.time[angle>0],nnewangle,c=newcolors[qq],lw=2,label=name_list[qq])
+        ax.plot(fl.time[angle>0],nnewangle,c=newcolors[qq],lw=3,label=name_list[qq])
         # ax.legend(title = "convergent velocity mm/year")
         ax.set_xlim(0,fl.time[-1])
         ax.set_title('Smoothing Angle Variation')
         ax.set_ylabel('Angel ($^\circ$)')
-    ax2.plot(fl.time[angle>0],angle[angle>0],c=newcolors[qq],lw=2,label=name_list[qq])
+    ax2.plot(fl.time[angle>0],angle[angle>0],c=newcolors[qq],lw=3,label=name_list[qq])
     ax2.legend(title = "geology zone",fontsize = 16)
     ax2.set_xlim(0,fl.time[-1])
     ax2.grid(axis='y')
