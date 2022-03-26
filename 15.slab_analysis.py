@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 
 # ===================================initial set up ======================================
 fig_GMT            = 0
+fig_origin         = 1
 fig_spline         = 0
 fig_poly           = 0
 fig_Rsquare        = 0
@@ -212,6 +213,26 @@ if len(ff2)>1 and (ff2[1]-ff2[0])>90 :
 else: print(str(input)+' is not a flat slab')
 print(ff2)
 #-------------------------------------call pyhton to plot---------------------------------------
+
+if fig_origin:
+    ff, (aa) = plt.subplots(1,1,figsize=(6,3))
+    aa.plot(new_cord,z,'k--')
+    aa.set_aspect('equal', adjustable='box')
+    aa.tick_params(axis='x', labelsize=16)
+    aa.tick_params(axis='y', labelsize=16)
+    aa.set_ylim(-200,0)
+    aa.set_xlim(0,800)
+    ff.savefig(path+str(input)+'_slab.png')
+if fig_spline:
+    fig0,(q1)= plt.subplots(1,1,figsize=(10,8))
+    q1.plot(x,zz0,c='r')
+    q1.plot(new_cord,z,'k--')
+    q1.set_aspect('equal', adjustable='box')
+    q1.set_ylim(mindepth,0)
+    q1.grid()
+    q1.tick_params(axis='x', labelsize=16)
+    q1.tick_params(axis='y', labelsize=16)
+    fig0.savefig(path+str(input)+'_slab_spline.png')
 if fig_poly:
     fig, (ax)= plt.subplots(1,1,figsize=(10,8))
     ax.plot(x,w4,c='#4169E1',lw=3,label='quartic')
@@ -237,7 +258,6 @@ if fig_Rsquare:
     ax2.grid()
     ax2.set_ylabel('R^2',fontsize=20)
     fig2.savefig(path+input+'slab_rsquare.png')
-
 if fig_quartic:
     p4=np.poly1d(z4)
     fp3=np.polyder(p4,1)
