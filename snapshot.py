@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Sat Feb 19 11:04:51 2022
@@ -21,12 +21,13 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 shot = 1
-gravity = 1
+gravity = 0
 pressure = 0
 gravity_plot = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
@@ -34,7 +35,7 @@ figpath='/home/jiching/geoflac/figure/'
 sys.path.append("/home/jiching/geoflac/util")
 
 model = sys.argv[1]
-frame = sys.argv[2]
+frame = int(sys.argv[2])
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -94,7 +95,7 @@ if shot:
     ax.set_ylabel('Depth (km)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
     ax.set_aspect('equal')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_snapshot.pdf')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_snapshot.png')
 if pressure:
     fig, (ax)= plt.subplots(1,1,figsize=(12,8))
     ele_x,ele_z,dypre,ztop = get_pressure(frame)
