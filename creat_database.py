@@ -19,22 +19,31 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
-vtp = 0
-trench_location = 1
-dip = 1
-magma = 0
-gravity = 0
-gravity_frame = 0
-melting = 0
+vtp                     = 0
+trench_location         = 1
+dip                     = 1
+magma                   = 0
+gravity                 = 0
+gravity_frame           = 0
+melting                 = 0
+stack_topo              = 0 
+# stack_gem
+
+
 # plot data
-trench_plot = 1
-dip_plot = 1
-magma_plot = 0
-marker_number = 0
-gravity_plot = 0
-phase_plot=0
-phase_accre = 0
-melting_plot = 0
+trench_plot             = 1
+dip_plot                = 1
+magma_plot              = 0
+marker_number           = 0
+gravity_plot            = 0
+phase_plot              = 0
+phase_accre             = 0
+melting_plot            = 0
+force_plot_LR           = 0
+force_plot_RF           = 0
+vel_plot                = 0
+stack_topo_plot         = 0
+# stack_gem_plot
 
 #---------------------------------- SETTING -----------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
@@ -223,6 +232,27 @@ def melting_phase():
         phase_p10[i]=p10
         po[i]=pk
     return phase_p4,phase_p9,phase_p10,po
+def get_stack_topo(width=600,ictime=20):
+    topo1 = 0;xmean = 0
+    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
+    for i in range(1,end):
+        x, z = fl.read_mesh(i)
+        xt = x[:,0]
+        zt = z[:,0]
+        t = np.zeros(xt.shape)
+        t[:] = i*0.2
+        x_trench = xt[np.argmin(zt)]
+        within_plot = (xt>x_trench-width) * (xt<x_trench+width)
+        if i >= end-ictime:
+            topo1 += zt
+            xmean += (xt-x_trench)
+        if stack_topo_plot:
+            rainbow = cm.get_cmap('gray_r',end)    
+            newcolors = rainbow(np.linspace(0, 1, end))
+            ax2.plot(xt[within_plot]-x_trench,zt[within_plot],c=newcolors[i])
+        xx=(xmean[within_plot]/ictime)
+        zz=(topo1[within_plot]/ictime)
+    return xx,zz
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -267,7 +297,12 @@ if melting:
     fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
                 'time','phase_4','phase_9','phase_10','others')
     print('=========== DONE =============')
-
+if stack_topo:
+    print('-----creat topo database-----')
+    name=model+'_stack_topography'
+    xx,zz=get_stack_topo()
+    fs.save_2txt(name,savepath,xx,zz)
+    print('=========== DONE =============')
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
     print('--- start plotting the trench and topography with time ---')
@@ -370,7 +405,6 @@ if gravity_plot:
     ax2.set_title('bourger gravoty anomaly')
     ax.set_title('free-air gravity anomaly')
     plt.savefig(figpath+model+'_gravity.png')
-
 if phase_plot:
     name = 'phase_for'+model
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
@@ -431,3 +465,53 @@ if melting_plot:
     ax.set_ylabel('number of elements in phases',fontsize=20)
     ax.legend(fontsize=25)
     fig.savefig(figpath+model+'_bar_plot_melting.png')
+if force_plot_LR:
+    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
+    temp1=np.loadtxt(filepath)
+    nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
+    ax.scatter(time,forc_l,c="#4682B4",s=4)
+    ax2.scatter(time,forc_r,c="#D2691E",s=4)
+    ax.set_xlim(0,time[-1])
+    ax.set_title('oceanic side force',fontsize=16)
+    ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=16)
+    ax.grid()
+    ax2.set_xlim(0,time[-1])
+    ax2.set_title('continental side force',fontsize=16)
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    ax2.grid()
+    fig.savefig(figpath+model+'_forc.png')
+if force_plot_RF:
+    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
+    temp1=np.loadtxt(filepath)
+    nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
+    ax3.scatter(time,ringforce,c="#483D8B",s=4)
+    ax3.set_xlim(0,time[-1])
+    ax3.tick_params(axis='x', labelsize=16)
+    ax3.tick_params(axis='y', labelsize=16)
+    ax3.grid()
+    fig2.savefig(figpath+model+'_ringforc.png')
+if vel_plot:
+    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    temp1=np.loadtxt(filepath)
+    nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
+    fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
+    ax4.plot(time,vl*31545741325,c="#000080",lw=2)
+    ax4.set_xlim(0,time[-1])
+    ax4.set_title('oceanic side velocity',fontsize=16)
+    ax4.tick_params(axis='x', labelsize=16)
+    ax4.tick_params(axis='y', labelsize=16)
+    ax4.grid()
+    ax4.set_xlabel('Time (Myr)',fontsize=16)
+    ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
+    fig3.savefig(figpath+model+'_vel.png')
+
+if stack_topo_plot:
+    name=model+'_stack_topography.txt'
+    xx,zz=get_stack_topo()
+    xmean,ztop=np.loadtxt(path+'data/'+name).T
+    ax2.plot(xx,zz,c="#000080",lw=3)
+    fig2.savefig(figpath+model+'_topo_analysis.png')
