@@ -20,36 +20,36 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
-dip                     = 0
+trench_location         = 1
+dip                     = 1
 magma                   = 0
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
-stack_topo              = 1 
+stack_topo              = 0 
 # stack_gem
 
 
 # plot data
-trench_plot             = 0
-dip_plot                = 0
+trench_plot             = 1
+dip_plot                = 1
 magma_plot              = 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
-force_plot_LR           = 1
-force_plot_RF           = 1
+force_plot_LR           = 0
+force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 1
+stack_topo_plot         = 0
 # stack_gem_plot
 
 #---------------------------------- SETTING -----------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -232,8 +232,9 @@ def melting_phase():
         phase_p10[i]=p10
         po[i]=pk
     return phase_p4,phase_p9,phase_p10,po
-def get_stack_topo(width=600.0,ictime=20.0):
+def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
+    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     for i in range(1,end):
         x, z = fl.read_mesh(i)
         xt = x[:,0]
@@ -248,9 +249,9 @@ def get_stack_topo(width=600.0,ictime=20.0):
         if stack_topo_plot:
             rainbow = cm.get_cmap('gray_r',end)    
             newcolors = rainbow(np.linspace(0, 1, end))
-        #    ax2.plot(xt[within_plot]-x_trench,zt[within_plot],c=newcolors[i])
-    xx=xmean[within_plot]/ictime
-    zz=topo1[within_plot]/ictime
+            ax2.plot(xt[within_plot]-x_trench,zt[within_plot],c=newcolors[i])
+        xx=(xmean[within_plot]/ictime)
+        zz=(topo1[within_plot]/ictime)
     return xx,zz
 #------------------------------------------------------------------------------
 if vtp:
@@ -512,6 +513,5 @@ if stack_topo_plot:
     name=model+'_stack_topography.txt'
     xx,zz=get_stack_topo()
     xmean,ztop=np.loadtxt(path+'data/'+name).T
-    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xx,zz,c="#000080",lw=3)
     fig2.savefig(figpath+model+'_topo_analysis.png')
