@@ -20,18 +20,18 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
-dip                     = 0
+trench_location         = 1
+dip                     = 1
 magma                   = 0
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 1 
-# stack_gem
+stack_gem		= 1
 
 
 # plot data
-trench_plot             = 0
+trench_plot             = 1
 dip_plot                = 0
 magma_plot              = 0
 marker_number           = 0
@@ -40,21 +40,18 @@ phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
 force_plot_LR           = 1
-force_plot_RF           = 1
+force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 1
-# stack_gem_plot
+stack_topo_plot         = 0
+stack_gem_plot		= 1
 
 #---------------------------------- SETTING -----------------------------------
-plt.rcParams["font.family"] = "Times New Roman"
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
-sys.path.append("/home/jiching/geoflac/util")
-#model = 'k0425'
 model = sys.argv[1]
 os.chdir(path+model)
 
@@ -62,7 +59,7 @@ fl = flac.Flac()
 end = fl.nrec
 nex = fl.nx - 1
 nez = fl.nz - 1
-time=fl.time
+time = fl.time
 #------------------------------------------------------------------------------
 def trench(start_vts=1,model_steps=end):
     trench_x=np.zeros(end)
@@ -217,7 +214,6 @@ def melting_phase():
         for xx in range(len(mm)):
             for zz in range(len(mm[0])):
                 if mm[xx,zz] != 0:
-                    print()
                     if phase[xx,zz]==9:
                         p9 += 1
                     elif phase[xx,zz]==4:
@@ -232,7 +228,7 @@ def melting_phase():
         phase_p10[i]=p10
         po[i]=pk
     return phase_p4,phase_p9,phase_p10,po
-def get_stack_topo(width=600.0,ictime=20.0):
+def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
     for i in range(1,end):
         x, z = fl.read_mesh(i)
@@ -252,6 +248,20 @@ def get_stack_topo(width=600.0,ictime=20.0):
     xx=xmean[within_plot]/ictime
     zz=topo1[within_plot]/ictime
     return xx,zz
+def get_stack_geometry(ictime=20,width=700):
+    stslab = 0;xmean=0
+    for i in range(1,end):
+        crust_x,crust_z = oceanic_slab(i)
+        x, z = fl.read_mesh(i)
+        ele_x, ele_z = nodes_to_elements(x,z)
+        x_trench = ele_x[:,0][np.argmin(ele_z[:,0])]
+        within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
+        if i >=end-ictime:
+            stslab += crust_z
+            xmean += (crust_x-x_trench)
+    xx=xmean[within_plot]/ictime
+    zz=stslab[within_plot]/ictime
+    return xx[xx>0][:-1],zz[xx>0][:-1]
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -264,7 +274,7 @@ if trench_location:
     print('-----creat trench database-----')
     name='trench_for_'+model
     trench_index,trench_x,trench_z=trench()
-    fs.save_3array(name,savepath,time,trench_x,trench_z,
+    fs.save_3array(name,savepath,fl.time,trench_x,trench_z,
                 'time','trench_x','trench_z')
     print('=========== DONE =============')
 if dip:
@@ -281,13 +291,11 @@ if gravity:
     fs.save_6array(name, savepath, time, dis, to, tom, fa, bg,
                    'time', 'disX', 'topo', 'topomod', 'free-air', 'bourger')
     print('=========== DONE =============')
-# if not os.path.exists(magmafile):
 if magma:
     print('-----creat magma database-----')
     name='magma_for_'+model
-    melt,chamber,yymelt,yychamber,rrr=get_magma()      
-    fs.save_6array(name,savepath,time,melt,chamber,yymelt,yychamber,rrr,
-                   'time','fmelt','chamber','production','volume','ratio')
+    melt,chamber,yymelt,yychamber,rrr=get_magma()
+    fs.save_5txt(name,savepath,melt,chamber,yymelt,yychamber,rrr)
     print('=========== DONE =============')
 if melting:
     print('-----creat magma database-----')
@@ -302,11 +310,16 @@ if stack_topo:
     xx,zz=get_stack_topo()
     fs.save_2txt(name,savepath,xx,zz)
     print('=========== DONE =============')
+if stack_gem:
+    print('-----creat geometry database-----')
+    name=model+'_stack_slab'
+    xx,zz=get_stack_geometry()
+    fs.save_2txt(name,savepath,xx,zz)
+    print('=========== DONE =============')
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
-    print('--- start plotting the trench and topography with time ---')
+    print('----- plotting topography-----')
     name='trench_for_'+model
-    #df = pd.read_csv(path+'data/'+name+'.csv')
     df = pd.read_csv(savepath+name+'.csv')
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
@@ -322,6 +335,7 @@ if trench_plot:
     fig.savefig(figpath+model+'_topo.png')
     print('=========== DONE =============')
 if dip_plot:
+    print('------plotting dip angle------')
     name = 'plate_dip_of_'+model
     depth1,depth2 = dip_setting(-5,-120)
     df = pd.read_csv(savepath+name+'.csv')
@@ -333,17 +347,18 @@ if dip_plot:
     ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth',fontsize=20)
     ax2.grid()
     fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
+    print('=========== DONE =============')
 if magma_plot:
-    name='magma_for_'+model
-    df = pd.read_csv(path+'data/'+name+'.csv')
+    print('--------plotting magma--------')
+    name = 'magma_for_'+model
+    filepath = '/home/jiching/geoflac/data/'
+    temp1 = np.loadtxt(filepath+name)
+    melt,chamber,yymelt,yychamber,rrr = temp1.T
     fig, (ax,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(15,15))
-    ax.plot(df.time,df.production,color='tomato')
-    ax2.plot(df.time,df.volume,color='orange')
-    ax3.bar(df.time,df.fmelt,width=0.1,color='tomato',label='fmelt')
-    ax4.bar(df.time,df.chamber,width=0.1,color='orange',label='magma')
-    #ax.set_xlabel('Time (Myr)',fontsize=20)
-    #ax2.set_xlabel('Time (Myr)',fontsize=20)
-    #ax3.set_xlabel('Time (Myr)',fontsize=20)
+    ax.plot(fl.time,yymelt,color='tomato')
+    ax2.plot(fl.time,yychamber,color='orange')
+    ax3.bar(fl.time,melt,width=0.1,color='tomato',label='fmelt')
+    ax4.bar(fl.time,chamber,width=0.1,color='orange',label='magma')
     ax4.set_xlabel('Time (Myr)',fontsize=20)
     ax.set_ylabel('melt * area',fontsize=20)
     ax2.set_ylabel('chamber *area',fontsize=20)
@@ -353,14 +368,10 @@ if magma_plot:
     #ax2.set_ylim(0,10*1e-3)
     #ax3.set_ylim(0,10*1e-3)
     #ax4.set_ylim(0,3*1e-5)
-    ax.set_xlim(0,24)
-    ax2.set_xlim(0,24)
-    ax3.set_xlim(0,24)
-    ax4.set_xlim(0,24)
-    ax.grid()
-    ax2.grid()
-    ax3.grid()
-    ax4.grid()
+    ax.set_xlim(0,24);ax.grid()
+    ax2.set_xlim(0,24);ax2.grid()
+    ax3.set_xlim(0,24);ax3.grid()
+    ax4.set_xlim(0,24);ax4.grid()
     ax.tick_params(axis='x', labelsize=16 )
     ax2.tick_params(axis='x', labelsize=16 )
     ax3.tick_params(axis='x', labelsize=16 )
@@ -371,6 +382,7 @@ if magma_plot:
     ax4.tick_params(axis='y', labelsize=16 )
     ax.set_title('Model : '+model,fontsize=25)
     fig.savefig(figpath+model+'_magma.png')
+    print('=========== DONE =============')
 #--------------------------------------------------------------------
 '''
     fig2,(ax,ax2)=plt.subplots(1,2,figsize=(25,8))
@@ -395,6 +407,7 @@ if marker_number != 0:
     mr = count_marker(marker_number)
      #plt.plot(mr,c='b')
 if gravity_plot:
+    print('-------plotting gravity-------')
     name='gravity_for_'+model
     fig, (ax,ax2)= plt.subplots(1,2,figsize=(22,12)) 
     dis,time,to,tom,fa,bg=get_gravity(1,end)
@@ -404,7 +417,9 @@ if gravity_plot:
     ax2.set_title('bourger gravoty anomaly')
     ax.set_title('free-air gravity anomaly')
     plt.savefig(figpath+model+'_gravity.png')
+    print('=========== DONE =============')
 if phase_plot:
+    print('-----plotting single layer-----')
     name = 'phase_for'+model
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     colors = ["#CECCD0","#FF00FF","#8BFF8B","#7158FF","#FF966F",
@@ -424,6 +439,7 @@ if phase_plot:
     cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Phase')
     fig.savefig(figpath+model+'_phase.png')
+    print('=========== DONE =============')
 if phase_accre:
     name='trench_for_'+model
     df = pd.read_csv(path+'data/'+name+'.csv')
@@ -447,7 +463,9 @@ if phase_accre:
     ax_cbin.set_title('Phase')
     ax.plot(df.trench_x,df.time,c='k',lw=2)    
     fig.savefig(figpath+model+'_acc.png')
+    print('=========== DONE =============')
 if melting_plot:
+    print('---plotting melting location---')
     name='melting_'+model
     df=pd.read_csv(path+'data/'+name+'.csv')
     fig, (ax) = plt.subplots(1,1,figsize=(18,12))
@@ -464,12 +482,14 @@ if melting_plot:
     ax.set_ylabel('number of elements in phases',fontsize=20)
     ax.legend(fontsize=25)
     fig.savefig(figpath+model+'_bar_plot_melting.png')
+    print('=========== DONE =============')
 if force_plot_LR:
+    print('-----plotting boundary force-----')
     filepath = '/home/jiching/geoflac/'+model+'/forc.0'
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-    ax.scatter(time,forc_l,c="#4682B4",s=4)
+    ax.scatter(time,forc_l,c="#6A5ACD",s=4)
     ax2.scatter(time,forc_r,c="#D2691E",s=4)
     ax.set_xlim(0,time[-1])
     ax.set_title('oceanic side force',fontsize=16)
@@ -482,7 +502,9 @@ if force_plot_LR:
     ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()
     fig.savefig(figpath+model+'_forc.png')
+    print('=========== DONE =============')
 if force_plot_RF:
+    print('----- plotting ringforce-----')
     filepath = '/home/jiching/geoflac/'+model+'/forc.0'
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     temp1=np.loadtxt(filepath)
@@ -493,7 +515,9 @@ if force_plot_RF:
     ax3.tick_params(axis='y', labelsize=16)
     ax3.grid()
     fig2.savefig(figpath+model+'_ringforc.png')
+    print('=========== DONE =============')
 if vel_plot:
+    print('-----plotting model velocity-----')
     filepath = '/home/jiching/geoflac/'+model+'/forc.0'
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
@@ -507,11 +531,20 @@ if vel_plot:
     ax4.set_xlabel('Time (Myr)',fontsize=16)
     ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
     fig3.savefig(figpath+model+'_vel.png')
-
+    print('=========== DONE =============')
 if stack_topo_plot:
+    print('-----plotting topography-- ---')
     name=model+'_stack_topography.txt'
-    xx,zz=get_stack_topo()
     xmean,ztop=np.loadtxt(path+'data/'+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
-    ax2.plot(xx,zz,c="#000080",lw=3)
+    ax2.plot(xmean,ztop,c="#000080",lw=3)
     fig2.savefig(figpath+model+'_topo_analysis.png')
+    print('=========== DONE =============')
+if stack_gem_plot:
+    print('-----plotting stacked geometry-----')
+    name=model+'_stack_slab.txt'
+    xmean,ztop=np.loadtxt(path+'data/'+name).T
+    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
+    ax2.plot(xmean,ztop,c="#000080",lw=3)
+    fig2.savefig(figpath+model+'_gem.png')
+    print('=========== DONE =============')
