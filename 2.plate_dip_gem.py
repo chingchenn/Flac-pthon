@@ -8,11 +8,12 @@ import matplotlib.pyplot as plt
 import function_savedata as fs
 from Main_creat_database import oceanic_slab,nodes_to_elements
 model = str(sys.argv[1])
-#model = 'k0211'
+#model = 'Ref'
 path = '/home/jiching/geoflac/'+model+'/'
 #path = '/scratch2/jiching/03model/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = 'F:/model/'+model+'/'
+#path = 'D:/model/'+model+'/'
 savepath = '/home/jiching/geoflac/data'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
@@ -48,7 +49,7 @@ for i in range(1,end):
     if i >=end-ictime:
         stslab += crust_z
         xmean += (crust_x-x_trench)
-        print('i=',i,crust_z[within_plot][-8:-1],(crust_x-x_trench)[within_plot][-8:-1])
+        print('i=',xmean[within_plot][-5:-1]/(i-end+ictime))
     if plot_dip:
         ind_within_80km = (crust_z >= -80) * (crust_z < -5)
         crust_xmin = np.amin(crust_x[ind_within_80km])
@@ -58,20 +59,20 @@ for i in range(1,end):
         dx = crust_xmax - crust_xmin
         dz = crust_zmax - crust_zmin
         angle[i] = math.degrees(math.atan(dz/dx))
-ax.scatter((xmean[within_plot]/ictime),(stslab[within_plot]/ictime),c='green',lw=3)
+xx=(xmean[within_plot]/ictime)
+zz=(stslab[within_plot]/ictime)
+ax.scatter(xx[xx>0],zz[xx>0],c='green',s=3)
 ax.set_aspect('equal')
 ax.set_xlabel('Distance (km)')
 ax.set_ylabel('Depth (km)')
 ax.set_xlim(-10,width)
-# ax.set_ylim(-200,0)
 ax.set_title('Geometry of Subducted Slab')
-fs.save_2txt(str(model)+'_stack_slab',savepath,xmean[within_plot]/ictime,stslab[within_plot]/ictime)
+fs.save_2txt(str(model)+'_stack_slab',savepath,xx[xx>0],zz[xx>0])
 fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_gem.jpg')
 if plot_dip:
     fig2, (ax2)= plt.subplots(1,1,figsize=(17,12))
     ax2.plot(fl.time[angle>0],angle[angle>0],c='blue',lw=2)
     ax2.set_xlim(0,fl.time[-1])
-    # ax2.set_xticks(np.linspace(0,30,6))
     ax2.set_title('Angle Variation')
     ax2.set_xlabel('Time (Myr)')
     ax2.set_ylabel('Angel ($^\circ$)')
