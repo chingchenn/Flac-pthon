@@ -57,7 +57,6 @@ def read_data(title,path):
     file=pd.read_csv(path+'/'+title+'.csv')
     file=np.array(file)
     return file
-
 def read_data_column(title,path,column_index):
     file=pd.read_csv(path+'/'+title+'.csv')
     temp2=file[(column_index-1)]
@@ -73,4 +72,38 @@ def save_2txt(title,path,array1,array2):
     for kk in range(len(array1)):
         f.write('%f '%array1[kk])
         f.write('%f\n'%array2[kk])
+    f.close()
+def save_3txt(title,path,array1,array2,array3):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f '%array1[kk])
+        f.write('%f '%array2[kk])
+        f.write('%f\n'%array3[kk])
+    f.close()
+def save_4txt(title,path,array1,array2,array3,array4):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f '%array1[kk])
+        f.write('%f '%array2[kk])
+        f.write('%f '%array3[kk])
+        f.write('%f\n'%array4[kk])
+    f.close()
+def save_5txt(title,path,array1,array2,array3,array4,array5):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f '%array1[kk])
+        f.write('%f '%array2[kk])
+        f.write('%f '%array3[kk])
+        f.write('%f '%array4[kk])
+        f.write('%f\n'%array5[kk])
+    f.close()
+def save_6txt(title,path,array1,array2,array3,array4,array5,array6):
+    f = open(path +"/"+ title + ".txt",'w')
+    for kk in range(len(array1)):
+        f.write('%f '%array1[kk])
+        f.write('%f '%array2[kk])
+        f.write('%f '%array3[kk])
+        f.write('%f '%array4[kk])
+        f.write('%f '%array5[kk])
+        f.write('%f\n'%array6[kk])
     f.close()
