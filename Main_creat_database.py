@@ -27,8 +27,8 @@ gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 1 
-stack_gem		= 1
-
+stack_gem	        	= 1
+flat_duraton            = 1
 
 # plot data
 trench_plot             = 1
@@ -43,7 +43,7 @@ force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
-stack_gem_plot		= 1
+stack_gem_plot	    	= 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -262,6 +262,56 @@ def get_stack_geometry(ictime=20,width=700):
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
     return xx[xx>0][:-1],zz[xx>0][:-1]
+def flat_slab_duration():
+    phase_oceanic = 3;phase_ecolgite = 13
+    bet = 10;find_flat_dz1=[];find_flat_dz2=[]
+    for i in range(20,end):
+        x, z = fl.read_mesh(i)
+        mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
+        trench_ind = np.argmin(z[:,0]) 
+        x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
+        x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+        z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+        if z_trench> -2 or min(z_ocean)>-200:
+            continue
+        start = math.floor(x_trench)
+        final = math.floor(np.max(x_ocean))
+        x_grid = np.arange(start,final,bet)
+        ox = np.zeros(len(x_grid))
+        oz = np.zeros(len(x_grid))
+        px = start-bet
+        kk=np.max(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])
+        x_ocean = x_ocean[z_ocean<kk]
+        z_ocean = z_ocean[z_ocean<kk]
+        for yy,xx in enumerate(x_grid):
+            if len(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])==0:
+                continue
+            oz[yy] = np.average(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+            ox[yy] = np.average(x_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+            px = xx
+    ### =========================== polynomial ===========================
+        z1=np.polyfit(ox,oz,4)
+        p4=np.poly1d(z1)
+        w1=p4(ox)
+        p3=np.polyder(p4,1)
+        p2=np.polyder(p4,2)
+        w2=p3(ox)
+        w3=p2(ox)
+        cc=-1;ff1=[]
+        for rr,oo in enumerate(w2):
+            if cc*oo<0:
+                ff1.append(ox[rr])
+            cc = oo
+        mm=-1;ff2=[]
+        for pp,uu in enumerate(w3):
+            if mm*uu<0:
+                ff2.append(ox[pp])
+            mm = uu  
+        if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
+            find_flat_dz2.append(fl.time[i])
+            if len(ff1)>1 and (ff1[1]-start)>50:
+                find_flat_dz1.append(fl.time[i])
+    return find_flat_dz2,find_flat_dz1
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -315,6 +365,12 @@ if stack_gem:
     name=model+'_stack_slab'
     xx,zz=get_stack_geometry()
     fs.save_2txt(name,savepath,xx,zz)
+    print('=========== DONE =============')
+if flat_duraton:
+    print('-----creat geometry database-----')
+    name=model+'_flatslab_duration'
+    f2,f1=flat_slab_duration()
+    fs.save_1txt(name,savepath,f2)
     print('=========== DONE =============')
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
