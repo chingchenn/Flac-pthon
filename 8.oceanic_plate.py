@@ -14,6 +14,7 @@ from scipy import interpolate
 # matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import function_for_flac as f2
+#=========================setting=============================
 model = str(sys.argv[1])
 path = '/home/jiching/geoflac/'+model+'/'
 #model='w1261'
@@ -26,21 +27,20 @@ path = '/home/jiching/geoflac/'+model+'/'
 # path = '/Volumes/SSD500/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
-nex = fl.nx - 1;nez = fl.nz - 1
-
+#=========================Parameters=========================
 phase_oceanic = 3
 phase_ecolgite = 13
 angle = np.zeros(end)
 bet = 10
 find_flat_dz1=[]
 find_flat_dz2=[]
-figg=0
+figg=1
 figg2=1
 fig_spline=1
 rrrrr=np.zeros(end)
 mindepth=-300
-
-for i in range(233,234):
+#=========================main code===========================
+for i in range(1,end):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
     trench_ind = np.argmin(z[:,0]) 
