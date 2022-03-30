@@ -18,37 +18,29 @@ import function_for_flac as f2
 #=========================setting=============================
 model = str(sys.argv[1])
 path = '/home/jiching/geoflac/'+model+'/'
-path = 'D:/model/'+model+'/'
+#path = 'D:/model/'+model+'/'
 #path = '/scratch2/jiching/sem02model/'+model+'/'
 #path = '/scratch2/jiching/03model/'+model+'/'
-#path = '/scratch/jiching/summer2021/week11/'+model+'/'
-#path = '/scratch2/jiching/'+model+'/'
-#path = '/Volumes/My Book/model/'+model+'/'
-# path = '/Volumes/SSD500/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 #=========================Parameters=========================
 phase_oceanic = 3
 phase_ecolgite = 13
-angle = np.zeros(end)
 bet = 10
 find_flat_dz1=[]
 find_flat_dz2=[]
 figg2=0
-mindepth=-300
 #=========================main code===========================
-i = 230
 for i in range(1,end):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
     ## In this code, we considered the marker phase, not the element phase
     trench_ind = np.argmin(z[:,0]) 
     x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
-    if z_trench> -2 or i < 20:
-        continue
-    m=[]; m2=[]
     x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
     z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+    if z_trench> -2 or min(z_ocean)>-200:
+        continue
     start = math.floor(x_trench)
     final = math.floor(np.max(x_ocean))
     x_grid = np.arange(start,final,bet)
@@ -108,6 +100,4 @@ for i in range(1,end):
         find_flat_dz2.append(fl.time[i])
         if len(ff1)>1 and (ff1[1]-start)>50:
             find_flat_dz1.append(fl.time[i])
-print(find_flat_dz2)
-print(find_flat_dz1)
-fs.save_1txt(str(model)+'_flatslab_duration','/hoem/jiching/geoflac/data/',find_flat_dz2)
+fs.save_1txt(str(model)+'_flatslab_duration','/home/jiching/geoflac/data',find_flat_dz2)
