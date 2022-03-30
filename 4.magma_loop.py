@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 model_list=['w0940','w1013']
 # name_list=['1.2e-12','6e-13 ','9e-13']
 name_list=['1.6e-11','3.2e-11']
-rainbow = cm.get_cmap('rainbow',len(model_list))
-newcolors = rainbow(np.linspace(0, 1, len(model_list)))
+newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 fig, (ax,ax2,ax3,ax4,ax5) = plt.subplots(5,1,figsize=(15,17))
 for qq,model in enumerate(model_list):
     path = '/scratch2/jiching/'+model+'/'

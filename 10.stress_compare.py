@@ -9,28 +9,33 @@ Created on Mon Sep 13 13:14:14 2021
 
 import os,sys
 import numpy as np
+import matplotlib
 # matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #model = sys.argv[1]
-model_list=['chimex0601','chimex0602','chimex0603']
+#model_list=['chimex0601','chimex0602','chimex0603']
+model_list=['chimex0601','chimex0602','chimex0603','chimex0604','chimex0605','chimex0606','chimex0607','chimex0608','chimex0609','chimex0610','chimex0611']
+#model_list=['h0401','h0402','h0403','h0404']
 rainbow = cm.get_cmap('rainbow',len(model_list))
-newcolors = rainbow(np.linspace(0, 1, len(model_list)))
+newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F'] 
 fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
 fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
 fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))   
 for kk,model in enumerate(model_list):
+#    if kk==0:
     path = '/home/jiching/geoflac/'+model+'/forc.0'
+#    else:
+#    path = '/scratch2/jiching/03model/'+model+'/forc.0'
     #path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
     #path = '/Volumes/My Book/model/'+model+'/'
     temp1=np.loadtxt(path)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-    ax.scatter(time,forc_l,label=model,c=newcolors[kk])
-    print(model)
-    ax2.scatter(time,forc_r,label=model,c=newcolors[kk])
-    ax3.scatter(time,ringforce,label=model,c=newcolors[kk],s=4)
-    ax4.plot(time,vl*31545741325,label=model,c=newcolors[kk],lw=2)
+    ax.scatter(time,forc_l,label=model,color=newcolors[kk],s=2)
+    ax2.scatter(time,forc_r,label=model,color=newcolors[kk],s=2)
+    ax3.scatter(time,ringforce,label=model,color=newcolors[kk],s=2)
+    ax4.scatter(time,vl*31545741325,label=model,color=newcolors[kk],s=2)
 
 ax.set_xlim(0,time[-1])
 ax.set_title('oceanic side force',fontsize=16)

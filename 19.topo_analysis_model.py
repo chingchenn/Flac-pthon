@@ -16,8 +16,7 @@ fig4, (ax4,ax5,ax6) = plt.subplots(3,1,figsize=(15,8))
 fig5,(ax7,ax8,ax9) = plt.subplots(3,1,figsize=(15,8))
 #model_list=['chih0609','chih0613','chih0617']
 model_list=['chih0605','chih0614','chih0615','chih0616','chih0617']
-rainbow = cm.get_cmap('rainbow',len(model_list))
-newcolors = rainbow(np.linspace(0, 1, len(model_list)))
+newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 for kk,model in enumerate(model_list):
     xmean,ztop=np.loadtxt('/home/jiching/geoflac/data/'+str(model)+'_stack_topography.txt').T
     ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=3)

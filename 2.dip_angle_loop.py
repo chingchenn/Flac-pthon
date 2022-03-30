@@ -8,10 +8,9 @@ matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as f2
-model_list=['Chi01','chi0401','chi0402','chi0403','chi0404','chi0405']
-name_list=['2','3','5','10','20','30']
-rainbow = cm.get_cmap('rainbow',len(model_list))
-newcolors = rainbow(np.linspace(0, 1, len(model_list)))
+model_list=['Chi01','chih0606','chih0607','chih0608','chih0609']
+name_list=['3','5','7','9','11']
+newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 # depth1=-5
 # depth2=-150
 # case =1
@@ -35,7 +34,7 @@ if int(case)==2:
 for qq,model in enumerate(model_list):
     path = '/scratch2/jiching/22winter/'+model+'/'
     path = '/home/jiching/geoflac/'+model+'/'
-    path = '/scratch2/jiching/03model/'+model+'/'
+#    path = '/scratch2/jiching/03model/'+model+'/'
     #path = 'D:/model/'+model+'/'
     #path = '/scratch2/jiching/sem02model/'+model+'/'
     #path = '/scratch/jiching/summer2021/week11/'+model+'/'
