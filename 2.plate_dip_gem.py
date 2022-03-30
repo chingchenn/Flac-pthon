@@ -6,11 +6,11 @@ import numpy as np
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_savedata as fs
-from creat_database import oceanic_slab,nodes_to_elements
+from Main_creat_database import oceanic_slab,nodes_to_elements
 model = str(sys.argv[1])
 #model = 'k0211'
 path = '/home/jiching/geoflac/'+model+'/'
-path = '/scratch2/jiching/03model/'+model+'/'
+#path = '/scratch2/jiching/03model/'+model+'/'
 #path = '/scratch2/jiching/'+model+'/'
 #path = 'F:/model/'+model+'/'
 savepath = '/home/jiching/geoflac/data'
@@ -29,22 +29,26 @@ angle = np.zeros(end)
 
 rainbow = cm.get_cmap('gray_r',end)
 newcolors = rainbow(np.linspace(0, 1, end))
-stslab = 0;xmean=0;ictime=20;width=300
+stslab = 0;xmean=0;ictime=20;width=700
 for i in range(1,end):
     crust_x,crust_z = oceanic_slab(i)
     x, z = fl.read_mesh(i)
     ele_x, ele_z = nodes_to_elements(x,z)
     phase = fl.read_phase(i)
     trench_ind = np.argmin(z[:,0]) 
+    if z[:,0][trench_ind]>-2:
+        print(i)
+        continue
     x_trench = ele_x[:,0][np.argmin(ele_z[:,0])]
-    within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
+    within_plot = (ele_x[:,0]>x_trench)* (crust_z < 0)
     ax.plot(crust_x[within_plot]-(x_trench),crust_z[within_plot],color=newcolors[i],zorder=1)
     if not True in (crust_z < -80):
-        print(i)
+#        print(i)
         continue
     if i >=end-ictime:
         stslab += crust_z
         xmean += (crust_x-x_trench)
+        print('i=',i,crust_z[within_plot][-8:-1],(crust_x-x_trench)[within_plot][-8:-1])
     if plot_dip:
         ind_within_80km = (crust_z >= -80) * (crust_z < -5)
         crust_xmin = np.amin(crust_x[ind_within_80km])
@@ -54,11 +58,11 @@ for i in range(1,end):
         dx = crust_xmax - crust_xmin
         dz = crust_zmax - crust_zmin
         angle[i] = math.degrees(math.atan(dz/dx))
-ax.plot((xmean[within_plot]/ictime),(stslab[within_plot]/ictime),c='green',lw=3)
+ax.scatter((xmean[within_plot]/ictime),(stslab[within_plot]/ictime),c='green',lw=3)
 ax.set_aspect('equal')
 ax.set_xlabel('Distance (km)')
 ax.set_ylabel('Depth (km)')
-ax.set_xlim(-10,450)
+ax.set_xlim(-10,width)
 # ax.set_ylim(-200,0)
 ax.set_title('Geometry of Subducted Slab')
 fs.save_2txt(str(model)+'_stack_slab',savepath,xmean[within_plot]/ictime,stslab[within_plot]/ictime)
