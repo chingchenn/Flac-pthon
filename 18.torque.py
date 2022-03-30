@@ -71,19 +71,20 @@ for i in range(20,end):
     edx = crust_xmaxe - crust_xmine;edz = crust_zmaxe - crust_zmine
     anglee= math.degrees(math.atan(edz/edx))*np.pi/180
 
+    #Gravity
     #rc=abs((max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec))*1e3
     #re=abs((max(crust_xe)-max(crust_xc))/np.cos(anglee))*1e3
     #Torque_G = rc**2*ocden*g*np.sin((90-anglec))-re*ecden*g*np.sin((90-anglee)) # kg*m/s^2
-    basalt_length = (max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec) * 1e3    # m
-    eclogite_length = (max(crust_xe)-max(crust_xc))/np.cos(anglee) *1e3          # m
+    basalt_length = (max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec) * 1e3
+    eclogite_length = (max(crust_xe)-max(crust_xc))/np.cos(anglee) *1e3
     bc = g*thickness*basalt_length*ocden
     be = g*thickness*eclogite_length*ecden
     Torque_G[i] = 0.5*bc*(basalt_length)**2*np.cos(anglec)+0.5*be*(eclogite_length)**2*np.cos(anglee) # kg*m/s^2
 
-    ## Hydrodynamic                                                                      #m/s
+    ## Hydrodynamic                                                                  
     PA = np.sin(anglec)/((np.pi-anglec)+np.sin(anglec))
     PB = np.sin(anglec)**2/((anglec)**2-np.sin(anglec)**2)
-    Torque_H[i]  = 2*viscosity*U*(basalt_length+eclogite_length)*(PA+PB)                       #kg*m/s^2
+    Torque_H[i]  = 2*viscosity*U*(basalt_length+eclogite_length)*(PA+PB)                  	      #kg*m/s^2
 
 ###============================
 fig, (ax)= plt.subplots(1,1,figsize=(13,8))
