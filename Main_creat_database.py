@@ -264,8 +264,8 @@ def get_stack_geometry(ictime=20,width=700):
     return xx[xx>0][:-1],zz[xx>0][:-1]
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
-    bet = 10;find_flat_dz1=[];find_flat_dz2=[]
-    for i in range(20,end):
+    bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
+    for i in range(1,end):
         x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
         trench_ind = np.argmin(z[:,0]) 
@@ -289,6 +289,9 @@ def flat_slab_duration():
             oz[yy] = np.average(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])
             ox[yy] = np.average(x_ocean[(x_ocean>=px)*(x_ocean<=xx)])
             px = xx
+        oxx=ox[ox>start]
+        oz=oz[ox>start]
+        ox=oxx
     ### =========================== polynomial ===========================
         z1=np.polyfit(ox,oz,4)
         p4=np.poly1d(z1)
@@ -299,9 +302,9 @@ def flat_slab_duration():
         w3=p2(ox)
         cc=-1;ff1=[]
         for rr,oo in enumerate(w2):
-            if cc*oo<0:
+            if cc*(oo+0.1)<0:
                 ff1.append(ox[rr])
-            cc = oo
+            cc = oo+0.1
         mm=-1;ff2=[]
         for pp,uu in enumerate(w3):
             if mm*uu<0:
@@ -309,9 +312,12 @@ def flat_slab_duration():
             mm = uu  
         if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
             find_flat_dz2.append(fl.time[i])
-            if len(ff1)>1 and (ff1[1]-start)>50:
+            if len(ff1)>3 and (ff1[-1]-ff1[-2])>50:
                 find_flat_dz1.append(fl.time[i])
-    return find_flat_dz2,find_flat_dz1
+                flat_slab_length.append(ff1[-1]-ff1[-2])
+                depth=np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])])
+                flat_slab_depth.append(depth)
+    return find_flat_dz2,find_flat_dz1,flat_slab_length,flat_slab_depth
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -348,7 +354,7 @@ if magma:
     fs.save_5txt(name,savepath,melt,chamber,yymelt,yychamber,rrr)
     print('=========== DONE =============')
 if melting:
-    print('-----creat magma database-----')
+    print('-----creat melting database-----')
     name='melting_'+model
     phase_p4,phase_p9,phase_p10,po=melting_phase()
     fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
@@ -367,10 +373,12 @@ if stack_gem:
     fs.save_2txt(name,savepath,xx,zz)
     print('=========== DONE =============')
 if flat_duraton:
-    print('-----creat geometry database-----')
-    name=model+'_flatslab_duration'
-    f2,f1=flat_slab_duration()
+    print('-----creat flattime database-----')
+    name=model+'_flatslab_duration2'
+    f2,f1,length,dep=flat_slab_duration()
     fs.save_1txt(name,savepath,f2)
+    name=model+'_flatslab_time_len'
+    fs.save_3txt(name,savepath,f1,length,dep)
     print('=========== DONE =============')
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
@@ -406,7 +414,7 @@ if dip_plot:
     print('=========== DONE =============')
 if magma_plot:
     print('--------plotting magma--------')
-    name = 'magma_for_'+model
+    name = 'magma_for_'+model+'.txt'
     filepath = '/home/jiching/geoflac/data/'
     temp1 = np.loadtxt(filepath+name)
     melt,chamber,yymelt,yychamber,rrr = temp1.T
@@ -589,7 +597,7 @@ if vel_plot:
     fig3.savefig(figpath+model+'_vel.png')
     print('=========== DONE =============')
 if stack_topo_plot:
-    print('-----plotting topography-- ---')
+    print('-----plotting topography-----')
     name=model+'_stack_topography.txt'
     xmean,ztop=np.loadtxt(path+'data/'+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
@@ -603,4 +611,34 @@ if stack_gem_plot:
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
     fig2.savefig(figpath+model+'_gem.png')
+    print('=========== DONE =============')
+if flat_slab_plot:
+    print('-----plotting flatslab-----')
+    name=model+'_flatslab_time_len.txt'
+    time,length,depth=np.loadtxt(path+'data/'+name).T
+    fig2, (ax1,ax2) = plt.subplots(2,1,figsize=(10,8))
+    ax1.plot(time,length,c="#000080",lw=3)
+    ax2.plot(time,depth,c="#000080",lw=3)
+    ax1.set_xlim(0,time[-1])
+    ax1.set_title('flat slab properties',fontsize=16)
+    ax1.tick_params(axis='x', labelsize=16)
+    ax1.tick_params(axis='y', labelsize=16)
+    ax1.grid()
+    ax1.set_ylabel('length (km)',fontsize=16)
+    ax2.set_xlim(0,time[-1])
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    ax2.grid()
+    ax2.set_xlabel('Time (Myr)',fontsize=16)
+    ax2.set_ylabel('depth (km) ',fontsize=16)
+    bwith = 3
+    ax1.spines['bottom'].set_linewidth(bwith)
+    ax1.spines['top'].set_linewidth(bwith)
+    ax1.spines['right'].set_linewidth(bwith)
+    ax1.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
+    fig2.savefig(figpath+model+'_flatslab_length.png')
     print('=========== DONE =============')
