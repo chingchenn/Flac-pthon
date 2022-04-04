@@ -586,7 +586,9 @@ if vel_plot:
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
     fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
-    ax4.plot(time,vl*31545741325,c="#000080",lw=2)
+    movvl= f2.moving_window_smooth(vl,500)
+    #ax4.plot(time,vl*31545741325,c="darkred",lw=2)
+    ax4.plot(time,movvl*31545741325,c="#000080",lw=2)
     ax4.set_xlim(0,time[-1])
     ax4.set_title('oceanic side velocity',fontsize=16)
     ax4.tick_params(axis='x', labelsize=16)
