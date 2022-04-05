@@ -27,7 +27,7 @@ gravity_plot = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'

@@ -47,9 +47,14 @@ for i in range(1,end):
 #        print(i)
         continue
     if i >=end-ictime:
+#        print('i=',crust_z[within_plot],(crust_x-x_trench)[within_plot])
+#        fig666, (a555)= plt.subplots(1,1,figsize=(17,12))
+#        a555.scatter((crust_x-x_trench)[within_plot],crust_z[within_plot])
         stslab += crust_z
         xmean += (crust_x-x_trench)
-        print('i=',xmean[within_plot][-5:-1]/(i-end+ictime))
+#        fig666.savefig('/home/jiching/geoflac/'+'figure/'+str(i)+model+'_gem.jpg')
+#        plt.close(fig666)
+#        print('i=',xmean[within_plot][-5:-1]/(i-end+ictime))
     if plot_dip:
         ind_within_80km = (crust_z >= -80) * (crust_z < -5)
         crust_xmin = np.amin(crust_x[ind_within_80km])
@@ -61,7 +66,7 @@ for i in range(1,end):
         angle[i] = math.degrees(math.atan(dz/dx))
 xx=(xmean[within_plot]/ictime)
 zz=(stslab[within_plot]/ictime)
-ax.scatter(xx[xx>0],zz[xx>0],c='green',s=3)
+ax.plot(xx[xx>0][:-1],zz[xx>0][:-1],c='green',lw=4)
 ax.set_aspect('equal')
 ax.set_xlabel('Distance (km)')
 ax.set_ylabel('Depth (km)')

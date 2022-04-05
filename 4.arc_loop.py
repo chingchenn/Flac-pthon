@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 #model_list=['w0524','w0525','w0526','w0527','w0528','w0529','w0530','w0531','w0532']
 model_list=['w0506','w0544','w0545']
-newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
+newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 fig, (ax,ax2)= plt.subplots(2,1,figsize=(15,8))
 for qq,model in enumerate(model_list):
     #path = '/scratch2/jiching/'+model+'/'

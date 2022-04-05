@@ -12,13 +12,13 @@ import function_savedata as fs
 
 model = sys.argv[1]
 path = '/home/jiching/geoflac/'+model+'/'
-path='/scratch2/jiching/03model/'+model+'/'
+#path='/scratch2/jiching/03model/'+model+'/'
 #path='/scratch2/jiching/22winter/'+model+'/'
 #path = 'F:/model/'+model+'/'
 os.chdir(path)
     
 fl = flac.Flac();end = fl.nrec
-rainbow = cm.get_cmap('gray_r',end)    
+rainbow = cm.get_cmap('gray_r',end)
 newcolors = rainbow(np.linspace(0, 1, end))
 cmap = plt.cm.get_cmap('gist_earth')
 savepath = '/home/jiching/geoflac/data/'

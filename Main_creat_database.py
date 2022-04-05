@@ -20,20 +20,20 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 1
+trench_location         = 0
 dip                     = 1
-magma                   = 0
+magma                   = 1
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 1 
-stack_gem	        	= 1
+stack_gem	        = 1
 flat_duraton            = 1
 
 # plot data
-trench_plot             = 1
-dip_plot                = 0
-magma_plot              = 0
+trench_plot             = 0
+dip_plot                = 1
+magma_plot              = 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
@@ -42,13 +42,14 @@ melting_plot            = 0
 force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 0
+stack_topo_plot         = 1
 stack_gem_plot	    	= 1
+flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -432,10 +433,10 @@ if magma_plot:
     #ax2.set_ylim(0,10*1e-3)
     #ax3.set_ylim(0,10*1e-3)
     #ax4.set_ylim(0,3*1e-5)
-    ax.set_xlim(0,24);ax.grid()
-    ax2.set_xlim(0,24);ax2.grid()
-    ax3.set_xlim(0,24);ax3.grid()
-    ax4.set_xlim(0,24);ax4.grid()
+    ax.set_xlim(0,fl.time[-1]);ax.grid()
+    ax2.set_xlim(0,fl.time[-1]);ax2.grid()
+    ax3.set_xlim(0,fl.time[-1]);ax3.grid()
+    ax4.set_xlim(0,fl.time[-1]);ax4.grid()
     ax.tick_params(axis='x', labelsize=16 )
     ax2.tick_params(axis='x', labelsize=16 )
     ax3.tick_params(axis='x', labelsize=16 )
@@ -491,6 +492,9 @@ if phase_plot:
           "#004B00","#008B00","#455E45","#B89FCE","#C97BEA",
           "#525252","#FF0000","#00FF00","#FFFF00","#7158FF"]
     phase15= matplotlib.colors.ListedColormap(colors)
+    #rainbow = cm.get_cmap('Set1',20)
+    #colors = rainbow(np.linspace(0, 1, 20))
+    #phase15= matplotlib.colors.ListedColormap(colors)
     xt,t,pp= plot_phase_in_depth(depth=0)    
     mmm=ax.scatter(xt,t,c=pp,cmap=phase15,vmin=1, vmax=18)
     ax.set_ylabel("Time (Ma)")
@@ -533,10 +537,10 @@ if melting_plot:
     name='melting_'+model
     df=pd.read_csv(path+'data/'+name+'.csv')
     fig, (ax) = plt.subplots(1,1,figsize=(18,12))
-    ax.bar(df.time,df.phase_p9,width=0.17,color='orange',label='serpentinite ')
-    ax.bar(df.time,df.phase_p4,bottom=df.phase_p9,width=0.17,color='seagreen',label='olivine')
-    ax.bar(df.time,df.phase_p10,bottom=df.phase_p9+df.phase_p4,width=0.17,color='tomato',label='sediments')
-    ax.bar(df.time,df.others,bottom=df.phase_p9+df.phase_p4+df.phase_p10,width=0.17,color='k',label='others')
+    #ax.bar(df.time,df.phase_p9,width=0.17,color='orange',label='serpentinite ')
+    ax.bar(df.time,df.phase_p4,width=0.17,color='seagreen',label='olivine')
+    ax.bar(df.time,df.phase_p10,bottom=df.phase_p4,width=0.17,color='tomato',label='sediments')
+    ax.bar(df.time,df.others,bottom=df.phase_p4+df.phase_p10,width=0.17,color='k',label='others')
     ax.set_xlim(0,24)
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
@@ -549,7 +553,7 @@ if melting_plot:
     print('=========== DONE =============')
 if force_plot_LR:
     print('-----plotting boundary force-----')
-    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    filepath = path+model+'/forc.0'
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
@@ -569,7 +573,7 @@ if force_plot_LR:
     print('=========== DONE =============')
 if force_plot_RF:
     print('----- plotting ringforce-----')
-    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    filepath = path+model+'/forc.0'
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
@@ -601,7 +605,7 @@ if vel_plot:
 if stack_topo_plot:
     print('-----plotting topography-----')
     name=model+'_stack_topography.txt'
-    xmean,ztop=np.loadtxt(path+'data/'+name).T
+    xmean,ztop=np.loadtxt(savepath+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
     fig2.savefig(figpath+model+'_topo_analysis.png')
@@ -609,7 +613,7 @@ if stack_topo_plot:
 if stack_gem_plot:
     print('-----plotting stacked geometry-----')
     name=model+'_stack_slab.txt'
-    xmean,ztop=np.loadtxt(path+'data/'+name).T
+    xmean,ztop=np.loadtxt(savepath+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
     fig2.savefig(figpath+model+'_gem.png')
@@ -617,7 +621,7 @@ if stack_gem_plot:
 if flat_slab_plot:
     print('-----plotting flatslab-----')
     name=model+'_flatslab_time_len.txt'
-    time,length,depth=np.loadtxt(path+'data/'+name).T
+    time,length,depth=np.loadtxt(savepath+name).T
     fig2, (ax1,ax2) = plt.subplots(2,1,figsize=(10,8))
     ax1.plot(time,length,c="#000080",lw=3)
     ax2.plot(time,depth,c="#000080",lw=3)

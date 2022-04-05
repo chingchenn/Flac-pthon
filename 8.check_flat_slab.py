@@ -20,18 +20,18 @@ model = str(sys.argv[1])
 path = '/home/jiching/geoflac/'+model+'/'
 #path = 'D:/model/'+model+'/'
 #path = '/scratch2/jiching/sem02model/'+model+'/'
-#path = '/scratch2/jiching/03model/'+model+'/'
+path = '/scratch2/jiching/03model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 #=========================Parameters=========================
 phase_oceanic = 3
 phase_ecolgite = 13
-bet = 0.5
+bet = 2
 find_flat_dz1=[]
 find_flat_dz2=[]
 flat_slab_length=[]
 flat_slab_depth=[]
-figg2=1
+figg2=0
 #=========================main code===========================
 for i in range(1,end):
     x, z = fl.read_mesh(i)

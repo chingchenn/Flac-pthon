@@ -17,7 +17,7 @@ model_list=['h0420','h0421','h0422','h0423','h0424','h0425','h0426']
 model_list=['h0427','h0428','h0429','h0430','h0431','h0432','h0433']
 model_list=['h0409','h0408','h0405','h0406','h0407']
 model_list=['chih0605','chih0614','chih0615','chih0616','chih0617']
-newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
+newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 fig, (ax)= plt.subplots(1,1,figsize=(10,7))
 for kk,model in enumerate(model_list):
     xmean,ztop=np.loadtxt('/home/jiching/geoflac/data/'+str(model)+'_stack_slab.txt').T
