@@ -67,6 +67,11 @@ if dip_plot:
     ax2.set_ylabel('Angel ($^\circ$) ',fontsize=20)
     ax2.grid()
     ax2.legend(fontsize=16)
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+'compare_dip_'+model_list[0]+'_'+model_list[-1]+'.png')
     print('=========== DONE =============')
 if plate_geometry:
@@ -75,11 +80,16 @@ if plate_geometry:
     for kk,model in enumerate(model_list):
         xmean,ztop=np.loadtxt(savepath+str(model)+'_stack_slab.txt').T
         ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=3)
-    ax2.set_xlim(-10,500)
+    ax2.set_xlim(0,max(xmean)+10)
     ax2.set_title("slab comparation")
     ax2.set_ylabel("Depth (km)")
     ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
     ax2.legend(fontsize=16)
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
     print('=========== DONE =============')
 if force_plot_LR:
@@ -101,6 +111,15 @@ if force_plot_LR:
     ax2.tick_params(axis='x', labelsize=16)
     ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_forc.png')
     print('=========== DONE =============')
 if force_plot_RF:
@@ -115,6 +134,11 @@ if force_plot_RF:
     ax3.tick_params(axis='x', labelsize=16)
     ax3.tick_params(axis='y', labelsize=16)
     ax3.grid()
+    bwith = 3
+    ax3.spines['bottom'].set_linewidth(bwith)
+    ax3.spines['top'].set_linewidth(bwith)
+    ax3.spines['right'].set_linewidth(bwith)
+    ax3.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_ringforc.png')
     print('=========== DONE =============')
 if vel_plot:
@@ -132,6 +156,11 @@ if vel_plot:
     ax4.grid()
     ax4.set_xlabel('Time (Myr)',fontsize=16)
     ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
+    bwith = 3
+    ax4.spines['bottom'].set_linewidth(bwith)
+    ax4.spines['top'].set_linewidth(bwith)
+    ax4.spines['right'].set_linewidth(bwith)
+    ax4.spines['left'].set_linewidth(bwith)
     fig3.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_vel.png')
     print('=========== DONE =============')
 if stack_topo_plot:
@@ -145,6 +174,11 @@ if stack_topo_plot:
     ax2.set_ylabel('Height (km)',fontsize=16)
     ax2.set_title('Topography',fontsize=16)
     ax2.legend(fontsize=16)
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_topo_analysis.png')
     print('=========== DONE =============')
 if flat_slab_plot:
@@ -168,5 +202,14 @@ if flat_slab_plot:
     ax2.set_xlabel('Time (Myr)',fontsize=16)
     ax2.set_ylabel('depth (km) ',fontsize=16)
     ax2.legend(fontsize=16)
+    bwith = 3
+    ax1.spines['bottom'].set_linewidth(bwith)
+    ax1.spines['top'].set_linewidth(bwith)
+    ax1.spines['right'].set_linewidth(bwith)
+    ax1.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_flatslab_length.png')
     print('=========== DONE =============')

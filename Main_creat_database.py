@@ -27,24 +27,24 @@ gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 1 
-stack_gem	        = 1
+stack_gem	            = 1
 flat_duraton            = 1
 
 # plot data
 trench_plot             = 0
-dip_plot                = 1
-magma_plot              = 1
+dip_plot                = 0
+magma_plot              = 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
-force_plot_LR           = 1
+force_plot_LR           = 0
 force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 1
-stack_gem_plot	    	= 1
-flat_slab_plot          = 1
+stack_topo_plot         = 0
+stack_gem_plot	    	= 0
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -74,7 +74,6 @@ def trench(start_vts=1,model_steps=end):
         trench_x[i]=sx[trench_ind]
         trench_z[i]=sz[trench_ind]
     return trench_index,trench_x,trench_z
-
 def get_topo(start=1,end_frame=end): 
     topo = [];dis = [];time = []  # do not change to array since the topo database is 3D
     trench_index, xtrench, ztrench = trench(start,end_frame)
@@ -127,7 +126,6 @@ def plate_dip(depth1,depth2):
         dz = crust_zmax - crust_zmin
         angle[i] = math.degrees(math.atan(dz/dx))
     return time,angle
-
 def plot_phase_in_depth(depth=0):
     time=[];ph=[];xx=[]
     for step in range(end):
@@ -411,6 +409,11 @@ if dip_plot:
     ax2.set_xlabel('Time (Myr)',fontsize=20)
     ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth',fontsize=20)
     ax2.grid()
+    bwith=3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
     print('=========== DONE =============')
 if magma_plot:
@@ -429,10 +432,6 @@ if magma_plot:
     ax2.set_ylabel('chamber *area',fontsize=20)
     ax3.set_ylabel('max melt',fontsize=20)
     ax4.set_ylabel('max magma fraction',fontsize=20)
-    #ax.set_ylim(0,0.8)
-    #ax2.set_ylim(0,10*1e-3)
-    #ax3.set_ylim(0,10*1e-3)
-    #ax4.set_ylim(0,3*1e-5)
     ax.set_xlim(0,fl.time[-1]);ax.grid()
     ax2.set_xlim(0,fl.time[-1]);ax2.grid()
     ax3.set_xlim(0,fl.time[-1]);ax3.grid()
@@ -446,6 +445,23 @@ if magma_plot:
     ax3.tick_params(axis='y', labelsize=16 )
     ax4.tick_params(axis='y', labelsize=16 )
     ax.set_title('Model : '+model,fontsize=25)
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
+    ax3.spines['bottom'].set_linewidth(bwith)
+    ax3.spines['top'].set_linewidth(bwith)
+    ax3.spines['right'].set_linewidth(bwith)
+    ax3.spines['left'].set_linewidth(bwith)
+    ax4.spines['bottom'].set_linewidth(bwith)
+    ax4.spines['top'].set_linewidth(bwith)
+    ax4.spines['right'].set_linewidth(bwith)
+    ax4.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_magma.png')
     print('=========== DONE =============')
 #--------------------------------------------------------------------
@@ -529,7 +545,12 @@ if phase_accre:
     ax_cbin = fig.add_axes([0.27, 0.03, 0.23, 0.03])
     cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Phase')
-    ax.plot(df.trench_x,df.time,c='k',lw=2)    
+    ax.plot(df.trench_x,df.time,c='k',lw=2) 
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_acc.png')
     print('=========== DONE =============')
 if melting_plot:
@@ -569,6 +590,15 @@ if force_plot_LR:
     ax2.tick_params(axis='x', labelsize=16)
     ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_forc.png')
     print('=========== DONE =============')
 if force_plot_RF:
@@ -600,6 +630,11 @@ if vel_plot:
     ax4.grid()
     ax4.set_xlabel('Time (Myr)',fontsize=16)
     ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
+    bwith = 3
+    ax4.spines['bottom'].set_linewidth(bwith)
+    ax4.spines['top'].set_linewidth(bwith)
+    ax4.spines['right'].set_linewidth(bwith)
+    ax4.spines['left'].set_linewidth(bwith)
     fig3.savefig(figpath+model+'_vel.png')
     print('=========== DONE =============')
 if stack_topo_plot:
@@ -608,6 +643,12 @@ if stack_topo_plot:
     xmean,ztop=np.loadtxt(savepath+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
+    ax2.set_xlim(0,max(xmean)+10)
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_topo_analysis.png')
     print('=========== DONE =============')
 if stack_gem_plot:
@@ -616,6 +657,12 @@ if stack_gem_plot:
     xmean,ztop=np.loadtxt(savepath+name).T
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
+    ax2.set_xlim(0,max(xmean)+10)
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_gem.png')
     print('=========== DONE =============')
 if flat_slab_plot:
