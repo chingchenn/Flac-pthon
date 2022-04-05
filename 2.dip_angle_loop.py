@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import function_for_flac as f2
 model_list=['Chi01','chih0606','chih0607','chih0608','chih0609']
 name_list=['3','5','7','9','11']
-newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
+newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 # depth1=-5
 # depth2=-150
 # case =1

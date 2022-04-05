@@ -8,7 +8,7 @@ all_list=[['w0330','w0324']]
 for yind,pair in enumerate(all_list): 
     model_list=all_list[yind]
     fig,ax1=plt.subplots(1,1,figsize=(12,8))
-    newcolors = ['#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
+    newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
     for qq,model in enumerate(model_list):    
         path='/home/jiching/geoflac/'+model+'/'
         os.chdir(path)
