@@ -17,8 +17,8 @@ import function_for_flac as f2
 import matplotlib.pyplot as plt
 
 # ===================================initial set up ======================================
-fig_GMT            = 0
-fig_origin         = 1
+fig_GMT            = 1
+fig_origin         = 0
 fig_spline         = 0
 fig_poly           = 0
 fig_Rsquare        = 0
@@ -91,8 +91,9 @@ lat2=`awk '(NR==2){print $2}' line.txt`
     gmt project -C$lon/$lat -E$lon2/$lat2 -Q -G0.1 | gmt grdtrack -GCAM2016Litho.nc > %(area)s-litho.txt
     awk '{print $2, $4}' %(area)s-litho.txt | gmt plot -W2p,240/128/128,-- 
     gmt legend -DjLB+w5.5c+o0.5c -F+p1p+gbeige <<- EOF
-S 0.5c - 0.9c - 2p,240/128/128 1.2c  LAB (CAM2016)
-S 0.5c - 0.9c - 2p,72/61/139 1.2c  Moho Depth (Szwillus)
+S 0.5c - 0.9c - 2p,black 1.2c  Slab 2.0
+S 0.5c - 0.9c - 2p,240/128/128 1.2c  LAB (LITHO 1.0)
+S 0.5c - 0.9c - 2p,72/61/139 1.2c  Moho (CRUST 2.0)
 EOF
     gmt plot -R%(minlat)f/%(maxlat)f/-6500/5000 -Bxafg1000+l"Topography (m)" -BWsne -Bya2000f1000+l"height (m)" -JX15c/4c -W2p table.txt -Yh+0c
     gmt project -C$lon/$lat -E$lon2/$lat2 -G0.1 -Q | gmt grdtrack -Gcut.nc | awk '{print $2,$4}' >table2.txt
