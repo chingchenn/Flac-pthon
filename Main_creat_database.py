@@ -14,8 +14,9 @@ import matplotlib
 #matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
-import function_for_flac as f2
+import function_for_flac as fd
 import matplotlib.pyplot as plt
+from numpy import unravel_index
 
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
@@ -23,33 +24,35 @@ vtp                     = 0
 trench_location         = 0
 dip                     = 1
 magma                   = 1
+melting_loc   		= 1
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 1 
-stack_gem	            = 1
+stack_gem	        = 1
 flat_duraton            = 1
 
 # plot data
 trench_plot             = 0
 dip_plot                = 0
 magma_plot              = 0
+metloc_plot  		= 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
-force_plot_LR           = 0
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
-stack_topo_plot         = 0
-stack_gem_plot	    	= 0
-flat_slab_plot          = 0
+vel_plot                = 1
+stack_topo_plot         = 1
+stack_gem_plot	    	= 1
+flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -68,8 +71,8 @@ def trench(start_vts=1,model_steps=end):
     trench_index=np.zeros(end)
     for i in range(start_vts,model_steps):
         x,z = fl.read_mesh(i)
-        sx,sz=f2.get_topo(x,z)
-        arc_ind,trench_ind=f2.find_trench_index(z)
+        sx,sz=fd.get_topo(x,z)
+        arc_ind,trench_ind=fd.find_trench_index(z)
         trench_index[i]=trench_ind
         trench_x[i]=sx[trench_ind]
         trench_z[i]=sz[trench_ind]
@@ -79,7 +82,7 @@ def get_topo(start=1,end_frame=end):
     trench_index, xtrench, ztrench = trench(start,end_frame)
     for step in range(start,end_frame):
         x,z = fl.read_mesh(step)
-        sx,sz=f2.get_topo(x,z)
+        sx,sz=fd.get_topo(x,z)
         topo.append(sz) 
         dis.append(sx)
         for ii in range(len(sx)):
@@ -183,6 +186,18 @@ def get_magma(start_vts=1,model_steps=end-1):
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,arc_vol
 magmafile=path+'data/magma_for_'+model+'.csv' 
+def melting_location(start_vts=1,model_steps=end-1):
+    melt=np.zeros(end)
+    x_melt=np.zeros(end)
+    for i in range(1,end):
+        x,z=fl.read_mesh(i)
+        phase = fl.read_phase(i)
+        mm=fl.read_fmelt(i)
+        melt[i] = np.max(mm)
+        maxindex=unravel_index(mm.argmax(),mm.shape)[0]
+        ele_x, ele_z = nodes_to_elements(x,z)
+        x_melt[i] = ele_x[maxindex,0]
+    return melt,x_melt,time
 def count_marker(phase,start=1,end_frame=end):
     mr = np.zeros(end_frame-start)
     for i in range(start,end_frame):
@@ -352,6 +367,12 @@ if magma:
     melt,chamber,yymelt,yychamber,rrr=get_magma()
     fs.save_5txt(name,savepath,melt,chamber,yymelt,yychamber,rrr)
     print('=========== DONE =============')
+if melting_loc:
+    print('-----creat melt database-----')
+    name='metloc_for_'+model
+    melt,xmelt,time=melting_location()
+    fs.save_3txt(name,savepath,time,melt,xmelt)
+    print('=========== DONE =============')
 if melting:
     print('-----creat melting database-----')
     name='melting_'+model
@@ -464,6 +485,28 @@ if magma_plot:
     ax4.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_magma.png')
     print('=========== DONE =============')
+if metloc_plot:
+    print('-------plotting gravity-------')
+    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
+    time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+    qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='gray')
+#    cbar=fig.colorbar(qqq,ax=ax)
+    ax.set_ylim(200,600)
+    #ax.set_xlim(0,fl.time[-1])
+    ax.set_xlim(0,30)
+    ax.set_title(str(model)+" Melting location",fontsize=24)
+    ax.set_xlabel('Time (Myr)',fontsize=20)
+    ax.set_ylabel('Distance (km)',fontsize=20)
+#    cbar.set_label('Topography (km)',fontsize=20)
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    fig.savefig(figpath+model+'_metloc.png')
+    print('=========== DONE =============')
 #--------------------------------------------------------------------
 '''
     fig2,(ax,ax2)=plt.subplots(1,2,figsize=(25,8))
@@ -471,7 +514,7 @@ if magma_plot:
     ax_cbin =fig2.add_axes([0.13,0.78,0.23,0.03]) 
     cb = fig2.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Myr')
-    rrr1=f2.moving_window_smooth(df.ratio,10)
+    rrr1=fd.moving_window_smooth(df.ratio,10)
     ax2.plot(df.time,rrr1,color='k',lw=3)
     ax2.plot(df.time,df.ratio,color='gray',linestyle=':')
     ax.set_ylim(0,max(df.chamber))
@@ -620,7 +663,7 @@ if vel_plot:
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
     fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
-    movvl= f2.moving_window_smooth(vl,500)
+    movvl = fd.moving_window_smooth(vl,500)
     #ax4.plot(time,vl*31545741325,c="darkred",lw=2)
     ax4.plot(time,movvl*31545741325,c="#000080",lw=2)
     ax4.set_xlim(0,time[-1])
