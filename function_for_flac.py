@@ -14,8 +14,6 @@ import numpy as np
 from math import sqrt
 from scipy.special import erf
 
-sys.path.append('/home/jiching/geoflac/util')
-
 def get_topo(xmesh,zmesh):
     xtop=xmesh[:,0]
     ztop=zmesh[:,0]
@@ -47,14 +45,6 @@ def read_area(xmesh,zmesh,x_index,z_index):
     area2 = ((x1-x4)*(y3-y4))-((x3-x4)*(y1-y4))    
     area = (abs(area1)+abs(area2))*0.5           
     return area
-"""
-def read_time(start_vts,model_steps):
-    timestep=[0]
-    for step in range(start_vts,model_steps+1):
-        timestep.append(fl.time[step])
-    # timestep=np.array(timestep)
-    return timestep
-"""
 
 #find melt element
 def melt_element(xmesh,zmesh,frame,mm):
