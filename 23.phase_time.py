@@ -35,8 +35,9 @@ def nodes_to_elements(xmesh,zmesh):
 depth = 0
 colors = ["#ffffff","#f0a224"]
 phase15= matplotlib.colors.ListedColormap(colors)
+colors1 = ["#ffffff","#1a1010"]
+phase16= matplotlib.colors.ListedColormap(colors1)
 fig, (ax)= plt.subplots(1,1,figsize=(10,12))
-time=[];ph=[];xx=[]
 for step in range(end):
     x, z = fl.read_mesh(step+1)
     phase=fl.read_phase(step+1)
@@ -44,15 +45,24 @@ for step in range(end):
     xt = ele_x[:,0]
     zt = ele_z[:,0]
     pp = np.zeros(xt.shape)
+    qq = np.zeros(xt.shape)
     t = np.zeros(zt.shape)
-    t[:]=fl.time[step]
+    t[:] = fl.time[step]
     for gg in range(len(ele_z)):
         if phase[gg,depth]==14:
             pp[gg]=1
+#        elif phase[gg,depth]==2 or phase[gg,depth]==4:
+#            pp[gg]=2
+#        elif phase[gg,depth]==3 or phase[gg,depth]==10:
+#            pp[gg]=3
         else:
             pp[gg]=0        
-    ax.scatter(xt,t,c=pp,cmap=phase15)
-    
+        if ele_z[gg,0]-(np.average(ele_z[gg,0]))>1.0:
+           qq[gg] = 1
+        else:
+           qq[gg]=0 
+#    ax.scatter(xt,t,c=pp,cmap=phase15)
+    ax.scatter(xt,t,c=qq,cmap=phase16)
 
 ax.set_ylabel("Time (Ma)")
 ax.set_xlabel("Distance (km)")
