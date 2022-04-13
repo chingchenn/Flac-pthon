@@ -196,7 +196,8 @@ def melting_location(start_vts=1,model_steps=end-1):
         melt[i] = np.max(mm)
         maxindex=unravel_index(mm.argmax(),mm.shape)[0]
         ele_x, ele_z = nodes_to_elements(x,z)
-        x_melt[i] = ele_x[maxindex,0]
+        tren_x = (ele_z[:,0]).argmin()
+        x_melt[i] = ele_x[maxindex,0]-ele_x[tren_x,0]
     return melt,x_melt,time
 def count_marker(phase,start=1,end_frame=end):
     mr = np.zeros(end_frame-start)
@@ -254,11 +255,11 @@ def get_stack_topo(width=600,ictime=20):
         within_plot = (xt>x_trench-width) * (xt<x_trench+width)
         topo1 += zt
         xmean += (xt-x_trench)
-        fx=(xt-x_trench)
-        fz=zt
+        finx = (xt-x_trench)
+        finz = zt
     xx=xmean[within_plot]/ictime
     zz=topo1[within_plot]/ictime
-    return xx,zz,fx,fz
+    return xx,zz,finx,finz
 def get_stack_geometry(ictime=20,width=700):
     stslab = 0;xmean=0
     for i in range(end-ictime,end):
@@ -269,11 +270,11 @@ def get_stack_geometry(ictime=20,width=700):
         within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
         stslab += crust_z
         xmean += (crust_x-x_trench)
-        fx = (crust_x-x_trench)
-        fz = crust_z
+        finx = crust_x-x_trench
+        finz = crust_z
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
-    return xx[xx>0][:-1],zz[xx>0][:-1],fx,fz
+    return xx[xx>0][:-1],zz[xx>0][:-1],finx,finz
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
     bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
@@ -491,13 +492,12 @@ if metloc_plot:
     time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
     qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='OrRd')
     cbar=fig.colorbar(qqq,ax=ax)
-    ax.set_ylim(200,600)
-    #ax.set_xlim(0,fl.time[-1])
+    ax.set_ylim(0,400)
     ax.set_xlim(0,30)
     ax.set_title(str(model)+" Melting location",fontsize=24)
     ax.set_xlabel('Time (Myr)',fontsize=20)
-    ax.set_ylabel('Distance (km)',fontsize=20)
     cbar.set_label('Melting %',fontsize=20)
+    ax.set_ylabel('Distance with trench (km)',fontsize=20)
     ax.tick_params(axis='x', labelsize=16 )
     ax.tick_params(axis='y', labelsize=16 )
     bwith = 3
@@ -646,7 +646,7 @@ if force_plot_LR:
     print('=========== DONE =============')
 if force_plot_RF:
     print('----- plotting ringforce-----')
-    filepath = savepath+model+'_forc.txt' 
+    filepath =savepath+model+'_forc.txt' 
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
