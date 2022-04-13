@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 trench_plot             = 0
 dip_plot                = 0
 plate_geometry          = 1
-force_plot_LR           = 1
+force_plot_LR           = 0
 force_plot_RF           = 0
-vel_plot                = 1
+vel_plot                = 0
 stack_topo_plot         = 1
 flat_slab_plot          = 1
 
@@ -35,7 +35,7 @@ path = '/scratch2/jiching/03model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 #model_list=['chimex0601','chimex0602','chimex0603','chimex0604','chimex0605','chimex0606','chimex0607','chimex0608','chimex0609','chimex0610','chimex0611']
-model_list=['ch0704','ch0710','ch0707']#,'h0604','h','h0606','h0607','','','h0610','h0611']
+model_list=['h0406','h0411','h0416']#,'h0604','h','h0606','h0607','','','h0610','h0611']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 
 ##------------------------------------ plot -----------------------------------
@@ -85,6 +85,7 @@ if plate_geometry:
     ax2.set_ylabel("Depth (km)")
     ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
     ax2.legend(fontsize=16)
+    ax2.set_aspect('equal')
     bwith = 3
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
@@ -96,7 +97,7 @@ if force_plot_LR:
     print('--- start plot left and right force with time ---')
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
     for kk,model in enumerate(model_list):
-        filepath = path+model+'/forc.0'
+        filepath ='/home/jiching/geoflac/data/'+model+'_forc.txt' 
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax.scatter(time,forc_l,s=4,label=model,color=newcolors[kk])
@@ -126,7 +127,7 @@ if force_plot_RF:
     print('--- start plot ringforce with time ---')
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     for kk,model in enumerate(model_list):
-        filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+        filepath ='/home/jiching/geoflac/data/'+model+'_forc.txt' 
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax3.scatter(time,ringforce,s=2,label=model,color=newcolors[kk])
@@ -145,7 +146,7 @@ if vel_plot:
     print('--- start plot velocity with time ---')
     fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
     for kk,model in enumerate(model_list):
-        filepath = path+model+'/forc.0'
+        filepath ='/home/jiching/geoflac/data/'+model+'_forc.txt' 
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax4.plot(time,vl*31545741325,lw=2,label=model,color=newcolors[kk])
