@@ -21,7 +21,7 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
+trench_location         = 1
 dip                     = 1
 magma                   = 1
 melting_loc   		= 1
@@ -33,9 +33,9 @@ stack_gem	        = 1
 flat_duraton            = 1
 
 # plot data
-trench_plot             = 0
-dip_plot                = 0
-magma_plot              = 0
+trench_plot             = 1
+dip_plot                = 1
+magma_plot              = 1
 metloc_plot  		= 1
 marker_number           = 0
 gravity_plot            = 0
@@ -43,7 +43,7 @@ phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
 force_plot_LR           = 1
-force_plot_RF           = 0
+force_plot_RF           = 1
 vel_plot                = 1
 stack_topo_plot         = 1
 stack_gem_plot	    	= 1
@@ -244,7 +244,7 @@ def melting_phase():
     return phase_p4,phase_p9,phase_p10,po
 def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
-    for i in range(1,end):
+    for i in range(end-ictime,end):
         x, z = fl.read_mesh(i)
         xt = x[:,0]
         zt = z[:,0]
@@ -252,30 +252,28 @@ def get_stack_topo(width=600,ictime=20):
         t[:] = i*0.2
         x_trench = xt[np.argmin(zt)]
         within_plot = (xt>x_trench-width) * (xt<x_trench+width)
-        if i >= end-ictime:
-            topo1 += zt
-            xmean += (xt-x_trench)
-        if stack_topo_plot:
-            rainbow = cm.get_cmap('gray_r',end)    
-            newcolors = rainbow(np.linspace(0, 1, end))
-        #    ax2.plot(xt[within_plot]-x_trench,zt[within_plot],c=newcolors[i])
+        topo1 += zt
+        xmean += (xt-x_trench)
+        fx=(xt-x_trench)
+        fz=zt
     xx=xmean[within_plot]/ictime
     zz=topo1[within_plot]/ictime
-    return xx,zz
+    return xx,zz,fx,fz
 def get_stack_geometry(ictime=20,width=700):
     stslab = 0;xmean=0
-    for i in range(1,end):
+    for i in range(end-ictime,end):
         crust_x,crust_z = oceanic_slab(i)
         x, z = fl.read_mesh(i)
         ele_x, ele_z = nodes_to_elements(x,z)
         x_trench = ele_x[:,0][np.argmin(ele_z[:,0])]
         within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
-        if i >=end-ictime:
-            stslab += crust_z
-            xmean += (crust_x-x_trench)
+        stslab += crust_z
+        xmean += (crust_x-x_trench)
+        fx = (crust_x-x_trench)
+        fz = crust_z
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
-    return xx[xx>0][:-1],zz[xx>0][:-1]
+    return xx[xx>0][:-1],zz[xx>0][:-1],fx,fz
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
     bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
@@ -324,7 +322,7 @@ def flat_slab_duration():
             if mm*uu<0:
                 ff2.append(ox[pp])
             mm = uu  
-        if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
+        if len(ff2)>1 and (ff2[1]-ff2[0])>80 and ff2[0]>start:
             find_flat_dz2.append(fl.time[i])
             if len(ff1)>3 and (ff1[-1]-ff1[-2])>50:
                 find_flat_dz1.append(fl.time[i])
@@ -383,14 +381,16 @@ if melting:
 if stack_topo:
     print('-----creat topo database-----')
     name=model+'_stack_topography'
-    xx,zz=get_stack_topo()
+    xx,zz,fx,fz=get_stack_topo()
     fs.save_2txt(name,savepath,xx,zz)
+    fs.save_2txt(model+'_final_topography',savepath,fx,fz)
     print('=========== DONE =============')
 if stack_gem:
     print('-----creat geometry database-----')
     name=model+'_stack_slab'
-    xx,zz=get_stack_geometry()
+    xx,zz,fx,fz=get_stack_geometry()
     fs.save_2txt(name,savepath,xx,zz)
+    fs.save_2txt(model+'_final_slab',savepath,fx,fz)
     print('=========== DONE =============')
 if flat_duraton:
     print('-----creat flattime database-----')
@@ -489,15 +489,15 @@ if metloc_plot:
     print('-------plotting gravity-------')
     fig, (ax)= plt.subplots(1,1,figsize=(12,5))
     time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
-    qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='gray')
-#    cbar=fig.colorbar(qqq,ax=ax)
+    qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='OrRd')
+    cbar=fig.colorbar(qqq,ax=ax)
     ax.set_ylim(200,600)
     #ax.set_xlim(0,fl.time[-1])
     ax.set_xlim(0,30)
     ax.set_title(str(model)+" Melting location",fontsize=24)
     ax.set_xlabel('Time (Myr)',fontsize=20)
     ax.set_ylabel('Distance (km)',fontsize=20)
-#    cbar.set_label('Topography (km)',fontsize=20)
+    cbar.set_label('Melting %',fontsize=20)
     ax.tick_params(axis='x', labelsize=16 )
     ax.tick_params(axis='y', labelsize=16 )
     bwith = 3
@@ -617,7 +617,7 @@ if melting_plot:
     print('=========== DONE =============')
 if force_plot_LR:
     print('-----plotting boundary force-----')
-    filepath = path+model+'/forc.0'
+    filepath = savepath+model+'_forc.txt'
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
@@ -646,7 +646,7 @@ if force_plot_LR:
     print('=========== DONE =============')
 if force_plot_RF:
     print('----- plotting ringforce-----')
-    filepath = path+model+'/forc.0'
+    filepath = savepath+model+'_forc.txt' 
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
@@ -659,7 +659,7 @@ if force_plot_RF:
     print('=========== DONE =============')
 if vel_plot:
     print('-----plotting model velocity-----')
-    filepath = '/home/jiching/geoflac/'+model+'/forc.0'
+    filepath = savepath+model+'_forc.txt'
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
     fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
