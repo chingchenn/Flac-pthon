@@ -33,11 +33,11 @@ def nodes_to_elements(xmesh,zmesh):
     ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
     return ele_x, ele_z
 depth = 0
-colors = ["#ffffff","#f0a224"]
+colors = ["#ffffff","#f77300"]
 phase15= matplotlib.colors.ListedColormap(colors)
 colors1 = ["#ffffff","#1a1010"]
 phase16= matplotlib.colors.ListedColormap(colors1)
-fig, (ax)= plt.subplots(1,1,figsize=(10,12))
+fig, (ax)= plt.subplots(1,1,figsize=(7,9))
 for step in range(end):
     x, z = fl.read_mesh(step+1)
     phase=fl.read_phase(step+1)
@@ -57,21 +57,26 @@ for step in range(end):
 #            pp[gg]=3
         else:
             pp[gg]=0        
-        if ele_z[gg,0]-(np.average(ele_z[gg,0]))>1.0:
+        if ele_z[gg,0]-(np.average(ele_z[:,0]))>2.0:
            qq[gg] = 1
         else:
            qq[gg]=0 
-#    ax.scatter(xt,t,c=pp,cmap=phase15)
     ax.scatter(xt,t,c=qq,cmap=phase16)
+    ax.scatter(xt,t,c=pp,cmap=phase15,alpha = 0.2)
 
 ax.set_ylabel("Time (Ma)")
 ax.set_xlabel("Distance (km)")
 ax.set_title(str(model)+" Phase")
-# ax.set_ylim(0,t[-1][-1])
-# ax.set_xlim(xt[0][0],xt[-1][-1])
+ax.set_ylim(0,30)
+ax.set_xlim(200,700)
+bwith = 3
+ax.spines['bottom'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
+ax.spines['left'].set_linewidth(bwith)
 # cb_plot1 = ax.scatter([-1],[-1],s=0.1,c=[1],cmap=phase15,vmin=1, vmax=18)
 # ax_cbin = fig.add_axes([0.27, 0.03, 0.23, 0.03])
 # cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
 # ax_cbin.set_title('Phase')
-fig.savefig(figpath+model+'_phase.png')
+fig.savefig(figpath+model+'_phase.pdf')
 print('=========== DONE =============')
