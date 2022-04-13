@@ -23,7 +23,7 @@ s1518 colser trench geology         =   7
 s1517 geology 			    =   8
 '''
 
-geo = 8
+geo = 4
 withregion = 1
 max_depth = -200
 # -------------------------------- geology zone ------------------------------- 
@@ -42,14 +42,14 @@ elif geo==3:
 elif geo==4:
     layerz = (0, 18e3, 30e3)
     phase=[2,6,4]
-    tem=4
+    tem=3
 elif geo==5:
-    layerz = (0, 18e3, 30e3, 40e3)
+    layerz = (0, 18e3, 30e3, 55e3)
     phase=[2,6,19,4]
-    tem=4
+    tem=3
 elif geo==6:
     layerz = (0, 25e3, 35e3)
-    phase=[2,6,4]
+    phase=[2,14,4]
     tem=4
 elif geo==7:
     layerz = (0, 15e3,40e3)
@@ -86,10 +86,10 @@ if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 50)
     print('geo='+str(geo))
 elif tem==3:
-    T = f2.continental_geothermal_T3(z,20,6,45)
+    T = f2.continental_geothermal_T3(z,15,10,45)
     print('geo='+str(geo))
 elif tem==4:
-    T = f2.continental_geothermal_T4(z, 10,1330, 120)
+    T = f2.continental_geothermal_T4(z, 10,1330, 140)
     print('geo='+str(geo))
 #------------------------------------------------------------------------------
 # equation soluiton of plastic stress and viscosity
