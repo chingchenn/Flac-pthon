@@ -24,10 +24,10 @@ s1517 geology 			            =   8
 normal oceanic litho, 15Myr         =   9
 '''
 
-geo = 1
+geo = 5
 withregion = 0
-strength_fill=0
-max_depth = -200
+strength_fill = 0
+max_depth = -150
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
@@ -38,7 +38,7 @@ elif geo==2:
     phase=[2,6,4]
     tem=3
 elif geo==3:
-    layerz = (0, 18e3, 30e3, 40e3)
+    layerz = (0, 16e3, 26e3, 40e3)
     phase=[2,6,19,4]
     tem=3
 elif geo==4:
@@ -46,7 +46,7 @@ elif geo==4:
     phase=[2,14,4]
     tem=4
 elif geo==5:
-    layerz = (0, 18e3, 30e3, 40e3)
+    layerz = (0, 18e3, 30e3, 80e3)
     phase=[2,6,19,4]
     tem=4
 elif geo==6:
@@ -75,7 +75,7 @@ if tem == 1:
 elif tem == 3:
     T = f2.continental_geothermal_T3(z,20,6,45)
 elif tem == 4:
-    T = f2.continental_geothermal_T4(z, 10,1330, 150)
+    T = f2.continental_geothermal_T4(z, 10,1330, 120)
 elif tem == 2:
     T = f2.half_space_cooling_T(z, 10, 1330, 15)
 
@@ -113,7 +113,7 @@ ax.spines['left'].set_linewidth(bwith)
 mm1,=ax.plot(visco_strength/1e6,-z/1000,color='r',linestyle='dashed',alpha=0.8,label = 'visco',lw=4)
 mm2,=ax.plot(frico_strength/1e6,-z/1000,color='b',linestyle='dashed',alpha=0.8,label = 'plastic',lw=4)
 mm3,=ax.plot(applied_strength/1e6,-z/1000,color='k',lw=4,label = 'final stress')
-mm=[mm1,mm2,mm3]
+mm=[mm3,mm2,mm1]
 ax.tick_params(axis='x', labelsize=26)
 ax.tick_params(axis='y', labelsize=26)
 ax.set_title('Rock Strength',fontsize=30)
@@ -122,8 +122,11 @@ ax.set_ylabel('Depth (km)',fontsize=26)
 ax.set_ylim(max_depth,0)                                     
 ax.set_xlim(0,1500)
 ax.grid()
+# ax.spines['top'].set_visible(False)
+# ax.spines['left'].set_visible(False)
+# ax.axes.yaxis.set_visible(False)
 
-ax.legend(mm, [curve.get_label() for curve in mm],fontsize=20,facecolor='#FFEBCD')
+# ax.legend(mm, [curve.get_label() for curve in mm],fontsize=20,facecolor='#FFEBCD')
 ## ------------------------------  Elastic Plot  ------------------------------
 if withregion:
     elastic =-z[applied_strength==frico_strength]/1000
@@ -140,8 +143,8 @@ for yy in range(1,len(applied_strength)):
 print(qq/1e13)
 ## ----------------------------  temperature Plot  ----------------------------
 temp = z/1000*0.6+T
-ax3.plot(temp,-z/1000,color='green',label='temperature',lw=4)
-ax3.set_xlim(0,1500)
+ax3.plot(temp,-z/1000,color='#B22222',label='temperature',lw=10)
+ax3.set_xlim(0,2000)
 ax3.set_ylim(max_depth,0)
 # ax3.axes.yaxis.set_visible(False)
 ax3.spines['bottom'].set_linewidth(bwith)
@@ -153,6 +156,10 @@ ax3.tick_params(axis='y', labelsize=26)
 ax3.set_title('Temperature Profile',fontsize=30)
 ax3.set_xlabel('Temperature ($^\circ$C)',fontsize=26)
 ax3.grid()
+# ax3.spines['right'].set_visible(False)
+# ax3.spines['top'].set_visible(False)
+# ax3.spines['left'].set_visible(False)
+# ax3.spines['bottom'].set_visible(False)
 # ax3.axvspan(5*1e20,1e21,facecolor='green', alpha=0.3)
 
 
