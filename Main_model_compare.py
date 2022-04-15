@@ -20,11 +20,11 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
 dip_plot                = 0
-plate_geometry          = 0
-force_plot_LR           = 1
+plate_geometry          = 1
+force_plot_LR           = 0
 force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 0
+stack_topo_plot         = 1
 flat_slab_plot          = 0
 magma_plot   	    	= 0
 
@@ -34,11 +34,12 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
+savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 #model_list=['chimex0601','chimex0602','chimex0603','chimex0604','chimex0605','chimex0606','chimex0607','chimex0608','chimex0609','chimex0610','chimex0611']
-model_list=['h0406','h0411','h0416']#,'h0604','h','h0606','h0607','','','h0610','h0611']
+model_list=['h0405','h0410','h0415']#,'h0604','h','h0606','h0607','','','h0610','h0611']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
-
+plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
     print('--- start plotting the trench and topography with time ---')
@@ -77,23 +78,27 @@ if dip_plot:
     print('=========== DONE =============')
 if plate_geometry:
     print('--- start plot geometry ---')
-    fig2, (ax2) = plt.subplots(1,1,figsize=(8,12))
+    fig2, (ax2) = plt.subplots(1,1,figsize=(14,10))
     for kk,model in enumerate(model_list):
         xmean,ztop=np.loadtxt(savepath+str(model)+'_stack_slab.txt').T
-        ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=3)
+        ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=5)
     #ax2.set_xlim(0,max(xmean)+10)
-    ax2.set_title("slab comparation")
-    ax2.set_ylabel("Depth (km)")
-    ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
+    # ax2.set_title("slab comparation",fontsize=16)
+    # ax2.set_ylabel("Depth (km)",fontsize=16)
+    # ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
     ax2.legend(fontsize=16)
     ax2.set_aspect('equal')
     bwith = 3
+    ax2.set_ylim(-200,0)
+    ax2.set_xlim(0,400)
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
     ax2.set_aspect('equal')
-    fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    # fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
     print('=========== DONE =============')
 if force_plot_LR:
     print('--- start plot left and right force with time ---')
@@ -169,11 +174,11 @@ if vel_plot:
     print('=========== DONE =============')
 if stack_topo_plot:
     print('--- start plot topo with time ---')
-    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
+    fig2, (ax2) = plt.subplots(1,1,figsize=(14,10))
     for kk,model in enumerate(model_list):
         name=model+'_stack_topography.txt'
         xmean,ztop=np.loadtxt(savepath+name).T
-        ax2.plot(xmean,ztop,lw=3,label=model,color=newcolors[kk])
+        ax2.plot(xmean,ztop,lw=5,label=model,color=newcolors[kk])
     ax2.set_xlabel('Distance (km)',fontsize=16)
     ax2.set_ylabel('Height (km)',fontsize=16)
     ax2.set_title('Topography',fontsize=16)
@@ -183,7 +188,9 @@ if stack_topo_plot:
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
-    fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_topo_analysis.png')
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    # fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_topo_analysis.png')
     print('=========== DONE =============')
 if flat_slab_plot:
     print('-----plotting flatslab-----')
