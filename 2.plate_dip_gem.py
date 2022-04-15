@@ -44,17 +44,10 @@ for i in range(1,end):
     within_plot = (ele_x[:,0]>x_trench)* (crust_z < 0)
     ax.plot(crust_x[within_plot]-(x_trench),crust_z[within_plot],color=newcolors[i],zorder=1)
     if not True in (crust_z < -80):
-#        print(i)
         continue
     if i >=end-ictime:
-#        print('i=',crust_z[within_plot],(crust_x-x_trench)[within_plot])
-#        fig666, (a555)= plt.subplots(1,1,figsize=(17,12))
-#        a555.scatter((crust_x-x_trench)[within_plot],crust_z[within_plot])
         stslab += crust_z
         xmean += (crust_x-x_trench)
-#        fig666.savefig('/home/jiching/geoflac/'+'figure/'+str(i)+model+'_gem.jpg')
-#        plt.close(fig666)
-#        print('i=',xmean[within_plot][-5:-1]/(i-end+ictime))
     if plot_dip:
         ind_within_80km = (crust_z >= -80) * (crust_z < -5)
         crust_xmin = np.amin(crust_x[ind_within_80km])

@@ -19,13 +19,13 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
-dip_plot                = 0
+dip_plot                = 1
 plate_geometry          = 1
-force_plot_LR           = 0
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
+vel_plot                = 1
 stack_topo_plot         = 1
-flat_slab_plot          = 0
+flat_slab_plot          = 1
 magma_plot   	    	= 0
 
 #---------------------------------- SETTING -----------------------------------
@@ -104,7 +104,7 @@ if force_plot_LR:
     print('--- start plot left and right force with time ---')
     fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
     for kk,model in enumerate(model_list):
-        filepath = savepath+'forc_'+model+'.txt'
+        filepath = savepath+model+'_forc.txt'
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax.scatter(time,forc_l+forc_r,s=4,label=model,color=newcolors[kk])
@@ -135,7 +135,7 @@ if force_plot_RF:
     print('--- start plot ringforce with time ---')
     fig2, (ax3)= plt.subplots(1,1,figsize=(10,8))   
     for kk,model in enumerate(model_list):
-        filepath =savepath+'forc_'+model+'.txt' 
+        filepath =savepath+model+'_forc.txt' 
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax3.scatter(time,ringforce,s=2,label=model,color=newcolors[kk])
@@ -154,7 +154,7 @@ if vel_plot:
     print('--- start plot velocity with time ---')
     fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
     for kk,model in enumerate(model_list):
-        filepath = savepath+'forc_'+model+'.txt'
+        filepath = savepath+model+'_forc.txt'
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
         ax4.plot(time,vl*31545741325,lw=2,label=model,color=newcolors[kk])

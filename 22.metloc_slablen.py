@@ -109,8 +109,7 @@ if fig2:
     ax6.set_xlabel('Distance from Ttench (km)',fontsize=20)
     # ax2.axes.xaxis.set_visible(False)
     # ax3.axes.xaxis.set_visible(False)
-    # ax4.axes.xaxis.set_visible(False)
-    
+    # ax4.axes.xaxis.set_visible(False)    
     ax5.spines['bottom'].set_linewidth(bwith)
     ax5.spines['top'].set_linewidth(bwith)
     ax5.spines['right'].set_linewidth(bwith)

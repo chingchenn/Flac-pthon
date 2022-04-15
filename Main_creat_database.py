@@ -21,33 +21,33 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 1
-dip                     = 1
-magma                   = 1
-melting_loc   		= 1
+trench_location         = 0
+dip                     = 0
+magma                   = 0
+melting_loc     		= 0
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
-stack_topo              = 1 
-stack_gem	        = 1
-flat_duraton            = 1
+stack_topo              = 0 
+stack_gem	            = 0
+flat_duraton            = 0
 
 # plot data
-trench_plot             = 1
-dip_plot                = 1
-magma_plot              = 1
-metloc_plot  		= 1
+trench_plot             = 0
+dip_plot                = 0
+magma_plot              = 0
+metloc_plot  	    	= 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 0
-force_plot_LR           = 1
-force_plot_RF           = 1
-vel_plot                = 1
-stack_topo_plot         = 1
-stack_gem_plot	    	= 1
-flat_slab_plot          = 1
+force_plot_LR           = 0
+force_plot_RF           = 0
+vel_plot                = 0
+stack_topo_plot         = 0
+stack_gem_plot	    	= 0
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -218,31 +218,36 @@ def count_marker(phase,start=1,end_frame=end):
 def melting_phase():
     melt_num = np.zeros(end)
     phase_p4=np.zeros(end)
+    phase_p5=np.zeros(end)
     phase_p9=np.zeros(end)
     phase_p10=np.zeros(end)
     po=np.zeros(end)
     for i in range(1,end):
-        c=0;p9=0;p4=0;p10=0
+        c=0;p9=0;p4=0;p10=0;p5=0
         x, z = fl.read_mesh(i)
         mm=fl.read_fmelt(i)
         phase=fl.read_phase(i)
+        area = fl.read_area(i)
         for xx in range(len(mm)):
             for zz in range(len(mm[0])):
                 if mm[xx,zz] != 0:
                     if phase[xx,zz]==9:
-                        p9 += 1
+                        p9 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==4:
-                        p4 += 1
+                        p4 +=area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==10:
-                        p10 += 1
+                        p10 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==5:
+                        p5 += area[xx,zz]*mm[xx,zz]/1e6
                     c +=1
-        pk=c-p4-p9-p10
+        pk=c-p4-p9-p10-p5
         melt_num[i]=c
         phase_p4[i]=p4
+        phase_p5[i]=p5
         phase_p9[i]=p9
         phase_p10[i]=p10
         po[i]=pk
-    return phase_p4,phase_p9,phase_p10,po
+    return fl.time,phase_p4,phase_p5,phase_p9,phase_p10,po
 def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
     for i in range(end-ictime,end):
@@ -375,9 +380,10 @@ if melting_loc:
 if melting:
     print('-----creat melting database-----')
     name='melting_'+model
-    phase_p4,phase_p9,phase_p10,po=melting_phase()
+    time,phase_p4,phase_p5,phase_p9,phase_p10,po=melting_phase()
     fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
                 'time','phase_4','phase_9','phase_10','others')
+    fs.save_6txt(name,savepath,time,phase_p4,phase_p5,phase_p9,phase_p10,po)
     print('=========== DONE =============')
 if stack_topo:
     print('-----creat topo database-----')
@@ -490,7 +496,7 @@ if metloc_plot:
     print('-------plotting gravity-------')
     fig, (ax)= plt.subplots(1,1,figsize=(12,5))
     time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
-    qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='OrRd')
+    qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='OrRd',vmin=0.0,vmax=0.05)
     cbar=fig.colorbar(qqq,ax=ax)
     ax.set_ylim(0,400)
     ax.set_xlim(0,30)
@@ -599,20 +605,26 @@ if phase_accre:
 if melting_plot:
     print('---plotting melting location---')
     name='melting_'+model
-    df=pd.read_csv(path+'data/'+name+'.csv')
+    df=pd.read_csv(savepath+name+'.csv')
+    time,phase_p4,phase_p5,phase_p9,phase_p10,others = np.loadtxt(savepath+name+'.txt').T
     fig, (ax) = plt.subplots(1,1,figsize=(18,12))
-    #ax.bar(df.time,df.phase_p9,width=0.17,color='orange',label='serpentinite ')
-    ax.bar(df.time,df.phase_p4,width=0.17,color='seagreen',label='olivine')
-    ax.bar(df.time,df.phase_p10,bottom=df.phase_p4,width=0.17,color='tomato',label='sediments')
-    ax.bar(df.time,df.others,bottom=df.phase_p4+df.phase_p10,width=0.17,color='k',label='others')
-    ax.set_xlim(0,24)
+    #ax.bar(time,phase_p9,width=0.17,color='orange',label='serpentinite ')
+    ax.bar(time,phase_p4,width=0.17,color='seagreen',label='olivine')
+    ax.bar(time,phase_p10+phase_p5,bottom=phase_p4,width=0.17,color='tomato',label='sediments')
+    #ax.bar(time,others,bottom=phase_p4+phase_p10,width=0.17,color='k',label='others')
+    ax.set_xlim(0,time[-1])
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
     ax.tick_params(axis='y', labelsize=16 )
     ax.set_title('Model : '+model,fontsize=25)
     ax.set_xlabel('Time (Myr)',fontsize=20)
-    ax.set_ylabel('number of elements in phases',fontsize=20)
+    ax.set_ylabel('molten rocks (km3/km)',fontsize=20)
     ax.legend(fontsize=25)
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_bar_plot_melting.png')
     print('=========== DONE =============')
 if force_plot_LR:
