@@ -13,15 +13,15 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
 # ----------------------------- initial setup ---------------------------------
 '''
-normal oceanic litho, 40Myr         =   1
-normal continental litho, therm 3   =   2
-depleted continental litho, therm 3 =   3
-normal continental litho, therm 4   =   4
-depleted continental litho, therm 4 =   5
-strong lower crust  therm 3         =   6
-s1518 colser trench geology         =   7
-s1517 geology 			            =   8
-normal oceanic litho, 15Myr         =   9
+oceanic litho, SA                    =   1
+normal continental litho, therm 3    =   2
+depleted continental litho, therm 3  =   3
+normal continental litho, therm 4    =   4
+depleted continental litho, therm 4  =   5
+strong lower crust  therm 3          =   6
+s1518 colser trench geology          =   7
+s1517 geology 			             =   8
+oceanic litho, MEX                   =   9
 '''
 
 geo = 4
@@ -105,16 +105,16 @@ frico_strength = f2.plastic_stress(z,layerz,Dfc)
 visc = f2.visc_profile(z, T, edot, layerz, nAEs)
 visco_strength = visc* edot *2 #Pa
 #------------------------------------------------------------------------------
-fig, (ax,ax3) = plt.subplots(1,2,figsize=(12,10))
+fig, (ax,ax3) = plt.subplots(1,2,figsize=(15,12))
 applied_strength = np.amin((visco_strength,frico_strength),axis=0)
 bwith = 3
 ax.spines['bottom'].set_linewidth(bwith)
 ax.spines['top'].set_linewidth(bwith)
 ax.spines['right'].set_linewidth(bwith)
 ax.spines['left'].set_linewidth(bwith)
-mm1,=ax.plot(visco_strength/1e6,-z/1000,'--r',alpha=0.8,label = 'visco')
-mm2,=ax.plot(frico_strength/1e6,-z/1000,'--b',alpha=0.8,label = 'plastic')
-mm3,=ax.plot(applied_strength/1e6,-z/1000,'k',lw=2,label = 'final stress')
+mm1,=ax.plot(visco_strength/1e6,-z/1000,'--r',alpha=0.8,label = 'visco',lw=4)
+mm2,=ax.plot(frico_strength/1e6,-z/1000,'--b',alpha=0.8,label = 'plastic',lw=4)
+mm3,=ax.plot(applied_strength/1e6,-z/1000,'k',label = 'final stress',lw=6)
 
 ax.tick_params(axis='x', labelsize=26)
 ax.tick_params(axis='y', labelsize=26)
@@ -126,7 +126,7 @@ ax.set_xlim(0,2000)
 ax.grid()
 ax2 = ax.twinx()
 temp = z/1000*0.6+T
-mm4,=ax2.plot(temp,-z/1000,color='green',label='temperature')
+mm4,=ax2.plot(temp,-z/1000,color='green',label='temperature',lw=5)
 mm=[mm1,mm2,mm3,mm4]
 ax2.set_xlim(0,2000)
 ax2.set_ylim(max_depth,0)

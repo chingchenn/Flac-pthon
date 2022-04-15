@@ -13,18 +13,18 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
 # ----------------------------- initial setup ---------------------------------
 '''
-normal oceanic litho, 40Myr         =   1
-normal continental litho, therm 3   =   2
-depleted continental litho, therm 3 =   3
-normal continental litho, therm 4   =   4
-depleted continental litho, therm 4 =   5
-strong lower crust  therm 3         =   6
-s1518 colser trench geology         =   7
-s1517 geology 			            =   8
-normal oceanic litho, 15Myr         =   9
+oceanic litho, SA                    =   1
+normal continental litho, therm 3    =   2
+depleted continental litho, therm 3  =   3
+normal continental litho, therm 4    =   4
+depleted continental litho, therm 4  =   5
+strong lower crust  therm 3          =   6
+s1518 colser trench geology          =   7
+s1517 geology 			             =   8
+oceanic litho, MEX                   =   9
 '''
 
-geo = 5
+geo = 9
 withregion = 0
 strength_fill = 0
 max_depth = -150
@@ -112,7 +112,7 @@ ax.spines['right'].set_linewidth(bwith)
 ax.spines['left'].set_linewidth(bwith)
 mm1,=ax.plot(visco_strength/1e6,-z/1000,color='r',linestyle='dashed',alpha=0.8,label = 'visco',lw=4)
 mm2,=ax.plot(frico_strength/1e6,-z/1000,color='b',linestyle='dashed',alpha=0.8,label = 'plastic',lw=4)
-mm3,=ax.plot(applied_strength/1e6,-z/1000,color='k',lw=4,label = 'final stress')
+mm3,=ax.plot(applied_strength/1e6,-z/1000,color='k',lw=8,label = 'final stress')
 mm=[mm3,mm2,mm1]
 ax.tick_params(axis='x', labelsize=26)
 ax.tick_params(axis='y', labelsize=26)

@@ -12,20 +12,22 @@ import matplotlib
 # matplotlib.use('Agg')
 from matplotlib import cm
 import matplotlib.pyplot as plt
-fig1=0
-fig2=1
+import function_for_flac as fd
+fig1=1
+fig2=0
 
-model_list=['ch0810','ch0811']
+model_list=['h0829']
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
              '#708090','#282130','#24788F','#849DAB',
              '#EA5E51','#414F67','#6B0D47','#52254F'] 
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/ji-chingchen/Desktop/data/'
+savepath='D:/model/data/'
 
 
 if fig1: 
-    fig, (ax2,ax3,ax4)= plt.subplots(3,1,figsize=(15,12))  
+    fig, (ax2,ax3,ax4)= plt.subplots(3,1,figsize=(12,12))  
     for kk,model in enumerate(model_list):
         name = model+'_forc.txt'
         temp1=np.loadtxt(savepath+name)
@@ -33,12 +35,16 @@ if fig1:
         # ax.scatter(time,forc_l,label=model,color='#2F4F4F',s=5)
         name=model+'_flatslab_time_len.txt'
         time,length,depth=np.loadtxt(savepath+name).T
-        # ax2.axvspan(time[0],time[-1],facecolor='#52254F', alpha=0.1)
-        ax3.plot(time,length,label=model,color=newcolors[kk],lw=3)
-        ax4.plot(time,depth,label=model,color=newcolors[kk],lw=3)
+        ax2.axvspan(time[0],time[-1],facecolor='#52254F', alpha=0.1)
+        smooth_leng= fd.moving_window_smooth(length, 6)
+        smooth_dep= fd.moving_window_smooth(depth, 3)
+        ax3.plot(time,smooth_leng,label=model,color=newcolors[kk],lw=5)
+        ax4.plot(time,smooth_dep,label=model,color=newcolors[kk],lw=5)
+        # ax3.plot(time,length,label=model,color=newcolors[kk],lw=3)
+        # ax4.plot(time,depth,label=model,color=newcolors[kk],lw=3)
         time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
-        ax2.scatter(time[melt>0],xmelt[melt>0],label=model,color=newcolors[kk],s=45)
-        
+        # ax2.scatter(time[melt>0],xmelt[melt>0],label=model,color=newcolors[kk],s=45)
+        ax2.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
     #================================figure setting================================
     ax2.set_title(model,fontsize=26)
     
@@ -53,8 +59,9 @@ if fig1:
     ax2.set_xlim(0,30)
     ax3.set_xlim(0,30)
     ax2.set_ylim(0,400)
-    ax3.set_ylim(50,200)
-    ax4.set_ylim(-100,-80)
+    ax3.set_ylim(50,max(length)+20)
+    ax4.set_ylim(np.average(depth)-10,np.average(depth)+10)
+    ax4.set_ylim(-50,-30)
     
     ax2.set_ylabel('Distance (km)',fontsize=20)
     ax3.set_ylabel('length (km)',fontsize=20)
@@ -78,7 +85,7 @@ if fig1:
     ax3.spines['top'].set_linewidth(bwith)
     ax3.spines['right'].set_linewidth(bwith)
     ax3.spines['left'].set_linewidth(bwith)
-    ax4.legend(fontsize=16)
+    # ax4.legend(fontsize=16)
 
 #====================================figure2===================================
 if fig2:
