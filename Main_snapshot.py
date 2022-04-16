@@ -16,14 +16,15 @@ import matplotlib
 #matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
-import function_for_flac as f2
+import function_for_flac as fd
 import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
-shot = 1
-gravity = 0
-pressure = 0
-gravity_plot = 0
+shot            = 1
+gravity         = 0
+pressure        = 0
+gravity_plot    = 0
+viscosity       = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
@@ -46,7 +47,7 @@ def nodes_to_elements(xmesh,zmesh):
     return ele_x, ele_z
 def plot_snapshot(frame):
     x,z = fl.read_mesh(frame)
-    xtop,ztop = f2.get_topo(x,z)
+    xtop,ztop = fd.get_topo(x,z)
     phase = fl.read_phase(frame)
     ele_x,ele_z = nodes_to_elements(x, z)
     temp = fl.read_temperature(frame)
@@ -61,7 +62,7 @@ def get_gravity(frame):
     return px, topo, topomod, fa_gravity, gb_gravity
 def get_pressure(frame):
     x,z = fl.read_mesh(frame)
-    xtop,ztop = f2.get_topo(x,z)
+    xtop,ztop = fd.get_topo(x,z)
     ele_x,ele_z = nodes_to_elements(x, z)
     pre=fl.read_pres(frame)
     onepre=-pre.flatten()
@@ -69,6 +70,12 @@ def get_pressure(frame):
     fit=(ele_z.flatten()-b)/a
     dypre=(onepre-fit).reshape(len(pre),len(pre[0]))*100
     return ele_x,ele_z,dypre,ztop
+def get_vis(frame):
+    ele_x,ele_z = nodes_to_elements(x, z)
+    vis = fl.read_visc(frame)
+    xtop,ztop = fd.get_topo(x,z)
+    return ele_x,ele_z,vis,ztop
+    
 #------------------------------------------------------------------------------
 ## Creat Data
 if gravity:
@@ -114,3 +121,18 @@ if pressure:
     ax.set_title('Pressure '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     fig.savefig(figpath+model+'frame_'+str(frame)+'_dynamic_pressure.pdf')
     
+if viscosity:
+    fig, (ax)= plt.subplots(1,1,figsize=(12,8))
+    ele_x,ele_z,vis,ztop = get_vis(frame)
+    cc = plt.cm.get_cmap('rainbow')
+    cb_plot=ax.scatter(ele_x,ele_z,c=vis,cmap=cc,vmin=20, vmax=3e27)
+    ax_cbin = fig.add_axes([0.63, 0.35, 0.23, 0.03])
+    cb = fig.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
+    ax.set_ylabel('Depth (km)',fontsize=20)
+    ax.set_xlabel('Distance (km)',fontsize=20)
+    ax_cbin.set_title('Pa s',fontsize=20)
+    ax.set_aspect('equal')
+    ax.set_xlim(0,max(ele_x[:,0]))
+    ax.set_ylim(min(ele_z[0,:]),max(ztop)+2)
+    ax.set_title('Viscous '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_viscous.pdf')
