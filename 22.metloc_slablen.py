@@ -97,7 +97,6 @@ if fig2:
     ax6.set_ylim(-170,0)
     ax6.set_aspect('equal')
     # ax5.set_aspect('equal')
-    
     ax5.tick_params(axis='x', labelsize=16)
     ax5.tick_params(axis='y', labelsize=16)
     ax6.tick_params(axis='x', labelsize=16)
