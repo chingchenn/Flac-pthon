@@ -26,7 +26,7 @@ force_plot_RF           = 0
 vel_plot                = 1
 stack_topo_plot         = 1
 flat_slab_plot          = 1
-magma_plot   	    	= 0
+magma_plot   	    	= 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -34,10 +34,9 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
-savepath='D:/model/data/'
+#savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-#model_list=['chimex0601','chimex0602','chimex0603','chimex0604','chimex0605','chimex0606','chimex0607','chimex0608','chimex0609','chimex0610','chimex0611']
-model_list=['h0405','h0410','h0415']#,'h0604','h','h0606','h0607','','','h0610','h0611']
+model_list=['ch0913','ch0920','ch0918','ch0919']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -80,7 +79,7 @@ if plate_geometry:
     print('--- start plot geometry ---')
     fig2, (ax2) = plt.subplots(1,1,figsize=(14,10))
     for kk,model in enumerate(model_list):
-        xmean,ztop=np.loadtxt(savepath+str(model)+'_stack_slab.txt').T
+        xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
         ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=5)
     #ax2.set_xlim(0,max(xmean)+10)
     # ax2.set_title("slab comparation",fontsize=16)
@@ -89,8 +88,8 @@ if plate_geometry:
     ax2.legend(fontsize=16)
     ax2.set_aspect('equal')
     bwith = 3
-    ax2.set_ylim(-200,0)
-    ax2.set_xlim(0,400)
+    ax2.set_ylim(-160,0)
+    ax2.set_xlim(0,500)
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
@@ -98,7 +97,7 @@ if plate_geometry:
     ax2.set_aspect('equal')
     ax2.tick_params(axis='x', labelsize=16)
     ax2.tick_params(axis='y', labelsize=16)
-    # fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
+    fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
     print('=========== DONE =============')
 if force_plot_LR:
     print('--- start plot left and right force with time ---')
