@@ -20,7 +20,7 @@ import function_for_flac as fd
 import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
-shot            = 1
+shot            = 0
 gravity         = 0
 pressure        = 0
 gravity_plot    = 0
@@ -28,7 +28,7 @@ viscosity       = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
@@ -71,6 +71,7 @@ def get_pressure(frame):
     dypre=(onepre-fit).reshape(len(pre),len(pre[0]))*100
     return ele_x,ele_z,dypre,ztop
 def get_vis(frame):
+    x,z = fl.read_mesh(frame)
     ele_x,ele_z = nodes_to_elements(x, z)
     vis = fl.read_visc(frame)
     xtop,ztop = fd.get_topo(x,z)
@@ -88,20 +89,27 @@ if gravity:
 if shot:
     x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
     fig, (ax)= plt.subplots(1,1,figsize=(12,8))
-    colors = ["#93CCB1","#8BFF8B","#7158FF","#FF966F","#9F0042",
-           "#660000","#524B52","#D14309","#5AB245","#004B00",
-           "#008B00","#455E45","#B89FCE","#C97BEA","#525252",
-           "#FF0000","#00FF00","#FFFF00","#7158FF"]
+    colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
+          "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
+          "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
+          "#F67280","#00FF00","#FFFF00","#7158FF"]
     phase15= matplotlib.colors.ListedColormap(colors)
     ax.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmax=20,vmin=1)
-    cx=ax.contour(x,z,temp,cmap = 'rainbow',levels = np.arange(100,1500,200),linewidths=1)
-    ax.clabel(cx, inline=True, fontsize=10,colors='k')
+    cx=ax.contour(x,z,temp,cmap = 'rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=1)
+    ax.clabel(cx, inline=True, fontsize=10,colors='k',fmt="%1.0f")
     ax.set_xlim(0,ele_x[-1,-1])
-    ax.set_ylim(ele_z[-1,-1],max(ztop)+2)
+    ax.set_ylim(-300,max(ztop)+2)
     ax.set_title(str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     ax.set_ylabel('Depth (km)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
     ax.set_aspect('equal')
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
     fig.savefig(figpath+model+'frame_'+str(frame)+'_snapshot.png')
 if pressure:
     fig, (ax)= plt.subplots(1,1,figsize=(12,8))
