@@ -42,12 +42,12 @@ mp4 = 1
 # x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
 
 colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
-          "#2E8B57","#524B52","#D14309","#F87431","#FF8C00",
+          "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 if plotting_png:
-    for i in range(1,end):
+    for i in range(1,end+1):
         fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
         x,z,ele_x,ele_z,phase,temp,ztop=Ms.plot_snapshot(i)
         ax.scatter(ele_x,-ele_z,c = phase,cmap = phase19,vmax=19,vmin=1,s=150)
@@ -111,7 +111,7 @@ if gif:
     # Create the frames
     frames = []
     imgs = glob.glob(path+model+"/phase_vis/*_phase_vis.png")
-    for i in  range(1,end):
+    for i in  range(1,end+1):
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
@@ -130,5 +130,5 @@ if gif:
 if mp4:
     import moviepy.editor as mp
     clip = mp.VideoFileClip(path+model+"/phase_vis/png_to_gif.gif")
-    clip.write_videofile(path+model+'/phase_vis/'+model+".mp4")
-
+    clip.write_videofile(figpath+'phase_vis_'+model+".mp4")
+    
