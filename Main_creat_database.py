@@ -21,33 +21,33 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
-dip                     = 0
-magma                   = 0
-melting_loc     		= 0
+trench_location         = 1
+dip                     = 1
+magma                   = 1
+melting_loc             = 1
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 0
-stack_topo              = 0 
-stack_gem	            = 0
-flat_duraton            = 0
+melting                 = 1
+stack_topo              = 1 
+stack_gem	            = 1
+flat_duraton            = 1
 
 # plot data
-trench_plot             = 0
-dip_plot                = 0
-magma_plot              = 0
-metloc_plot  	    	= 0
+trench_plot             = 1
+dip_plot                = 1
+magma_plot              = 1
+metloc_plot  	    	= 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 0
-force_plot_LR           = 0
+melting_plot            = 1
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
-stack_topo_plot         = 0
-stack_gem_plot	    	= 0
-flat_slab_plot          = 0
+vel_plot                = 1
+stack_topo_plot         = 1
+stack_gem_plot	    	= 1
+flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -113,6 +113,8 @@ def oceanic_slab(frame):
         if True in ind_oceanic:
             crust_x[j] = np.average(ele_x[j,ind_oceanic])
             crust_z[j] = np.average(ele_z[j,ind_oceanic])        
+            crust_x[j] = np.max(ele_x[j,ind_oceanic])
+            crust_z[j] = np.max(ele_z[j,ind_oceanic])        
     return crust_x,crust_z
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
@@ -127,6 +129,8 @@ def plate_dip(depth1,depth2):
         crust_zmax = np.amax(crust_z[ind_within_80km])
         dx = crust_xmax - crust_xmin
         dz = crust_zmax - crust_zmin
+        if dz ==0:
+            continue
         angle[i] = math.degrees(math.atan(dz/dx))
     return time,angle
 def plot_phase_in_depth(depth=0):
@@ -217,14 +221,12 @@ def count_marker(phase,start=1,end_frame=end):
     return mr
 def melting_phase():
     melt_num = np.zeros(end)
+    phase_p3=np.zeros(end)
     phase_p4=np.zeros(end)
-    phase_p5=np.zeros(end)
     phase_p9=np.zeros(end)
     phase_p10=np.zeros(end)
-    po=np.zeros(end)
     for i in range(1,end):
-        c=0;p9=0;p4=0;p10=0;p5=0
-        x, z = fl.read_mesh(i)
+        c=0;p9=0;p4=0;p10=0;p3=0
         mm=fl.read_fmelt(i)
         phase=fl.read_phase(i)
         area = fl.read_area(i)
@@ -235,19 +237,18 @@ def melting_phase():
                         p9 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==4:
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==10:
+                    elif phase[xx,zz]==10 or phase[xx,zz]==5:
                         p10 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==5:
-                        p5 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==3:
+                        p3 += area[xx,zz]*mm[xx,zz]/1e6
                     c +=1
-        pk=c-p4-p9-p10-p5
+        pk=c-p4-p9-p10-p3
         melt_num[i]=c
+        phase_p3[i]=p3
         phase_p4[i]=p4
-        phase_p5[i]=p5
         phase_p9[i]=p9
         phase_p10[i]=p10
-        po[i]=pk
-    return fl.time,phase_p4,phase_p5,phase_p9,phase_p10,po
+    return fl.time,phase_p3,phase_p4,phase_p9,phase_p10
 def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
     for i in range(end-ictime,end):
@@ -320,9 +321,9 @@ def flat_slab_duration():
         w3=p2(ox)
         cc=-1;ff1=[]
         for rr,oo in enumerate(w2):
-            if cc*(oo+0.1)<0:
+            if cc*(oo+0.2)<0:
                 ff1.append(ox[rr])
-            cc = oo+0.1
+            cc = oo+0.2
         mm=-1;ff2=[]
         for pp,uu in enumerate(w3):
             if mm*uu<0:
@@ -330,7 +331,7 @@ def flat_slab_duration():
             mm = uu  
         if len(ff2)>1 and (ff2[1]-ff2[0])>80 and ff2[0]>start:
             find_flat_dz2.append(fl.time[i])
-            if len(ff1)>3 and (ff1[-1]-ff1[-2])>50:
+            if len(ff1)>2 and (ff1[-1]-ff1[-2])>50:
                 find_flat_dz1.append(fl.time[i])
                 flat_slab_length.append(ff1[-1]-ff1[-2])
                 depth=np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])])
@@ -380,10 +381,10 @@ if melting_loc:
 if melting:
     print('-----creat melting database-----')
     name='melting_'+model
-    time,phase_p4,phase_p5,phase_p9,phase_p10,po=melting_phase()
-    fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
-                'time','phase_4','phase_9','phase_10','others')
-    fs.save_6txt(name,savepath,time,phase_p4,phase_p5,phase_p9,phase_p10,po)
+    time,phase_p3,phase_p4,phase_p9,phase_p10=melting_phase()
+#    fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
+#                'time','phase_4','phase_9','phase_10','others')
+    fs.save_5txt(name,savepath,time,phase_p3,phase_p4,phase_p9,phase_p10)
     print('=========== DONE =============')
 if stack_topo:
     print('-----creat topo database-----')
@@ -605,13 +606,13 @@ if phase_accre:
 if melting_plot:
     print('---plotting melting location---')
     name='melting_'+model
-    df=pd.read_csv(savepath+name+'.csv')
-    time,phase_p4,phase_p5,phase_p9,phase_p10,others = np.loadtxt(savepath+name+'.txt').T
+    #df=pd.read_csv(savepath+name+'.csv')
+    time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
     fig, (ax) = plt.subplots(1,1,figsize=(18,12))
     #ax.bar(time,phase_p9,width=0.17,color='orange',label='serpentinite ')
-    ax.bar(time,phase_p4,width=0.17,color='seagreen',label='olivine')
-    ax.bar(time,phase_p10+phase_p5,bottom=phase_p4,width=0.17,color='tomato',label='sediments')
-    #ax.bar(time,others,bottom=phase_p4+phase_p10,width=0.17,color='k',label='others')
+    ax.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
+    ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments')
+    ax.bar(time,phase_p3,bottom=phase_p10+phase_p4+phase_p10,width=0.17,color='#2360fa',label='basalt')
     ax.set_xlim(0,time[-1])
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
@@ -727,13 +728,13 @@ if flat_slab_plot:
     fig2, (ax1,ax2) = plt.subplots(2,1,figsize=(10,8))
     ax1.plot(time,length,c="#000080",lw=3)
     ax2.plot(time,depth,c="#000080",lw=3)
-    ax1.set_xlim(0,time[-1])
+    ax1.set_xlim(0,45)
     ax1.set_title('flat slab properties',fontsize=16)
     ax1.tick_params(axis='x', labelsize=16)
     ax1.tick_params(axis='y', labelsize=16)
     ax1.grid()
     ax1.set_ylabel('length (km)',fontsize=16)
-    ax2.set_xlim(0,time[-1])
+    ax2.set_xlim(0,45)
     ax2.tick_params(axis='x', labelsize=16)
     ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()
