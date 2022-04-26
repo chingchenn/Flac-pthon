@@ -27,12 +27,8 @@ savepath = '/Users/ji-chingchen/Desktop/data/'
 
 
 if fig1: 
-    fig, (ax2,ax3,ax4)= plt.subplots(3,1,figsize=(12,12))  
+    fig, (ax2,ax1,ax3,ax4)= plt.subplots(4,1,figsize=(12,12))  
     for kk,model in enumerate(model_list):
-        #name = model+'_forc.txt'
-        #temp1=np.loadtxt(savepath+name)
-        #nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-        # ax.scatter(time,forc_l,label=model,color='#2F4F4F',s=5)
         name=model+'_flatslab_time_len.txt'
         time,length,depth=np.loadtxt(savepath+name).T
         # ax2.axvspan(time[0],time[-1],facecolor='#849DAB', alpha=0.1)
@@ -45,6 +41,10 @@ if fig1:
         time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
         # ax2.scatter(time[melt>0],xmelt[melt>0],label=model,color=newcolors[kk],s=45)
         ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
+        name='melting_'+model
+        time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt('/home/jiching/geoflac/data/'+name+'.txt').T
+        ax1.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
+        ax1.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments+basalt')
     #================================figure setting================================
     ax2.set_title(model,fontsize=26)
     
@@ -54,8 +54,12 @@ if fig1:
     ax3.tick_params(axis='y', labelsize=16)
     ax4.tick_params(axis='x', labelsize=16)
     ax4.tick_params(axis='y', labelsize=16)
+    ax1.tick_params(axis='x', labelsize=26)
+    ax1.tick_params(axis='y', labelsize=26)
+
     
     ax4.set_xlim(0,30)
+    ax1.set_xlim(0,30)
     ax2.set_xlim(0,30)
     ax3.set_xlim(0,30)
     ax2.set_ylim(0,400)
@@ -67,6 +71,7 @@ if fig1:
     ax3.set_ylabel('length (km)',fontsize=20)
     ax4.set_ylabel('Depth (km)',fontsize=20)
     ax4.set_xlabel('Time (Myr)',fontsize=20)
+    ax1.set_ylabel('molten rocks (km3/km)',fontsize=26)
     
     ax2.grid()
     ax3.grid()
@@ -85,7 +90,11 @@ if fig1:
     ax3.spines['top'].set_linewidth(bwith)
     ax3.spines['right'].set_linewidth(bwith)
     ax3.spines['left'].set_linewidth(bwith)
-    # ax4.legend(fontsize=16)
+    ax1.spines['bottom'].set_linewidth(bwith)
+    ax1.spines['top'].set_linewidth(bwith)
+    ax1.spines['right'].set_linewidth(bwith)
+    ax1.spines['left'].set_linewidth(bwith)
+    ax1.legend(fontsize=25)
 
 #====================================figure2===================================
 if fig2:
