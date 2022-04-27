@@ -24,7 +24,7 @@ s1517 geology 			             =   8
 oceanic litho, MEX                   =   9
 '''
 
-geo = 9
+geo = 5
 withregion = 0
 strength_fill = 0
 max_depth = -150
@@ -46,8 +46,8 @@ elif geo==4:
     phase=[2,14,4]
     tem=4
 elif geo==5:
-    layerz = (0, 18e3, 30e3, 80e3)
-    phase=[2,6,19,4]
+    layerz = (0, 25e3, 35e3)
+    phase=[2,6,4]
     tem=4
 elif geo==6:
     layerz = (0, 16e3, 26e3)
@@ -75,7 +75,7 @@ if tem == 1:
 elif tem == 3:
     T = f2.continental_geothermal_T3(z,20,6,45)
 elif tem == 4:
-    T = f2.continental_geothermal_T4(z, 10,1330, 120)
+    T = f2.continental_geothermal_T4(z, 10,1330, 140)
 elif tem == 2:
     T = f2.half_space_cooling_T(z, 10, 1330, 15)
 

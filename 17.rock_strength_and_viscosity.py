@@ -24,9 +24,9 @@ s1517 geology 			             =   8
 oceanic litho, MEX                   =   9
 '''
 
-geo = 4
+geo = 3
 withregion = 0
-max_depth = -200
+max_depth = -150
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
@@ -57,9 +57,9 @@ elif geo==7:
     phase=[2,4,4]
     tem=1
 elif geo==8:
-    layerz = (0, 15e3,40e3)
-    phase=[2,4,4]
-    tem=1
+    layerz = (0, 25e3,35e3)
+    phase=[2,14,4]
+    tem=4
 elif geo == 9:
     layerz = (0, 2e3, 7e3, 16e3)
     phase=[11,3,16,4]
@@ -91,10 +91,10 @@ if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 40)
     print('geo='+str(geo))
 elif tem==3:
-    T = f2.continental_geothermal_T3(z,20,6,30)
+    T = f2.continental_geothermal_T3(z,20,6,40)
     print('geo='+str(geo))
 elif tem==4:
-    T = f2.continental_geothermal_T4(z, 10,1330, 140)
+    T = f2.continental_geothermal_T4(z, 10,1330, 130)
     print('geo='+str(geo))
 elif tem == 2:
     T = f2.half_space_cooling_T(z, 10, 1330, 15)

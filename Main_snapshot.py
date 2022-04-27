@@ -30,10 +30,10 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
+path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
-sys.path.append("/home/jiching/geoflac/util")
 
 model = sys.argv[1]
 frame = int(sys.argv[2])
