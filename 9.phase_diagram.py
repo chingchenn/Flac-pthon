@@ -138,28 +138,19 @@ ax3.plot(x,y,c='#708090',lw=5)
 x = np.linspace(670,1040)
 y = 0.6/370 * x + 0.7-670*0.6/370
 ax3.plot(x,y,c='#708090',lw=5)
-# ax3.plot(sss3,pressure,c='#A80359',lw=5)
-# ax3.scatter(700,2.25,c='b',s=300)
-# BB = 24*depth/1e3-190
-# with_plot = (BB>600)*(BB<780)
-# ax3.plot(BB[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
-# AA=-17*depth/1e3+2030
-# with_plot = (depth/1e3<82)*(depth/1e3>70)
-# ax3.plot(AA[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
 
-# #--------------------------------------------------------------------
-# depth = np.linspace(20e3,100000,100)
-# rC = np.zeros(len(depth))
-# for q,dd in enumerate(depth):
-#     rC1=2030/3+7/3*dd/1e3
-#     rC2=880
-#     rC[q] = min(rC1,rC2)
-# # with_plot = (rC>710)*(rC<840)
-# ax3.plot(rC,depth/1e3,c='purple',lw=5)
+x = np.linspace(0,514)
+y = -0.0375 * x + 20.1
+basalt_change = (50/255, 200/255, 180/255)
+
+ax3.plot(x,y,c=basalt_change,lw=8)
+x = np.linspace(515,1000)
+y = 0.0022 * x - 0.3
+ax3.plot(x,y,c=basalt_change,lw=8,label='basalt-eclogite')
 
 
-ax3.set_xlim(0,1200)
-ax3.set_ylim(0,5)
+ax3.set_xlim(0,1000)
+ax3.set_ylim(0,8)
 ax3.set_xlabel('Temperature ($^\circ$C)',fontsize=30)
 ax3.set_ylabel('Depth (km)',fontsize=30)
 bwith = 5

@@ -13,18 +13,22 @@ import matplotlib
 from matplotlib import cm
 import matplotlib.pyplot as plt
 import function_for_flac as fd
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 fig1=0
 fig2=0
 fig3=1
+fig4=1
 plt.rcParams["font.family"] = "Times New Roman"
 model_list=['h0829']
+
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
              '#708090','#282130','#24788F','#849DAB',
              '#EA5E51','#414F67','#6B0D47','#52254F'] 
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/ji-chingchen/Desktop/data/'
-savepath='D:/model/data/'
+#savepath='D:/model/data/'
 
 
 if fig1: 
@@ -155,7 +159,7 @@ if fig2:
 
 
 if fig3: 
-    fig, (ax2,ax1)= plt.subplots(2,1,figsize=(10,10),gridspec_kw={'height_ratios':[1.4,1]})  
+    fig, (ax2,ax1)= plt.subplots(2,1,figsize=(10,10),gridspec_kw={'height_ratios':[1,1]})  
     for kk,model in enumerate(model_list):
         name=model+'_flatslab_time_len.txt'
         time,length,depth=np.loadtxt(savepath+name).T
@@ -163,9 +167,11 @@ if fig3:
         ax2.axvspan(time[0],time[-1],facecolor='#414F67', alpha=0.15)
         time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
         qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
-        cbar=fig.colorbar(qqq,ax=ax2,orientation='horizontal')
-        cbar.set_label('Melting Percentages',fontsize=20)
-        cbar.ax.tick_params(axis='x', labelsize=16)
+        # divider = make_axes_locatable(ax2)
+        # cax = divider.new_vertical(size = '5%', pad = 0.5)
+        # cbar=fig.colorbar(qqq,ax=ax2,cax=cax,orientation='horizontal')
+        # cbar.set_label('Melting Percentages',fontsize=20)
+        # cbar.ax.tick_params(axis='x', labelsize=16)
         name='melting_'+model
         time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
         ax1.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
@@ -204,3 +210,48 @@ if fig3:
     ax1.spines['right'].set_linewidth(bwith)
     ax1.spines['left'].set_linewidth(bwith)
     ax1.legend(fontsize=22,facecolor='white')
+
+if fig4: 
+    fig3, (ax3,ax4)= plt.subplots(2,1,figsize=(10,10))  
+    for kk,model in enumerate(model_list):
+        name=model+'_flatslab_time_len.txt'
+        time,length,depth=np.loadtxt(savepath+name).T
+        smooth_leng= fd.moving_window_smooth(length, 6)
+        smooth_dep= fd.moving_window_smooth(depth, 3)
+        ax3.plot(time,smooth_leng,label=model,color=newcolors[kk],lw=5)
+        ax4.plot(time,-smooth_dep,label=model,color=newcolors[kk],lw=5)
+
+    #================================figure setting================================
+    ax3.tick_params(axis='x', labelsize=16)
+    ax3.tick_params(axis='y', labelsize=16)
+    ax4.tick_params(axis='x', labelsize=16)
+    ax4.tick_params(axis='y', labelsize=16)
+
+
+    
+    ax4.set_xlim(0,30)
+    ax3.set_xlim(0,30)
+
+    ax3.set_ylim(50,max(length)+20)
+    ax4.set_ylim(50,20)
+    # ax4.set_ylim(-50,-30)
+    
+
+    # ax3.set_ylabel('Length (km)',fontsize=20)
+    # ax4.set_ylabel('Depth (km)',fontsize=20)
+    # ax4.set_xlabel('Time (Myr)',fontsize=20)
+
+
+    ax3.grid()
+    ax4.grid()
+    
+    bwith = 3
+    ax4.spines['bottom'].set_linewidth(bwith)
+    ax4.spines['top'].set_linewidth(bwith)
+    ax4.spines['right'].set_linewidth(bwith)
+    ax4.spines['left'].set_linewidth(bwith)
+    ax3.spines['bottom'].set_linewidth(bwith)
+    ax3.spines['top'].set_linewidth(bwith)
+    ax3.spines['right'].set_linewidth(bwith)
+    ax3.spines['left'].set_linewidth(bwith)
+
