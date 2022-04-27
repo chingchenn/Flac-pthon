@@ -36,10 +36,53 @@ g=10
 thickness=6000
 viscosity = 1e24                                                                        #kg/m/s^2 *s
 U = 5*3.17*10**-10 
+bet=2
 ###======================================Time Series==========================================
 Torque_G = np.zeros(end)
 Torque_H = np.zeros(end)
+#---------------------------- read phase from csv -----------------------------
+pu=[]
+for yy in range(20):
+    pu.append(f2.phase_pro(yy))
+#----------------------------- creat phase,density0,alfa array --------------------------------
+pp=[]
+dfc=[0,1,2]
+for qqq in phase:
+    for nnn in dfc:    
+        pp.append(pu[qqq][nnn])
+Dfc=np.array(pp).reshape(len(phase),3)
 ###===================================find lithisohere========================================
+for i in range(1,end):
+    x, z = fl.read_mesh(i)
+    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
+    ## In this code, we considered the marker phase, not the element phase
+    trench_ind = np.argmin(z[:,0])
+    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
+    x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+    z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+    if z_trench> -2 or min(z_ocean)>-200:
+        continue
+    start = math.floor(x_trench)
+    final = math.floor(np.max(x_ocean))
+    x_grid = np.arange(start,final,bet)
+    ox = np.zeros(len(x_grid))
+    oz = np.zeros(len(x_grid))
+    px = start-bet
+    #find initial basalt depth to remove the weage basalt
+    kk=np.max(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])
+    x_ocean = x_ocean[z_ocean<kk]
+    z_ocean = z_ocean[z_ocean<kk]
+    # interplate to the grid length "bet"
+    for yy,xx in enumerate(x_grid):
+        if len(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])==0:
+            continue
+        oz[yy] = np.average(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+        ox[yy] = np.average(x_ocean[(x_ocean>=px)*(x_ocean<=xx)])
+        px = xx
+    oxx=ox[ox>start]
+    oz=oz[ox>start]
+    ox=oxx
+
 for i in range(20,end):
     x, z = fl.read_mesh(i)
     ele_x = (x[:fl.nx-1,:fl.nz-1] + x[1:,:fl.nz-1] + x[1:,1:] + x[:fl.nx-1,1:]) / 4.

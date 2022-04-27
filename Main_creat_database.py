@@ -21,38 +21,38 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 1
-dip                     = 1
-magma                   = 1
-melting_loc             = 1
+trench_location         = 0
+dip                     = 0
+magma                   = 0
+melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 1
-stack_topo              = 1 
-stack_gem	            = 1
-flat_duraton            = 1
+stack_topo              = 0
+stack_gem	        = 1
+flat_duraton            = 0
 
 # plot data
-trench_plot             = 1
-dip_plot                = 1
-magma_plot              = 1
-metloc_plot  	    	= 1
+trench_plot             = 0
+dip_plot                = 0
+magma_plot              = 0
+metloc_plot  	    	= 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 1
-force_plot_LR           = 1
+melting_plot            = 0
+force_plot_LR           = 0
 force_plot_RF           = 0
-vel_plot                = 1
-stack_topo_plot         = 1
-stack_gem_plot	    	= 1
-flat_slab_plot          = 1
+vel_plot                = 0
+stack_topo_plot         = 0
+stack_gem_plot	    	= 0
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'

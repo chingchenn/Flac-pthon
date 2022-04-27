@@ -14,10 +14,10 @@ import matplotlib.pyplot as plt
 
 model=sys.argv[1]
 name='melting_'+model
-fig, (ax) = plt.subplots(1,1,figsize=(18,9))
-time,phase_p4,phase_p9,phase_p10 = np.loadtxt('/home/jiching/geoflac/data/'+name+'.txt').T
+fig, (ax) = plt.subplots(1,1,figsize=(12,4))
+time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt('/home/jiching/geoflac/data/'+name+'.txt').T
 ax.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
-ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments')
+ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments+basalt')
 ax.set_xlim(0,30)
 #ax.grid()
 ax.tick_params(axis='x', labelsize=26)

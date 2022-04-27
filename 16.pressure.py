@@ -14,7 +14,7 @@ start = time.time()
 model = str(sys.argv[1]) 
 path = '/home/jiching/geoflac/'+model+'/'
 #path = '/scratch2/jiching/sem02model/'+model+'/'
-path = '/scratch2/jiching/22winter/'+model+'/'
+#path = '/scratch2/jiching/22winter/'+model+'/'
 #model='s1518'
 #path = '/Volumes/My Book/model/v1'
 os.chdir(path)

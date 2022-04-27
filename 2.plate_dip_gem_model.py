@@ -13,12 +13,12 @@ width=800
 depth1=-5
 depth2=-140
 savepath='/home/jiching/geoflac/data/'
-savepath = '/Users/ji-chingchen/Desktop/data/'
+#savepath = '/Users/ji-chingchen/Desktop/data/'
 fig2, (ax2) = plt.subplots(1,1,figsize=(12,9))
 model_list=['h0420','h0421','h0422','h0423','h0424','h0425','h0426']
 model_list=['h0427','h0428','h0429','h0430','h0431','h0432','h0433']
 model_list=['h0409','h0408','h0405','h0406','h0407']
-model_list=['Chi01','chi0401','chi0403','chi0404','chi0405']
+model_list=['ch0913','ch0920','ch0918','ch0919']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 fig, (ax)= plt.subplots(1,1,figsize=(10,7))
 for kk,model in enumerate(model_list):

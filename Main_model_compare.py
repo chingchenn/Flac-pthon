@@ -31,7 +31,7 @@ magma_plot   	    	= 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 
 savepath='/home/jiching/geoflac/data/'
@@ -40,7 +40,6 @@ savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 model_list=['h0409','h0408','h0405','h0406']
-
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -101,8 +100,8 @@ if plate_geometry:
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
     ax2.set_aspect('equal')
-    ax2.tick_params(axis='x', labelsize=26)
-    ax2.tick_params(axis='y', labelsize=26)
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()
     fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
