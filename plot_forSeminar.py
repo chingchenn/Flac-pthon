@@ -18,9 +18,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 fig1=0
 fig2=0
 fig3=1
-fig4=1
+fig4=0
+fig5=0
 plt.rcParams["font.family"] = "Times New Roman"
-model_list=['h0829']
+model_list=['h0924']
 
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
@@ -174,8 +175,8 @@ if fig3:
         # cbar.ax.tick_params(axis='x', labelsize=16)
         name='melting_'+model
         time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
-        ax1.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
-        ax1.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments+basalt')
+        ax1.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='peridotite')
+        ax1.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediment+basalt')
     #================================figure setting================================
     # ax2.set_title(model,fontsize=26)
     
@@ -255,3 +256,58 @@ if fig4:
     ax3.spines['right'].set_linewidth(bwith)
     ax3.spines['left'].set_linewidth(bwith)
 
+if fig5: 
+    fig5, (ax2,ax3,ax4)= plt.subplots(3,1,figsize=(10,10))  
+    for kk,model in enumerate(model_list):
+        name=model+'_flatslab_time_len.txt'
+        time,length,depth=np.loadtxt(savepath+name).T
+        ax2.axvspan(time[0],30,facecolor='#414F67', alpha=0.15)
+        # ax3.axvspan(time[0],time[-1],facecolor='#35838D', alpha=0.25)
+        # ax4.axvspan(time[0],time[-1],facecolor='#35838D', alpha=0.25)
+        smooth_leng= fd.moving_window_smooth(length, 6)
+        smooth_dep= fd.moving_window_smooth(depth, 3)
+        ax3.plot(time,smooth_leng,label=model,color=newcolors[kk],lw=5)
+        ax4.plot(time,-smooth_dep,label=model,color=newcolors[kk],lw=5)
+        time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+        qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
+    #================================figure setting================================
+    # ax2.set_title(model,fontsize=26)
+    
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    ax3.tick_params(axis='x', labelsize=16)
+    ax3.tick_params(axis='y', labelsize=16)
+    ax4.tick_params(axis='x', labelsize=16)
+    ax4.tick_params(axis='y', labelsize=16)
+
+    
+    ax4.set_xlim(0,30)
+    ax2.set_xlim(0,30)
+    ax3.set_xlim(0,30)
+    ax2.set_ylim(0,400)
+    ax3.set_ylim(50,max(length)+20)
+    ax4.set_ylim(110,90)
+    
+    # ax2.set_ylabel('Distance (km)',fontsize=20)
+    # ax3.set_ylabel('Length (km)',fontsize=20)
+    # ax4.set_ylabel('Depth (km)',fontsize=20)
+    # ax4.set_xlabel('Time (Myr)',fontsize=20)
+    
+    ax2.grid()
+    ax3.grid()
+    ax4.grid()
+    
+    bwith = 3
+    ax4.spines['bottom'].set_linewidth(bwith)
+    ax4.spines['top'].set_linewidth(bwith)
+    ax4.spines['right'].set_linewidth(bwith)
+    ax4.spines['left'].set_linewidth(bwith)
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
+    ax3.spines['bottom'].set_linewidth(bwith)
+    ax3.spines['top'].set_linewidth(bwith)
+    ax3.spines['right'].set_linewidth(bwith)
+    ax3.spines['left'].set_linewidth(bwith)
+    ax1.legend(fontsize=25)
