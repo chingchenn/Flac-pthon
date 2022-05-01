@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Created on Mon Apr 4 17:26:14 2022
+Created on Mon Apr 24 17:26:14 2022
 
 @author: ji-chingchen
 """
@@ -28,8 +28,8 @@ frame=150
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#6B0D47','#A80359','#52254F'] 
 path='/scratch2/jiching/03model/'
 savepath='/home/jiching/geoflac/data/'
-#savepath = '/Users/ji-chingchen/Desktop/data/'
-savepath='D:/model/data/'
+savepath = '/Users/ji-chingchen/Desktop/data/'
+#savepath='D:/model/data/'
 figpath = '/home/jiching/geoflac/figure/'
 # os.chdir(path+model)
 # fl = flac.Flac()
@@ -44,8 +44,8 @@ if fig1:
     topo=topo[px>trench]
     fa_gravity=fa_gravity[px>trench]
     px=pxx
-    ax3.plot(px-trench,topo,c="#000080",lw=3,label='model')
-    ax4.plot(px-trench,fa_gravity,c="#2F4F4F",lw=3,label='model')
+    ax3.plot(px-trench,topo,c="#000080",lw=5,label='model')
+    ax4.plot(px-trench,fa_gravity,c="#000080",lw=5,label='model')
     xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
     with_plot = (xmean>0)*(ztop<-5)
     xmean = xmean[with_plot]
