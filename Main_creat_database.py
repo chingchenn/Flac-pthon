@@ -27,7 +27,7 @@ magma                   = 0
 melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 1
+melting                 = 0
 stack_topo              = 0
 stack_gem	        = 1
 flat_duraton            = 0
@@ -52,7 +52,7 @@ flat_slab_plot          = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
