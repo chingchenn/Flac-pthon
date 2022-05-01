@@ -36,10 +36,10 @@ path = '/scratch2/jiching/03model/'
 
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/ji-chingchen/Desktop/data/'
-savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
+#savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-model_list=['h0409','h0408','h0405','h0406']
+model_list=['ch0917','ch0920','ch0918','ch0919']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -49,7 +49,7 @@ if trench_plot:
     for kk,model in enumerate(model_list):
         name='trench_for_'+model
         df = pd.read_csv(savepath+name+'.csv')
-        dis,time,topo=f2.get_topo()
+        dis,time,topo=fd.get_topo()
         ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],lw=2,label=model,color=newcolors[kk])
     ax.set_xlim(0,dis[-1][-1])
     ax.set_ylim(0,df.time[-1])
@@ -83,25 +83,27 @@ if plate_geometry:
     fig2, (ax2) = plt.subplots(1,1,figsize=(14,8))
     for kk,model in enumerate(model_list):
         xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
-        xx= fd.moving_window_smooth(xmean[xmean>0], 12)
-        ztop = fd.moving_window_smooth(ztop[xmean>0], 12)
+        xx= fd.moving_window_smooth(xmean[xmean>0], 5)
+        ztop = fd.moving_window_smooth(ztop[xmean>0], 5)
         xmean=xx
-        ax2.plot(xmean,ztop,c=newcolors[kk],label=model,lw=5)
+        ax2.plot(xmean,-ztop,c=newcolors[kk],label=model,lw=5)
     #ax2.set_xlim(0,max(xmean)+10)
     # ax2.set_title("slab comparation",fontsize=16)
     # ax2.set_ylabel("Depth (km)",fontsize=16)
     # ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
     # ax2.legend(fontsize=16)
+    xmajor_ticks = np.linspace(0,150,num=4)
+    ax2.set_yticks(xmajor_ticks)
     bwith = 3
-    ax2.set_ylim(-150,0)
-    ax2.set_xlim(0,500)
+    ax2.set_ylim(150,0)
+    ax2.set_xlim(0,600)
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
     ax2.set_aspect('equal')
-    ax2.tick_params(axis='x', labelsize=16)
-    ax2.tick_params(axis='y', labelsize=16)
+    ax2.tick_params(axis='x', labelsize=26)
+    ax2.tick_params(axis='y', labelsize=26)
     ax2.grid()
     fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
