@@ -39,7 +39,7 @@ savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-model_list=['ch0917','ch0920','ch0918','ch0919']
+model_list=['Ref04','h0915','h0916','h0917']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -83,8 +83,8 @@ if plate_geometry:
     fig2, (ax2) = plt.subplots(1,1,figsize=(14,8))
     for kk,model in enumerate(model_list):
         xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
-        xx= fd.moving_window_smooth(xmean[xmean>0], 5)
-        ztop = fd.moving_window_smooth(ztop[xmean>0], 5)
+        xx= fd.moving_window_smooth(xmean[xmean>0], 6)
+        ztop = fd.moving_window_smooth(ztop[xmean>0], 6)
         xmean=xx
         ax2.plot(xmean,-ztop,c=newcolors[kk],label=model,lw=5)
     #ax2.set_xlim(0,max(xmean)+10)

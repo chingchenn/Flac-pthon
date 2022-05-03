@@ -36,7 +36,7 @@ savepath = '/Users/ji-chingchen/Desktop/data/'
 figpath = '/home/jiching/geoflac/figure/'
 
 if fig1: 
-    fig, (ax3,ax4,ax5)= plt.subplots(3,1,figsize=(15,12))   
+    fig, (ax3,ax4)= plt.subplots(2,1,figsize=(15,12))   
     name=str(model)+'topo-grav_'+str(frame)+'.txt'
     px, topo, topomod, fa_gravity, gb_gravity=np.loadtxt(savepath+name).T
     trench = px[np.argmin(topo)]
@@ -46,37 +46,38 @@ if fig1:
     gb_gravity=gb_gravity[px>trench]
     px=pxx
     ax3.plot(px-trench,topo,c="#000080",lw=5,label='model')
-    # ax4.plot(px-trench,fa_gravity,c="#000080",lw=5,label='model')
     ax4.plot(px-trench,gb_gravity,c="#AE6378",lw=5,label='model')
+    ax4.plot(px-trench,fa_gravity,c="#000080",lw=3,label='model')
+
     xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
     with_plot = (xmean>0)*(ztop<-5)
     xmean = xmean[with_plot]
     ztop = ztop[with_plot]
-    ax5.plot(xmean,ztop,c='k',lw=3)
+    # ax5.plot(xmean,ztop,c='k',lw=3)
     #================================figure setting================================
-    ax3.set_title(model,fontsize=26)
-    ax3.tick_params(axis='x', labelsize=16)
-    ax3.tick_params(axis='y', labelsize=16)
-    ax4.tick_params(axis='x', labelsize=16)
-    ax4.tick_params(axis='y', labelsize=16)
-    ax5.tick_params(axis='x', labelsize=16)
-    ax5.tick_params(axis='y', labelsize=16)
+    # ax3.set_title(model,fontsize=26)
+    ax3.tick_params(axis='x', labelsize=25)
+    ax3.tick_params(axis='y', labelsize=25)
+    ax4.tick_params(axis='x', labelsize=25)
+    ax4.tick_params(axis='y', labelsize=25)
+    # ax5.tick_params(axis='x', labelsize=16)
+    # ax5.tick_params(axis='y', labelsize=16)
     
     ax3.set_xlim(0,450)
     ax4.set_xlim(0,450)
-    ax5.set_xlim(0,450)
+    # ax5.set_xlim(0,450)
     
     #ax3.set_xlabel('Distance (km)',fontsize=20)
-    ax3.set_ylabel('Topo (km)',fontsize=20)
-    ax4.set_ylabel('Gravity anomaly (mgal)',fontsize=20)
+    # ax3.set_ylabel('Topo (km)',fontsize=25)
+    # ax4.set_ylabel('Gravity anomaly (mgal)',fontsize=25)
     #ax4.set_xlabel('Distance (km)',fontsize=20)
-    ax5.set_ylabel('Depth (km)',fontsize=20)
+    # ax5.set_ylabel('Depth (km)',fontsize=20)
     #ax5.set_xlabel('Distance (km)',fontsize=20)
     
 
     ax3.grid()
     ax4.grid()
-    ax5.grid()
+    # ax5.grid()
     
     bwith = 3
     ax3.spines['bottom'].set_linewidth(bwith)
@@ -87,10 +88,10 @@ if fig1:
     ax4.spines['top'].set_linewidth(bwith)
     ax4.spines['right'].set_linewidth(bwith)
     ax4.spines['left'].set_linewidth(bwith)
-    ax5.spines['bottom'].set_linewidth(bwith)
-    ax5.spines['top'].set_linewidth(bwith)
-    ax5.spines['right'].set_linewidth(bwith)
-    ax5.spines['left'].set_linewidth(bwith)
+    # ax5.spines['bottom'].set_linewidth(bwith)
+    # ax5.spines['top'].set_linewidth(bwith)
+    # ax5.spines['right'].set_linewidth(bwith)
+    # ax5.spines['left'].set_linewidth(bwith)
     data = np.loadtxt(savepath+'Mexico_free-air.txt')
     x,y,qq,fa = data.T
     sx = x[0]
@@ -114,7 +115,7 @@ if fig1:
     gb=fa-2*np.pi*1800*G*topo*1e5
     ax4.plot(new_cord,gb,color='k',lw=5,label = 'observation')
     ax3.legend(fontsize=24)
-    fig.savefig(figpath+'gravity_vs_topo'+str(model)+'_'+str(frame)+'.png')
+    # fig.savefig(figpath+'gravity_vs_topo'+str(model)+'_'+str(frame)+'.png')
     #fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/master03/Seminar/my present/ch0810.png')
 #====================================figure2===================================
 if fig2:
