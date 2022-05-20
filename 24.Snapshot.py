@@ -35,9 +35,10 @@ os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 time=fl.time
 plotting_png = 1
-gif = 1
-mp4 = 1
-
+gif = 0
+mp4 = 0
+if not os.path.isdir(path+model+'/phase_vis'):
+    os.mkdir(path+model+'/phase_vis')
 #------------------------------------------------------------------------------
 # x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
 
@@ -99,7 +100,7 @@ if plotting_png:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_phase_vis.png')
+        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_phase_vis.pdf')
         fig.gca()
         plt.close(fig)
 
