@@ -114,30 +114,25 @@ if fig1:
 fig3,ax3 = plt.subplots(1,1,figsize=(10,10))
 depth = np.linspace(0,200000,100)
 pressure=3000*10*depth/1e9  # (GPa)
-
 sss=np.zeros(len(pressure))
-sss2=np.zeros(len(pressure))
-sss3=np.zeros(len(pressure))
-ss=0
-ss2=0
-ss3=0
 for q,dd in enumerate(pressure):
     if dd<1:
         ss=1050-420*(1-np.exp(-dd*3.3))
-    elif dd>2.7:
+    elif dd>2.38:
         ss=(dd+14)*43
     else:
         ss=630+26*((-dd)**2)/2 
     sss[q] = ss
-    sss2[q] = ss2
-    sss3[q] = ss3
 ax3.plot(sss,pressure,c='#FF9900',lw=5)
-x = np.linspace(720,1040)
-y = 1.4/(-320) * x + 5.85
-ax3.plot(x,y,c='#708090',lw=5)
-x = np.linspace(670,1040)
-y = 0.6/370 * x + 0.7-670*0.6/370
-ax3.plot(x,y,c='#708090',lw=5)
+#-------------------------------------------------------
+### additional water-out line
+#x = np.linspace(720,1040)
+#y = 1.4/(-320) * x + 5.85
+# ax3.plot(x,y,c='#708090',lw=5)
+#x = np.linspace(670,1040)
+#y = 0.6/370 * x + 0.7-670*0.6/370
+# ax3.plot(x,y,c='#708090',lw=5)
+#-------------------------------------------------------
 
 x = np.linspace(0,514)
 y = -0.0375 * x + 20.1
@@ -149,7 +144,7 @@ y = 0.0022 * x - 0.3
 ax3.plot(x,y,c=basalt_change,lw=8,label='basalt-eclogite')
 
 
-ax3.set_xlim(0,1000)
+ax3.set_xlim(0,1200)
 ax3.set_ylim(0,8)
 ax3.set_xlabel('Temperature ($^\circ$C)',fontsize=30)
 ax3.set_ylabel('Depth (km)',fontsize=30)
