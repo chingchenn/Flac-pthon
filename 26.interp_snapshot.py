@@ -20,9 +20,9 @@ path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
-path = '/Volumes/SSD500/model/'
+#path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
-savepath='/Volumes/SSD500/data/'
+#savepath='/Volumes/SSD500/data/'
 figpath='/home/jiching/geoflac/figure/'
 os.chdir(path+model)
 
@@ -30,10 +30,8 @@ fl = flac.Flac()
 x, z = fl.read_mesh(frame)
 
 phasein = 1
-tin     = 1
-ph2grd  = 0
-t2grd   = 0
-gmtplot = 0
+tin     = 0
+vis     = 1
 #-------------------------------------------------------------------
 # domain bounds
 left = -300
@@ -67,6 +65,19 @@ def interpolate_phase(frame, xtrench):
     xx, zz, ph = fi.interpolate(frame, 'phase')
     return xx, zz, ph
 
+def interpolate_vis(frame, xtrench):
+   # domain bounds in km
+   fi.xmin = xtrench + left
+   fi.xmax = xtrench + right
+   fi.zmin = down
+   fi.zmax = up
+
+   # resolution in km
+   fi.dx = dx
+   fi.dz = dz
+
+   vx, vz, visc = fi.interpolate(frame, 'visc')
+   return vx, vz, visc
 
 itrench = find_trench_index(z)
 xtrench = x[itrench,0]
@@ -91,6 +102,14 @@ if tin:
     flac.printing(x, z, T, stream=f)
     f.close()
 
+visfile = 'intp3-visc.%d' % frame
+if vis:
+    vx, vz, visc = interpolate_vis(frame, xtrench)
+    f = open(visfile, 'w')
+    f.write('%d %d\n' % vx.shape)
+    flac.printing(vx, vz, visc, stream=f)
+    f.close()
+
 # get topography and gravity at uniform spacing
 px, topo, topomod, gravity = fg.compute_gravity2(frame)
 # convert to km and mGal before saving
@@ -108,9 +127,10 @@ cpcmd = '''
 awk '{print $1,$2,$3+0}' %(phasefile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(phasefile)s.txt
 awk '{print $1,$2,$3+0}' %(tfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(tfile)s.txt
 awk '{print $1,$2,$3+0}' %(gfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(gfile)s.txt
+awk '{print $1,$2,$3+0}' %(visfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(visfile)s.txt
 #cp %(tfile)s  %(model)s_%(tfile)s.txt
 #cp %(gfile)s  %(model)s_%(gfile)s.txt
-mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt /home/jiching/geoflac/data/.
+mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
 ''' % locals()
 os.system(cpcmd)
 
@@ -122,9 +142,13 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
 phase19= matplotlib.colors.ListedColormap(colors)
 
 fig, (ax)= plt.subplots(1,1,figsize=(20,6))
-filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
-x,z,ph=np.loadtxt(filepath).T
-ax.scatter(x,z,c = ph,cmap = phase19,vmax=19,vmin=1,s=5)
+cc = plt.cm.get_cmap('jet')
+#filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
+filepath = savepath+model+'_intp3-visc.'+str(frame)+'.txt'
+#x,z,ph=np.loadtxt(filepath).T
+x,z,vis=np.loadtxt(filepath).T
+#ax.scatter(x,z,c = ph,cmap = phase19,vmax=19,vmin=1,s=5)
+ax.scatter(x,-z,c=vis,cmap=cc,vmin=20, vmax=27,s=150)
 ax.set_aspect('equal')
 def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
@@ -132,11 +156,19 @@ def nodes_to_elements(xmesh,zmesh):
     return ele_x, ele_z
 x,z = fl.read_mesh(frame)
 temp = fl.read_temperature(frame)
-ax.contour(x,z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
-ax.set_xlim(200,1000)
-ax.set_ylim(-200,10)
-
+ax.contour(x,-z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
+bwith = 3
+ax.spines['bottom'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
+ax.spines['left'].set_linewidth(bwith)
+ax.tick_params(axis='x', labelsize=23)
+ax.tick_params(axis='y', labelsize=23)
+ymajor_ticks = np.linspace(200,0,num=5)
+ax.set_yticks(ymajor_ticks)
+xmajor_ticks = np.linspace(250,1000,num=6)
+ax.set_xticks(xmajor_ticks)
+ax.set_xlim(250,1000)
+ax.set_ylim(200,-30)
+fig.savefig('/home/jiching/geoflac/figure/'+model+'frame_'+str(frame)+'_interp_vis.png')
 #--------------------------------------------------------------------------
-
-
-
