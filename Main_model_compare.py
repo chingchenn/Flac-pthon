@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 trench_plot             = 0
 dip_plot                = 0
 plate_geometry          = 1
-force_plot_LR           = 0
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
+vel_plot                = 1
 stack_topo_plot         = 0
 flat_slab_plot          = 0
 magma_plot   	    	= 0
@@ -31,15 +31,15 @@ magma_plot   	    	= 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 
 savepath='/home/jiching/geoflac/data/'
-savepath = '/Users/ji-chingchen/Desktop/data/'
+#savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-model_list=['Ref04','h0915','h0916','h0917']
+model_list=['cm1403','cm1406']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -105,7 +105,7 @@ if plate_geometry:
     ax2.tick_params(axis='x', labelsize=26)
     ax2.tick_params(axis='y', labelsize=26)
     ax2.grid()
-    fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
+    #fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
     print('=========== DONE =============')
 if force_plot_LR:
@@ -165,7 +165,7 @@ if vel_plot:
         filepath = savepath+model+'_forc.txt'
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-        ax4.plot(time,vl*31545741325,lw=2,label=model,color=newcolors[kk])
+        ax4.plot(time,vl*31545741325,lw=5,label=model,color=newcolors[kk])
     ax4.set_xlim(0,time[-1])
     ax4.set_title('oceanic side velocity',fontsize=16)
     ax4.tick_params(axis='x', labelsize=16)
@@ -178,6 +178,7 @@ if vel_plot:
     ax4.spines['top'].set_linewidth(bwith)
     ax4.spines['right'].set_linewidth(bwith)
     ax4.spines['left'].set_linewidth(bwith)
+    ax4.legend(fontsize=26)
     fig3.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_vel.png')
     print('=========== DONE =============')
 if stack_topo_plot:

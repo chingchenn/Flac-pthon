@@ -21,29 +21,29 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
-dip                     = 0
-magma                   = 0
-melting_loc             = 0
+trench_location         = 1
+dip                     = 1
+magma                   = 1
+melting_loc             = 1
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 0
-stack_gem	            = 1
+stack_gem               = 1
 wedge                   = 1
 flat_duraton            = 0
 
 # plot data
-trench_plot             = 0
-dip_plot                = 0
-magma_plot              = 0
-metloc_plot  	    	= 0
+trench_plot             = 1
+dip_plot                = 1
+magma_plot              = 1
+metloc_plot  	    	= 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 0
-force_plot_LR           = 0
+melting_plot            = 1
+force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
@@ -196,16 +196,19 @@ magmafile=path+'data/magma_for_'+model+'.csv'
 def melting_location(start_vts=1,model_steps=end-1):
     melt=np.zeros(end)
     x_melt=np.zeros(end)
+    z_melt= np.zeros(end)
     for i in range(1,end):
         x,z=fl.read_mesh(i)
         phase = fl.read_phase(i)
         mm=fl.read_fmelt(i)
         melt[i] = np.max(mm)
-        maxindex=unravel_index(mm.argmax(),mm.shape)[0]
+        maxindex_x=unravel_index(mm.argmax(),mm.shape)[0]
+        maxindex_z=unravel_index(mm.argmax(),mm.shape)[1]
         ele_x, ele_z = nodes_to_elements(x,z)
         tren_x = (ele_z[:,0]).argmin()
-        x_melt[i] = ele_x[maxindex,0]-ele_x[tren_x,0]
-    return melt,x_melt,time
+        x_melt[i] = ele_x[maxindex_x,0]-ele_x[tren_x,0]
+        z_melt[i]=fd.read_depth(z,maxindex_x,maxindex_z)
+    return melt,x_melt,z_melt,time
 def count_marker(phase,start=1,end_frame=end):
     mr = np.zeros(end_frame-start)
     for i in range(start,end_frame):
@@ -402,8 +405,8 @@ if magma:
 if melting_loc:
     print('-----creat melt database-----')
     name='metloc_for_'+model
-    melt,xmelt,time=melting_location()
-    fs.save_3txt(name,savepath,time,melt,xmelt)
+    melt,xmelt,zmelt,time=melting_location()
+    fs.save_4txt(name,savepath,time,melt,xmelt,zmelt)
     print('=========== DONE =============')
 if melting:
     print('-----creat melting database-----')
@@ -528,9 +531,9 @@ if magma_plot:
     fig.savefig(figpath+model+'_magma.png')
     print('=========== DONE =============')
 if metloc_plot:
-    print('-------plotting gravity-------')
+    print('-------plotting metloc-------')
     fig, (ax)= plt.subplots(1,1,figsize=(12,5))
-    time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+    time,melt,xmelt,zmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
     qqq=ax.scatter(time[melt>0],xmelt[melt>0],c=melt[melt>0],cmap='OrRd',vmin=0.0,vmax=0.05)
     cbar=fig.colorbar(qqq,ax=ax)
     ax.set_ylim(0,400)
@@ -547,6 +550,21 @@ if metloc_plot:
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_metloc.png')
+    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
+    qqq=ax.scatter(time[melt>0],zmelt[melt>0],c=melt[melt>0],cmap='OrRd',vmin=0.0,vmax=0.05)
+    cbar=fig.colorbar(qqq,ax=ax)
+    ax.set_ylim(150,0)
+    ax.set_xlim(0,30)
+    ax.set_title(str(model)+" Melting location",fontsize=24)
+    ax.set_xlabel('Time (Myr)',fontsize=20)
+    cbar.set_label('Melting %',fontsize=20)
+    ax.set_ylabel('Depth (km)',fontsize=20)
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
     print('=========== DONE =============')
 #--------------------------------------------------------------------
 '''
@@ -715,6 +733,7 @@ if vel_plot:
     #ax4.plot(time,vl*31545741325,c="darkred",lw=2)
     ax4.plot(time,movvl*31545741325,c="#000080",lw=2)
     ax4.set_xlim(0,time[-1])
+    ax4.set_ylim(0,100)
     ax4.set_title('oceanic side velocity',fontsize=16)
     ax4.tick_params(axis='x', labelsize=16)
     ax4.tick_params(axis='y', labelsize=16)

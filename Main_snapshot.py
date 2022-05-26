@@ -37,9 +37,9 @@ stressII        = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
-path = 'D:/model/'
+#path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -49,6 +49,8 @@ frame = int(sys.argv[2])
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
+xmin,xmax=0,1200
+zmin,zmax=-300,20
 #------------------------------------------------------------------------------
 def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
@@ -165,8 +167,8 @@ if shot:
     ax.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmax=20,vmin=1)
     cx=ax.contour(x,z,temp,cmap = 'rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=1)
     ax.clabel(cx, inline=True, fontsize=10,colors='white',fmt="%1.0f")
-    ax.set_xlim(0,1200)
-    ax.set_ylim(-300,20)
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(zmin,zmax)
     ax.set_title(str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     ax.set_ylabel('Depth (km)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
@@ -191,8 +193,8 @@ if shot_interp:
     temp = fl.read_temperature(frame)
     cx=ax.contour(x,z,temp,cmap = 'rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=1)
     ax.clabel(cx, inline=True, fontsize=10,colors='k',fmt="%1.0f")
-    ax.set_xlim(0,ele_x[-1,-1])
-    ax.set_ylim(-200,10)
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(zmin,zmax)
     ax.set_title(str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     ax.set_ylabel('Depth (km)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
@@ -218,8 +220,8 @@ if pressure:
     ax.set_xlabel('Distance (km)',fontsize=20)
     ax_cbin.set_title('MPa',fontsize=20)
     ax.set_aspect('equal')
-    ax.set_xlim(0,max(ele_x[:,0]))
-    ax.set_ylim(min(ele_z[0,:]),max(ztop)+2)
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(zmin,zmax)
     ax.set_title('Pressure '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     fig.savefig(figpath+model+'frame_'+str(frame)+'_dynamic_pressure.pdf')
     
@@ -236,7 +238,7 @@ if gravity_plot:
     #ax2.legend(fontsize=16)
     bwith = 3
     #ax2.set_ylim(-160,0)
-    ax2.set_xlim(0,1200)
+    ax2.set_xlim(xmin,xmax)
     mm = [mm1,mm2]
     ax.legend(mm, [curve.get_label() for curve in mm],fontsize=20)
     ax2.spines['bottom'].set_linewidth(bwith)
@@ -253,18 +255,18 @@ if gravity_plot:
 if viscosity:
     fig, (ax)= plt.subplots(1,1,figsize=(12,8))
     ele_x,ele_z,vis,ztop = get_vis(frame)
-    cc = plt.cm.get_cmap('rainbow')
-    cb_plot=ax.scatter(ele_x,ele_z,c=vis,cmap=cc,vmin=20, vmax=27)
-    ax_cbin = fig.add_axes([0.63, 0.35, 0.23, 0.03])
+    cc = plt.cm.get_cmap('jet')
+    cb_plot=ax.scatter(ele_x,ele_z,c=vis,cmap=cc,vmin=19, vmax=27)
+    ax_cbin = fig.add_axes([0.23, 0.35, 0.23, 0.03])
     cb = fig.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
     ax.set_ylabel('Depth (km)',fontsize=20)
     ax.set_xlabel('Distance (km)',fontsize=20)
-    ax_cbin.set_title('Pa s',fontsize=20)
+#    ax_cbin.set_title('Pa s',fontsize=20)
     ax.set_aspect('equal')
-    ax.set_xlim(0,max(ele_x[:,0]))
-    ax.set_ylim(min(ele_z[0,:]),max(ztop)+2)
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(zmin,zmax)
     ax.set_title('Viscous '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_viscous.pdf')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_viscous.png')
 
 if stressII:
     fig, (ax)= plt.subplots(1,1,figsize=(12,8))

@@ -17,18 +17,19 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 fig1=0
 fig2=0
-fig3=1
+fig3=0
 fig4=0
 fig5=0
+fig6=1
 plt.rcParams["font.family"] = "Times New Roman"
-model_list=['h0924']
+model_list=['ch0913']
 
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
              '#708090','#282130','#24788F','#849DAB',
              '#EA5E51','#414F67','#6B0D47','#52254F'] 
 savepath='/home/jiching/geoflac/data/'
-savepath = '/Users/ji-chingchen/Desktop/data/'
+#savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath='D:/model/data/'
 
 
@@ -310,4 +311,32 @@ if fig5:
     ax3.spines['top'].set_linewidth(bwith)
     ax3.spines['right'].set_linewidth(bwith)
     ax3.spines['left'].set_linewidth(bwith)
-    ax1.legend(fontsize=25)
+
+if fig6:
+    fig6, (ax2)= plt.subplots(1,1,figsize=(10,4))
+    for kk,model in enumerate(model_list):
+        name=model+'_flatslab_time_len.txt'
+        time,length,depth=np.loadtxt(savepath+name).T
+        ax2.axvspan(time[0],30,facecolor='#414F67', alpha=0.15)
+        time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+        qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
+    #================================figure setting================================
+    # ax2.set_title(model,fontsize=26)
+
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+
+    ax2.set_xlim(0,30)
+    ax2.set_ylim(0,400)
+
+    ax2.set_ylabel('Distance (km)',fontsize=20)
+  #  ax2.set_xlabel('Time (Myr)',fontsize=20)
+
+    ax2.grid()
+
+    bwith = 3
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
+    fig6.savefig('/home/jiching/geoflac/figure/'+str(model)+'metloc.png')
