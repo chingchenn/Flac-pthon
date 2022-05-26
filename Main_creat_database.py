@@ -29,7 +29,8 @@ gravity                 = 0
 gravity_frame           = 0
 melting                 = 0
 stack_topo              = 0
-stack_gem	        = 1
+stack_gem	            = 1
+wedge                   = 1
 flat_duraton            = 0
 
 # plot data
@@ -47,6 +48,7 @@ force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
 stack_gem_plot	    	= 0
+wedge_area_strength     = 1
 flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
@@ -64,6 +66,7 @@ end = fl.nrec
 nex = fl.nx - 1
 nez = fl.nz - 1
 time = fl.time
+bwith = 3
 #------------------------------------------------------------------------------
 def trench(start_vts=1,model_steps=end):
     trench_x=np.zeros(end)
@@ -281,6 +284,30 @@ def get_stack_geometry(ictime=20,width=700):
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
     return xx[xx>0][:-1],zz[xx>0][:-1],finx,finz
+def read_wedgevis(trench_index,depth1=80, depth2=130):
+    viswedge=np.zeros(end)
+    areawedge=np.zeros(end)
+    for i in range(1,end+1):
+        x, z = fl.read_mesh(i)
+        vis=fl.read_visc(i)
+        area=fl.read_area(i)
+        ele_x, ele_z = nodes_to_elements(x,z)
+        crust_x,crust_z = oceanic_slab(i)
+        wedge_area = np.zeros(nex-int(trench_index[i-1]))
+        for ii in range(int(trench_index[i-1]),nex):
+            if crust_z[ii]<-depth2:
+                break
+            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<22)
+            if True in up:
+                wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
+                areawedge[i-1]+=sum(area[ii,up]/1e6)
+                viswedge[i-1]+=np.mean(vis[ii,up])
+        if len(wedge_area[wedge_area>0])==0:
+            continue
+        areawedge[i-1] = areawedge[i-1]
+        viswedge[i-1] = viswedge[i-1]/len(wedge_area[wedge_area>0])
+    return fl.time,areawedge,viswedge
+
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
     bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
@@ -400,6 +427,13 @@ if stack_gem:
     fs.save_2txt(name,savepath,xx,zz)
     fs.save_2txt(model+'_final_slab',savepath,fx,fz)
     print('=========== DONE =============')
+if wedge:
+    print('-----creat wedge database-----' )
+    name=model+'_wedge_data'
+    time,trench_index,trench_x,trench_z=trench()
+    area,vis=read_wedgevis(trench_index,depth1=80, depth2=120)
+    fs.save_3txt(name, savepath, time, area, vis)
+    print('=========== DONE =============')
 if flat_duraton:
     print('-----creat flattime database-----')
     name=model+'_flatslab_duration2'
@@ -516,6 +550,7 @@ if metloc_plot:
     print('=========== DONE =============')
 #--------------------------------------------------------------------
 '''
+if plot_ratio_of_melting:
     fig2,(ax,ax2)=plt.subplots(1,2,figsize=(25,8))
     cb_plot=ax.scatter(df.fmelt,df.chamber,c=df.time,cmap='rainbow')
     ax_cbin =fig2.add_axes([0.13,0.78,0.23,0.03]) 
@@ -721,6 +756,26 @@ if stack_gem_plot:
     ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_gem.png')
     print('=========== DONE =============')
+if wedge_area_strength:
+    print('-----plotting wedge info-----')
+    name=model+'_wedge_data'
+    time, areawedge, viswedge=np.loadtxt(savepath+name).T
+    fig,ax=plt.subplots(2,1,figsize=(10,6))
+    ax[0].scatter(time[areawedge>0],areawedge[areawedge>0],c="#000080")
+    ax[1].scatter(time[areawedge>0],viswedge[areawedge>0],c="#000080")
+    ax[0].set_ylabel('area (km)',fontsize=16)
+    ax[1].set_ylabel('viscosity (Pa s)',fontsize=16)
+    ax[-1].set_xlabel('Time (Myr)',fontsize=16)
+    for qq in range(len(ax)):
+        ax[qq].set_xlim(0,30)
+        ax[qq].tick_params(axis='x', labelsize=16)
+        ax[qq].tick_params(axis='y', labelsize=16)
+        ax[qq].grid()
+        ax[qq].spines['bottom'].set_linewidth(bwith)
+        ax[qq].spines['top'].set_linewidth(bwith)
+        ax[qq].spines['right'].set_linewidth(bwith)
+        ax[qq].spines['left'].set_linewidth(bwith)
+    fig.savefig(figpath+model+'_wedge_analysis.png')
 if flat_slab_plot:
     print('-----plotting flatslab-----')
     name=model+'_flatslab_time_len.txt'
