@@ -11,21 +11,21 @@ import flac
 import os,sys
 import numpy as np
 import pandas as pd
-import gravity as fg
+#import gravity as fg
 import matplotlib
 #matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
-#import flac_interpolate as fi
+import flac_interpolate as fi
 
 #---------------------------------- DO WHAT -----------------------------------
 ### interpolate data
 inter_ph        = 0
 inter_sII       = 0
 inter_srII      = 0
-gravity         = 1
+gravity         = 0
 
 ### plot
 shot            = 0

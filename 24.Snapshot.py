@@ -26,7 +26,7 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
-#path = '/Volumes/SSD500/model/'
+path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 
@@ -37,6 +37,7 @@ time=fl.time
 plotting_png = 1
 gif = 0
 mp4 = 0
+labelsize = 26
 if not os.path.isdir(path+model+'/phase_vis'):
     os.mkdir(path+model+'/phase_vis')
 #------------------------------------------------------------------------------
@@ -48,10 +49,12 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 if plotting_png:
-    for i in range(1,end+1):
+    for i in range(end,end+1,30):
         fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
         x,z,ele_x,ele_z,phase,temp,ztop=Ms.plot_snapshot(i)
-        ax.scatter(ele_x,-ele_z,c = phase,cmap = phase19,vmax=19,vmin=1,s=150)
+        xm, zm, age, ph, idd, a1, a2, ntriag = fl.read_markers(i)
+        #ax.scatter(ele_x,-ele_z,c = phase,cmap = phase19,vmax=19,vmin=1,s=150)
+        ax.scatter(xm,-zm,c = ph,cmap = phase19,vmax=19,vmin=1,s=5)
         ax.contour(x,-z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
     
     #--------------------------------------------------------------------------
@@ -75,14 +78,14 @@ if plotting_png:
         ax.spines['top'].set_linewidth(bwith)
         ax.spines['right'].set_linewidth(bwith)
         ax.spines['left'].set_linewidth(bwith)
-        ax.tick_params(axis='x', labelsize=23)
-        ax.tick_params(axis='y', labelsize=23)
+        ax.tick_params(axis='x', labelsize=labelsize)
+        ax.tick_params(axis='y', labelsize=labelsize)
         ax2.spines['bottom'].set_linewidth(bwith)
         ax2.spines['top'].set_linewidth(bwith)
         ax2.spines['right'].set_linewidth(bwith)
         ax2.spines['left'].set_linewidth(bwith)
-        ax2.tick_params(axis='x', labelsize=23)
-        ax2.tick_params(axis='y', labelsize=23)
+        ax2.tick_params(axis='x', labelsize=labelsize)
+        ax2.tick_params(axis='y', labelsize=labelsize)
         ymajor_ticks = np.linspace(200,0,num=5)
         ax.set_yticks(ymajor_ticks)
         ax2.set_yticks(ymajor_ticks)

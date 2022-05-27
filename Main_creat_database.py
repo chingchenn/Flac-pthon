@@ -114,10 +114,16 @@ def oceanic_slab(frame):
     for j in range(trench_ind,nex):
         ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
         if True in ind_oceanic:
-            crust_x[j] = np.average(ele_x[j,ind_oceanic])
-            crust_z[j] = np.average(ele_z[j,ind_oceanic])        
-            crust_x[j] = np.max(ele_x[j,ind_oceanic])
-            crust_z[j] = np.max(ele_z[j,ind_oceanic])        
+            kk = ele_z[j,ind_oceanic]
+            xx = ele_x[j,ind_oceanic]
+            if len(kk[kk<-10])==0:
+                continue
+            crust_x[j] = np.max(xx[kk<-10])
+            crust_z[j] = np.max(kk[kk<-10])
+            # crust_x[j] = np.average(ele_x[j,ind_oceanic])
+            # crust_z[j] = np.average(ele_z[j,ind_oceanic])        
+            # crust_x[j] = np.max(ele_x[j,ind_oceanic])
+            # crust_z[j] = np.max(ele_z[j,ind_oceanic])        
     return crust_x,crust_z
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
