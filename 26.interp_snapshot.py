@@ -12,8 +12,10 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------
-model = sys.argv[1]
-frame = int(sys.argv[2])
+# model = sys.argv[1]
+# frame = int(sys.argv[2])
+model = 'h1404'
+frame = 150
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
@@ -35,10 +37,10 @@ tin         = 0
 vis         = 0
 gravity     = 0
 cpp         = 0
-figure_plot = 0
+figure_plot = 1
 figure_plot1= 0
 figure_plot2= 0
-figure_plot3= 1
+figure_plot3= 0
 #-------------------------------------------------------------------
 # domain bounds
 left = -300
@@ -153,39 +155,45 @@ phase19= matplotlib.colors.ListedColormap(colors)
 #------------------------------------------------------------------------------
 if figure_plot:
     #fig, (ax)= plt.subplots(1,2,figsize=(27,5))
-    fig, (ax)= plt.subplots(1,2,figsize=(24,5))
+    fig, (ax)= plt.subplots(4,2,figsize=(23,22))
+    # fig, (ax)= plt.subplots(4,2,figsize=(27,23))
     cc = plt.cm.get_cmap('jet')
-    xt,zt = fl.read_mesh(frame)
-    temp = fl.read_temperature(frame)
-    bwith = 3
-    #--------------------- phase plotting -------------------------
-    filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
-    x,z,ph=np.loadtxt(filepath).T
-    ax[0].scatter(x,-z,c = ph,cmap = phase19,vmax=19,vmin=1,s=1)
-    #------------------- viscosity plotting -----------------------
-    filepath = savepath+model+'_intp3-visc.'+str(frame)+'.txt'
-    x,z,vis=np.loadtxt(filepath).T
-    ax[1].scatter(x,-z,c=vis,cmap=cc,vmin=20, vmax=27,s=1)
-    #---------------------- plot setting --------------------------
-    for qq in range(len(ax)):
-        ax[qq].set_aspect('equal')
-        ax[qq].contour(xt,-zt,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
-        ax[qq].spines['bottom'].set_linewidth(bwith)
-        ax[qq].spines['top'].set_linewidth(bwith)
-        ax[qq].spines['right'].set_linewidth(bwith)
-        ax[qq].spines['left'].set_linewidth(bwith)
-        ax[qq].tick_params(axis='x', labelsize=23)
-        ax[qq].tick_params(axis='y', labelsize=23)
-        ymajor_ticks = np.linspace(200,0,num=5)
-        ax[qq].set_yticks(ymajor_ticks)
-        xmajor_ticks = np.linspace(250,1000,num=6)
-        ax[qq].set_xticks(xmajor_ticks)
-        ax[qq].set_xlim(250,1000)
-        ax[qq].set_ylim(200,-30)
-        xmajor_ticks = np.linspace(500,1000,num=6)
-        ax[qq].set_xticks(xmajor_ticks)
-        ax[qq].set_xlim(450,950)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis.png')
+    frame_list=[30,60,90,150]
+    # frame_list=[150]
+    for qq,frame in enumerate(frame_list):
+        xt,zt = fl.read_mesh(frame)
+        temp = fl.read_temperature(frame)
+        bwith = 4
+        #--------------------- phase plotting -------------------------
+        filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
+        x,z,ph=np.loadtxt(filepath).T
+        ax[qq,0].scatter(x,-z,c = ph,cmap = phase19,vmax=19,vmin=1,s=1.5)
+        #------------------- viscosity plotting -----------------------
+        filepath = savepath+model+'_intp3-visc.'+str(frame)+'.txt'
+        x,z,vis=np.loadtxt(filepath).T
+        ax[qq,1].scatter(x,-z,c=vis,cmap=cc,vmin=20, vmax=27,s=1.5)
+        #---------------------- plot setting --------------------------
+        for uu in range(len(ax[0])):
+            ax[qq,uu].set_aspect('equal')
+            ax[qq,uu].contour(xt,-zt,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
+            ax[qq,uu].spines['bottom'].set_linewidth(bwith)
+            ax[qq,uu].spines['top'].set_linewidth(bwith)
+            ax[qq,uu].spines['right'].set_linewidth(bwith)
+            ax[qq,uu].spines['left'].set_linewidth(bwith)
+            ax[qq,uu].tick_params(axis='x', labelsize=23)
+            ax[qq,uu].tick_params(axis='y', labelsize=23)
+            ymajor_ticks = np.linspace(200,0,num=5)
+            ax[qq,uu].set_yticks(ymajor_ticks)
+            xmajor_ticks = np.linspace(250,1000,num=6)
+            ax[qq,uu].set_xticks(xmajor_ticks)
+            ax[qq,uu].set_xlim(250,1000)
+            ax[qq,uu].set_ylim(200,-30)
+            xmajor_ticks = np.linspace(500,1000,num=6)
+            ax[qq,uu].set_xticks(xmajor_ticks)
+            ax[qq,uu].set_xlim(450,950)
+            if qq != 3:
+                ax[qq,uu].axes.xaxis.set_visible(False)
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis_all.png')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis.pdf')
 #--------------------------------------------------------------------------
 if figure_plot1:

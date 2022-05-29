@@ -14,10 +14,10 @@ import matplotlib
 from matplotlib import cm
 import matplotlib.pyplot as plt
 fig1=1
-fig2=0
+fig2=1
 
 # model = sys.argv[1]
-model = 'ch0810'
+model = 'ch0913'
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#6B0D47','#A80359','#52254F'] 
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/ji-chingchen/Desktop/data/'
