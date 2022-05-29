@@ -12,14 +12,12 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------
-# model = sys.argv[1]
-# frame = int(sys.argv[2])
-model = 'ch1506'
-frame = 150
+model = sys.argv[1]
+frame = int(sys.argv[2])
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
 path = '/Volumes/SSD500/model/'

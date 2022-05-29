@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 trench_plot             = 0
 dip_plot                = 0
 plate_geometry          = 1
-force_plot_LR           = 1
+force_plot_LR           = 0
 force_plot_RF           = 0
-vel_plot                = 1
+vel_plot                = 0
 stack_topo_plot         = 0
 flat_slab_plot          = 0
 magma_plot   	    	= 0
@@ -31,7 +31,7 @@ magma_plot   	    	= 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 
 savepath='/home/jiching/geoflac/data/'
@@ -40,6 +40,7 @@ savepath='/home/jiching/geoflac/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 model_list=['cm1403','cm1406']
+model_list=['Chi01','chih0601','chih0602','chih0603']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 ##------------------------------------ plot -----------------------------------
@@ -87,11 +88,10 @@ if plate_geometry:
         ztop = fd.moving_window_smooth(ztop[xmean>0], 6)
         xmean=xx
         ax2.plot(xmean,-ztop,c=newcolors[kk],label=model,lw=5)
-    #ax2.set_xlim(0,max(xmean)+10)
     # ax2.set_title("slab comparation",fontsize=16)
     # ax2.set_ylabel("Depth (km)",fontsize=16)
     # ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
-    # ax2.legend(fontsize=16)
+    #ax2.legend(fontsize=16)
     xmajor_ticks = np.linspace(0,150,num=4)
     ax2.set_yticks(xmajor_ticks)
     bwith = 3
