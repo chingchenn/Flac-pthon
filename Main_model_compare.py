@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import gravity as fg
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
@@ -20,31 +20,31 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
 dip_plot                = 0
-plate_geometry          = 1
+plate_geometry          = 0
 force_plot_LR           = 0
 force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
 flat_slab_plot          = 0
 magma_plot   	    	= 0
+melting_phase   	= 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 
 savepath='/home/jiching/geoflac/data/'
-savepath='/Volumes/SSD500/data/'
 #savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-figpath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
-figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
-model_list=['Chi01','chih0601','chih0602','chih0603']
+model_list=['Ref03','h0401','h0402','h0403']
+model_list=['h1502','h1504']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
+bwith = 3
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
     print('--- start plotting the trench and topography with time ---')
@@ -90,10 +90,11 @@ if plate_geometry:
         ztop = fd.moving_window_smooth(ztop[xmean>0], 6)
         xmean=xx
         ax2.plot(xmean,-ztop,c=newcolors[kk],label=model,lw=5)
+    #ax2.set_xlim(0,max(xmean)+10)
     # ax2.set_title("slab comparation",fontsize=16)
     # ax2.set_ylabel("Depth (km)",fontsize=16)
     # ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
-    #ax2.legend(fontsize=16)
+    # ax2.legend(fontsize=16)
     xmajor_ticks = np.linspace(0,150,num=4)
     ax2.set_yticks(xmajor_ticks)
     bwith = 3
@@ -109,7 +110,6 @@ if plate_geometry:
     ax2.grid()
     #fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
-    fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     print('=========== DONE =============')
 if force_plot_LR:
     print('--- start plot left and right force with time ---')
@@ -266,7 +266,6 @@ if magma_plot:
     ax3.tick_params(axis='y', labelsize=16 )
     ax4.tick_params(axis='y', labelsize=16 )
     ax.set_title('Model : '+model,fontsize=25)
-    bwith = 3
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
@@ -286,3 +285,29 @@ if magma_plot:
     ax.legend()
     fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_magma.png')
     print('=========== DONE =============')
+if melting_phase:
+    fig4, (ax)= plt.subplots(1,1,figsize=(10,4))
+    for kk,model in enumerate(model_list):
+        name='melting_'+model
+        width=0.20
+        time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
+        total = np.zeros(len(time))
+        total_volume = phase_p4+phase_p3+phase_p10
+        ax.plot(time,total_volume,lw=3,label=model,color=newcolors[kk])
+    #ymajor_ticks = np.linspace(8,0,num=5)
+    #ax.set_yticks(ymajor_ticks)
+    #ax.set_ylim(0,8)
+    ax.set_xlabel('Time (Myr)',fontsize=30)
+    # ax.set_ylabel('molten rocks (km3/km)',fontsize=30)
+
+    ax.tick_params(axis='x', labelsize=26)
+    ax.tick_params(axis='y', labelsize=26)
+    ax.set_xlim(0,30)
+    ax.grid()
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax.legend(fontsize = 20)
+    fig4.savefig(figpath+str(model)+'metvolume.png')
+    # fig4.savefig(figpath+str(model)+'metphase.pdf') 
