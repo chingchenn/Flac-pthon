@@ -26,7 +26,7 @@ force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
 flat_slab_plot          = 0
-magma_plot   	    	= 0
+magma_plot   	    	= 1
 melting_phase   	= 1
 
 #---------------------------------- SETTING -----------------------------------
@@ -289,11 +289,17 @@ if melting_phase:
     fig4, (ax)= plt.subplots(1,1,figsize=(10,4))
     for kk,model in enumerate(model_list):
         name='melting_'+model
-        width=0.20
         time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
-        total = np.zeros(len(time))
-        total_volume = phase_p4+phase_p3+phase_p10
-        ax.plot(time,total_volume,lw=3,label=model,color=newcolors[kk])
+        name = 'magma_for_'+model+'.txt'
+        temp1 = np.loadtxt(savepath+name)
+        melt,chamber,yymelt,yychamber,rrr = temp1.T
+        ax.plot(time,yychamber,color=newcolors[kk],label=model)
+#    for kk,model in enumerate(model_list):
+#        name='melting_'+model
+#        time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
+#        total = np.zeros(len(time))
+#        total_volume = phase_p4+phase_p3+phase_p10
+#        ax.plot(time,total_volume,lw=3,label=model,color=newcolors[kk])
     #ymajor_ticks = np.linspace(8,0,num=5)
     #ax.set_yticks(ymajor_ticks)
     #ax.set_ylim(0,8)
