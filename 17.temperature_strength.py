@@ -24,18 +24,18 @@ s1517 geology 			             =   8
 oceanic litho, MEX                   =   9
 '''
 
-geo = 5
+geo = 2
 withregion = 0
 strength_fill = 0
-max_depth = -150
+max_depth = -100
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
     phase=[11,3,3,4]
     tem=1
 elif geo==2:
-    layerz = (0, 16e3, 26e3)
-    phase=[2,6,4]
+    layerz = (0, 18e3, 30e3,50e3)
+    phase=[2,6,8,4]
     tem=3
 elif geo==3:
     layerz = (0, 16e3, 26e3, 40e3)
@@ -69,11 +69,11 @@ elif geo == 9:
 edot = 1e-14  # high strain rate
 edot = 1e-15  # low strain rate
 deepz = layerz[-1] * 40
-z = np.linspace(0, deepz, num=1000)
+z = np.linspace(0, deepz, num=5000)
 if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 40)
 elif tem == 3:
-    T = f2.continental_geothermal_T3(z,20,6,45)
+    T = f2.continental_geothermal_T3(z,20,6,40)
 elif tem == 4:
     T = f2.continental_geothermal_T4(z, 10,1330, 140)
 elif tem == 2:

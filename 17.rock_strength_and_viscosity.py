@@ -24,17 +24,17 @@ s1517 geology 			             =   8
 oceanic litho, MEX                   =   9
 '''
 
-geo = 3
+geo = 2
 withregion = 0
-max_depth = -150
+max_depth = -100
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
     phase=[11,3,3,4]
     tem=1
 elif geo==2:
-    layerz = (0, 16e3, 26e3)
-    phase=[2,6,4]
+    layerz = (0, 18e3, 30e3, 50e3)
+    phase=[2,14,8,4]
     tem=3
 elif geo==3:
     layerz = (0, 18e3, 30e3, 40e3)
@@ -153,7 +153,7 @@ ax3.tick_params(axis='x', labelsize=26)
 ax3.tick_params(axis='y', labelsize=26)
 ax3.set_title('Viscosity Profile',fontsize=30)
 ax3.set_xlabel('Viscosity (Pa s)',fontsize=26)
-major_ticks = np.logspace(20,27,num=8,base=10)
+major_ticks = np.logspace(20,28,num=9,base=10)
 depthmajor_ticks = np.linspace(0,max_depth,num=11)
 ax3.set_xticks(major_ticks, minor=True)
 ax.set_yticks(depthmajor_ticks)
