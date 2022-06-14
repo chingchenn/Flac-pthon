@@ -34,8 +34,8 @@ if geo == 1:
     phase=[11,3,3,4]
     tem=1
 elif geo==2:
-    layerz = (0, 18e3, 30e3,50e3)
-    phase=[2,6,8,4]
+    layerz = (0, 12e3, 30e3, 35e3)
+    phase=[2,6,4,4]
     tem=3
 elif geo==3:
     layerz = (0, 16e3, 26e3, 40e3)
@@ -139,8 +139,10 @@ if strength_fill:
 ## ----------------------------  calculated force  ----------------------------
 qq=0
 for yy in range(1,len(applied_strength)):
-    qq +=(applied_strength[yy])*(z[yy]-z[yy-1])
+    if z[yy]/1e3 > 30:
+        qq +=(applied_strength[yy])*(z[yy]-z[yy-1])
 print(qq/1e13)
+print(qq/1e13/0.3931863060287225)
 ## ----------------------------  temperature Plot  ----------------------------
 temp = z/1000*0.6+T
 ax3.plot(temp,-z/1000,color='#B22222',label='temperature',lw=10)
