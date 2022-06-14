@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 #-------------------------------------------------------------------
 # model = sys.argv[1]
 # frame = int(sys.argv[2])
-model = 'h1404'
-frame = 150
+model = 'cH1404'
+frame = 120
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
@@ -37,10 +37,11 @@ tin         = 0
 vis         = 0
 gravity     = 0
 cpp         = 0
-figure_plot = 1
-figure_plot1= 0
-figure_plot2= 0
-figure_plot3= 0
+figure_plot = 0 # 8 figure
+figure_plot1= 0 # single step viscosity
+figure_plot2= 0 # single step phase 
+figure_plot3= 1 # 30,60,90,150 step viscosity 
+figure_plot4= 0 # 30,60,90,150 step phase
 #-------------------------------------------------------------------
 # domain bounds
 left = -300
@@ -193,11 +194,11 @@ if figure_plot:
             ax[qq,uu].set_xlim(450,950)
             if qq != 3:
                 ax[qq,uu].axes.xaxis.set_visible(False)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis_all.png')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis_all.png')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis.pdf')
 #--------------------------------------------------------------------------
 if figure_plot1:
-    fig, (ax)= plt.subplots(1,1,figsize=(13,5))
+    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
     cc = plt.cm.get_cmap('jet')
     xt,zt = fl.read_mesh(frame)
     temp = fl.read_temperature(frame)
@@ -221,13 +222,13 @@ if figure_plot1:
     #ax.set_xticks(xmajor_ticks)
     #ax.set_xlim(250,1000)
     ax.set_ylim(200,-30)
-    xmajor_ticks = np.linspace(500,1000,num=6)
+    xmajor_ticks = np.linspace(250,1000,num=7)
     ax.set_xticks(xmajor_ticks)
-    ax.set_xlim(450,950)
+    ax.set_xlim(250,1000)
     fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis.png')
     fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis.pdf')
 if figure_plot2:
-    fig, (ax)= plt.subplots(1,1,figsize=(13,5))
+    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
     cc = plt.cm.get_cmap('jet')
     xt,zt = fl.read_mesh(frame)
     temp = fl.read_temperature(frame)
@@ -251,16 +252,17 @@ if figure_plot2:
     #ax.set_xticks(xmajor_ticks)
     #ax.set_xlim(250,1000)
     ax.set_ylim(200,-30)
-    xmajor_ticks = np.linspace(500,1000,num=6)
+    xmajor_ticks = np.linspace(250,1000,num=7)
     ax.set_xticks(xmajor_ticks)
-    ax.set_xlim(450,950)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    ax.set_xlim(250,1000)
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
 if figure_plot3:
-    fig, (ax)= plt.subplots(4,1,figsize=(13,17))
+    # fig, (ax)= plt.subplots(3,1,figsize=(13,17))
+    fig, (ax)= plt.subplots(3,1,figsize=(17,16))
     cc = plt.cm.get_cmap('jet')
     bwith = 3
-    frame_list=[30,60,90,150]
+    frame_list=[30,60,120]
     #--------------------- viscosity plotting -------------------------
     for qq,frame in enumerate(frame_list):
         xt,zt = fl.read_mesh(frame)
@@ -268,6 +270,42 @@ if figure_plot3:
         filepath = savepath+model+'_intp3-visc.'+str(frame)+'.txt'
         x,z,vis=np.loadtxt(filepath).T
         ax[qq].scatter(x,-z,c=vis,cmap=cc,vmin=20, vmax=27,s=1)
+        ax[qq].scatter(x[vis<=20.3],-z[vis<=20.3],c='w',s=1.5)
+    #---------------------- plot setting --------------------------
+        ax[qq].set_aspect('equal')
+        ax[qq].contour(xt,-zt,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
+        ax[qq].spines['bottom'].set_linewidth(bwith)
+        ax[qq].spines['top'].set_linewidth(bwith)
+        ax[qq].spines['right'].set_linewidth(bwith)
+        ax[qq].spines['left'].set_linewidth(bwith)
+        ax[qq].tick_params(axis='x', labelsize=26)
+        ax[qq].tick_params(axis='y', labelsize=26)
+        ymajor_ticks = np.linspace(200,0,num=5)
+        ax[qq].set_yticks(ymajor_ticks)
+        xmajor_ticks = np.linspace(250,1000,num=6)
+        ax[qq].set_xticks(xmajor_ticks)
+        ax[qq].set_xlim(250,1000)
+        ax[qq].set_ylim(200,-30)
+        # ax[0].set_title(model,fontsize=25)
+        # xmajor_ticks = np.linspace(500,1000,num=6)
+        # ax[qq].set_xticks(xmajor_ticks)
+        # ax[qq].set_xlim(450,950)
+        if qq != 2:
+            ax[qq].axes.xaxis.set_visible(False)
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.png')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.pdf')
+if figure_plot4:
+    fig, (ax)= plt.subplots(4,1,figsize=(13,16))
+    cc = plt.cm.get_cmap('jet')
+    bwith = 3
+    frame_list=[30,60,90,150]
+    #--------------------- viscosity plotting -------------------------
+    for qq,frame in enumerate(frame_list):
+        filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
+        x,z,ph=np.loadtxt(filepath).T
+        ax[qq].scatter(x,-z,c=ph,cmap=phase19,vmin=1, vmax=19,s=1)
+        xt,zt = fl.read_mesh(frame)
+        temp = fl.read_temperature(frame)    
     #---------------------- plot setting --------------------------
         ax[qq].set_aspect('equal')
         ax[qq].contour(xt,-zt,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
@@ -281,12 +319,12 @@ if figure_plot3:
         ax[qq].set_yticks(ymajor_ticks)
         xmajor_ticks = np.linspace(250,1000,num=6)
         ax[qq].set_xticks(xmajor_ticks)
-        ax[qq].set_xlim(250,1000)
+        ax[qq].set_xlim(400,1000)
         ax[qq].set_ylim(200,-30)
         # xmajor_ticks = np.linspace(500,1000,num=6)
         # ax[qq].set_xticks(xmajor_ticks)
         # ax[qq].set_xlim(450,950)
         if qq != 3:
             ax[qq].axes.xaxis.set_visible(False)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.png')
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.pdf')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.png')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.pdf')
