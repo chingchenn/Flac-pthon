@@ -77,8 +77,9 @@ def oceanic_slab(frame):
             crust_x[j] = np.max(xx[kk<-15])
             crust_z[j] = np.max(kk[kk<-15])
     return crust_x,crust_z
-fig3,ax3=plt.subplots(1,1,figsize=(15,9))
+fig3,(ax3,ax4)=plt.subplots(2,1,figsize=(20,18))
 ax3.grid()
+ax4.grid()
 color=['#2F4F4F','#4682B4','#CD5C5C','#708090',
       '#AE6378','#282130','#7E9680','#24788F',
       '#849DAB','#EA5E51','#35838D','#4198B9',
@@ -89,7 +90,7 @@ model_list=['ch1519','ch1522','ch1406','ch1512','ch1513','ch1510',
             'ch1516','ch1517','ch1404','ch1523','ch1532','ch1533']
 model_list=['ch1522','ch1512','ch1513','ch1510','ch1528','ch1529','ch1521',
             'ch1530','ch1531','ch1517','ch1404','ch1532','ch1519','ch1406',
-            'ch1520','ch1516','ch1523','ch1533','ch1531']
+            'ch1520','ch1516','ch1523','ch1533','ch1520']
 
 depth1 = 80
 depth2 = 130
@@ -102,6 +103,7 @@ for www,model in enumerate(model_list):
     nez = fl.nz - 1
     viswedge=np.zeros(end)
     areawedge=np.zeros(end)
+    temwedge=np.zeros(end)
     channel = np.zeros(end)
     for i in range(1,end+1):
         x, z = fl.read_mesh(i)
@@ -120,15 +122,33 @@ for www,model in enumerate(model_list):
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
                 viswedge[i-1]+=np.mean(vis[ii,up])
+                temwedge[i-1]+=np.mean(ele_tem[ii,up])
                 channel[i-1]=(max(ele_z[ii,up])-min(ele_z[ii,up]))
         if len(wedge_area[wedge_area>0])==0:
             continue
-    ccc = fd.moving_window_smooth(channel[channel>0],3)
+        temwedge[i-1] = temwedge[i-1]/len(wedge_area[wedge_area>0])
+    ccc = fd.moving_window_smooth(channel[channel>0],10)
     if www >11:
         ax3.plot(fl.time[channel>0], ccc,c = color[3],lw=3,label = model)
+        ax4.plot(fl.time[channel>0], temwedge[channel>0],c = color[3],lw=3,label = model)
     else:
         ax3.plot(fl.time[channel>0], ccc,c = color[2],lw=3,label = model)
-ax3.legend(fontsize = 25)
+        ax4.plot(fl.time[channel>0], temwedge[channel>0],c = color[2],lw=3,label = model)
+#ax3.legend(fontsize = 25)
 ax3.set_ylim(0,40)
-ax3.set_xlim(0,30)
-fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+ax3.set_xlim(0,20)
+#ax4.set_ylim(0,40)
+ax4.set_xlim(0,20)
+ax3.tick_params(axis='x', labelsize=16)
+ax3.tick_params(axis='y', labelsize=16)
+ax3.spines['bottom'].set_linewidth(bwith)
+ax3.spines['top'].set_linewidth(bwith)
+ax3.spines['right'].set_linewidth(bwith)
+ax3.spines['left'].set_linewidth(bwith)
+ax4.tick_params(axis='x', labelsize=16)
+ax4.tick_params(axis='y', labelsize=16)
+ax4.spines['bottom'].set_linewidth(bwith)
+ax4.spines['top'].set_linewidth(bwith)
+ax4.spines['right'].set_linewidth(bwith)
+ax4.spines['left'].set_linewidth(bwith)
+fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel4_21.png')
