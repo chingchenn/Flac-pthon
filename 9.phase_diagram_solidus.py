@@ -14,8 +14,8 @@ fontsize=30
 labelsize=25
 bwith = 5
 fig1 = 1 # basalt and eclogit 
-fig2 = 0 # perdotite and serpentinite
-fig3 = 0 # sediment to schist
+fig2 = 1 # perdotite and serpentinite
+fig3 = 1 # sediment to schist
 if fig1:
 ###===============================basalt and eclogit ==========================
     x = np.linspace(0,514)
@@ -61,6 +61,7 @@ if fig1:
     
     # ax.set_title('metamorphosed MORB ',fontsize=25)
     # fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/ThesisNTU/figures/'+'basalt_phase_diagram'+'.pdf')
+    fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/'+'basalt_phase_diagram'+'.pdf')
     ###==================== perdotite and serpentinite =============================
 if fig2:
     fig2,ax = plt.subplots(1,1,figsize=(10,10))
@@ -81,7 +82,7 @@ if fig2:
         else:
             solidus[i] = 800+6.2e-8*(kk-80e3)**2
     axdep = ax.twinx()
-    axdep.plot(solidus,depth/1e3,c='pink',lw=4,label = 'solidus')
+    axdep.plot(solidus,depth/1e3,c='#FF9900',lw=4,label = 'solidus')
     ax.set_ylim(0,9)
     ax.set_xlim(0,1200)
     axdep.set_ylim(0,300)
@@ -96,8 +97,8 @@ if fig2:
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
     ax.text(80,3.5,'serpentinite',fontsize=36)
-    ax.text(770,5.5,'perdotite',fontsize=36)
-    ax.legend(fontsize = fontsize-7)
+    ax.text(870,6.5,'perdotite',fontsize=36)
+    ax.legend(fontsize = fontsize-7, loc='upper left')
     
     ###====================sediment to schist =============================
 if fig3:    
