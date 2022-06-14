@@ -17,12 +17,13 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 fig1=0
 fig2=0
-fig3=1
+fig3=0
 fig4=0
 fig5=0
 fig6=0
+fig7=1
 plt.rcParams["font.family"] = "Times New Roman"
-model_list=['h0924']
+model_list=['ch0913','ch0918','ch0919','ch0920']
 
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
@@ -127,7 +128,7 @@ if fig2:
         ax6.plot(xs[zs<0],zs[zs<0],label=model,color=newcolors[kk],lw=4)
     #================================figure setting================================
 
-    ax5.set_title(model,fontsize=26)
+    ax5.set_title(model,fontsize=30)
     
     ax5.set_xlim(-200,500)
     ax6.set_xlim(-200,500)
@@ -340,4 +341,57 @@ if fig6:
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
-    fig6.savefig('/home/jiching/geoflac/figure/'+str(model)+'metloc.png')
+    # fig6.savefig('/home/jiching/geoflac/figure/'+str(model)+'metloc.png')
+
+if fig7:
+    fig7, (ax6)= plt.subplots(1,1,figsize=(20,16))
+    for kk,model in enumerate(model_list):
+        # name=model+'_stack_topography.txt'
+        # xx,zz = np.loadtxt(savepath+name).T
+        name=model+'_stack_slab.txt'
+        xs,zs = np.loadtxt(savepath+name).T
+        
+        # ax5.plot(xx,zz,c='gray',lw=4)
+        # ax6.plot(xs[:-4],zs[:-4],c='k',lw=4)
+        # name=model+'_final_topography.txt'
+        # xx,zz = np.loadtxt(savepath+name).T
+        name=model+'_final_slab.txt'
+        xs,zs = np.loadtxt(savepath+name).T
+        withoplot = (xs>0)#*(zs<-10)
+        xx = fd.moving_window_smooth(xs[withoplot], 4)
+        zz = fd.moving_window_smooth(zs[withoplot], 4)
+        if model=='ch0919' or model=='ch0918':
+            print(model)
+            mx = xx.tolist()
+            mz = zz.tolist()
+            mx.append(112)
+            mz.append(-170)
+            xx = np.array(mx)
+            zz = np.array(mz)
+        
+        ax6.plot(xx,-zz,label=model,color=newcolors[kk],lw=4)
+    #================================figure setting================================
+
+    # ax5.set_title(model,fontsize=26)
+    ax6.set_xlim(0,600)
+    ax6.set_ylim(150,0)
+    ax6.set_aspect('equal')
+    ymajor_ticks = np.linspace(0,150,num=4)
+    ax6.set_yticks(ymajor_ticks)
+    # ax5.set_aspect('equal')
+    
+    ax6.tick_params(axis='x', labelsize=30)
+    ax6.tick_params(axis='y', labelsize=30)
+    # ax5.grid()
+    ax6.grid()
+    # ax6.set_ylabel('Depth (km)',fontsize=20)
+    # ax6.set_xlabel('Distance from Ttench (km)',fontsize=20)
+
+    bwith = 3
+    ax6.spines['bottom'].set_linewidth(bwith)
+    ax6.spines['top'].set_linewidth(bwith)
+    ax6.spines['right'].set_linewidth(bwith)
+    ax6.spines['left'].set_linewidth(bwith)
+    # ax6.legend(fontsize=16)
+    # fig7.savefig('/home/jiching/geoflac/figure/'+model+'_forc_flat_melt.png')
+
