@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys, os
 import numpy as np
@@ -12,29 +13,29 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------
-# model = sys.argv[1]
-# frame = int(sys.argv[2])
+model = sys.argv[1]
+frame = int(sys.argv[2])
 model = 'cH1404'
 frame = 120
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
-path = '/Volumes/SSD500/model/'
+#path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
-savepath='/Volumes/SSD500/data/'
+#savepath='/Volumes/SSD500/data/'
 figpath='/home/jiching/geoflac/figure/'
-figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
+#figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
 os.chdir(path+model)
 
 fl = flac.Flac()
 x, z = fl.read_mesh(frame)
 
-phasein     = 0
+phasein     = 1
 tin         = 0
-vis         = 0
+vis         = 1
 gravity     = 0
 cpp         = 0
 figure_plot = 0 # 8 figure
@@ -119,6 +120,7 @@ if vis:
     f.write('%d %d\n' % vx.shape)
     flac.printing(vx, vz, visc, stream=f)
     f.close()
+gfile = 'topo-grav.%d' % frame
 if gravity:
 # get topography and gravity at uniform spacing
     px, topo, topomod, gravity = fg.compute_gravity2(frame)
@@ -127,7 +129,6 @@ if gravity:
     topo *= 1e-3
     topomod *= 1e-3
     gravity *= 1e5
-    gfile = 'topo-grav.%d' % frame
     f = open(gfile, 'w')
     flac.printing(px, topo, gravity, topomod, stream=f)
     f.close()
@@ -140,7 +141,8 @@ if cpp:
     awk '{print $1,$2,$3+0}' %(visfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(visfile)s.txt
     #cp %(tfile)s  %(model)s_%(tfile)s.txt
     #cp %(gfile)s  %(model)s_%(gfile)s.txt
-    mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
+    mv  %(model)s_%(phasefile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
+    #mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
 ''' % locals()
     os.system(cpcmd)
 
@@ -156,8 +158,7 @@ phase19= matplotlib.colors.ListedColormap(colors)
 #------------------------------------------------------------------------------
 if figure_plot:
     #fig, (ax)= plt.subplots(1,2,figsize=(27,5))
-    fig, (ax)= plt.subplots(4,2,figsize=(23,22))
-    # fig, (ax)= plt.subplots(4,2,figsize=(27,23))
+    fig, (ax)= plt.subplots(1,2,figsize=(24,5))
     cc = plt.cm.get_cmap('jet')
     frame_list=[30,60,90,150]
     # frame_list=[150]

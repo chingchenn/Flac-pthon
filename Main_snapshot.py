@@ -28,11 +28,11 @@ inter_srII      = 0
 gravity         = 0
 
 ### plot
-shot            = 0
+shot            = 1
 shot_interp     = 0
 pressure        = 0
 gravity_plot    = 0
-viscosity       = 0
+viscosity       = 1
 stressII        = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'

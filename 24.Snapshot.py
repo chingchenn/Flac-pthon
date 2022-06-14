@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import gravity as fg
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
@@ -26,7 +26,7 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
-path = '/Volumes/SSD500/model/'
+#path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 
@@ -35,8 +35,8 @@ os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 time=fl.time
 plotting_png = 1
-gif = 0
-mp4 = 0
+gif = 1
+mp4 = 1
 labelsize = 26
 if not os.path.isdir(path+model+'/phase_vis'):
     os.mkdir(path+model+'/phase_vis')
@@ -49,7 +49,7 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 if plotting_png:
-    for i in range(end,end+1,30):
+    for i in range(1,end):
         fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
         x,z,ele_x,ele_z,phase,temp,ztop=Ms.plot_snapshot(i)
         xm, zm, age, ph, idd, a1, a2, ntriag = fl.read_markers(i)

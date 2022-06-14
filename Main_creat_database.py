@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import gravity as fg
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
@@ -30,11 +30,11 @@ gravity_frame           = 0
 melting                 = 1
 stack_topo              = 1
 stack_gem               = 1
-wedge                   = 1
+wedge                   = 0
 flat_duraton            = 1
 
 # plot data
-trench_plot             = 1
+trench_plot             = 0
 dip_plot                = 1
 magma_plot              = 1
 metloc_plot  	    	= 1
@@ -43,19 +43,19 @@ gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 1
-force_plot_LR           = 0
+force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 1
 stack_gem_plot	    	= 1
-final_gem_plot          = 1
-wedge_area_strength     = 1
+wedge_area_strength     = 0
 flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -97,9 +97,6 @@ def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
     ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
     return ele_x, ele_z
-def temp2elements(temp):
-    ttt = (temp[:fl.nx-1,:fl.nz-1] + temp[1:,:fl.nz-1] + temp[1:,1:] + temp[:fl.nx-1,1:]) / 4.
-    return ttt
 def dip_setting(depth1,depth2):
     depth1=depth1
     depth2=depth2
@@ -120,40 +117,15 @@ def oceanic_slab(frame):
         if True in ind_oceanic:
             kk = ele_z[j,ind_oceanic]
             xx = ele_x[j,ind_oceanic]
-            if len(kk[kk<-10])==0:
+            if len(kk[kk<-15])==0:
                 continue
-            crust_x[j] = np.max(xx[kk<-10])
-            crust_z[j] = np.max(kk[kk<-10])
+            crust_x[j] = np.max(xx[kk<-15])
+            crust_z[j] = np.max(kk[kk<-15])
+            # crust_x[j] = np.average(ele_x[j,ind_oceanic])
+            # crust_z[j] = np.average(ele_z[j,ind_oceanic])        
+            # crust_x[j] = np.max(ele_x[j,ind_oceanic])
+            # crust_z[j] = np.max(ele_z[j,ind_oceanic])        
     return crust_x,crust_z
-def oceanic_slab2(frame):
-    bet = 2
-    x, z = fl.read_mesh(frame)
-    phase_oceanic = 3
-    phase_ecolgite = 13
-    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(frame)
-    trench_ind = np.argmin(z[:,0])
-    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
-    x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
-    z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
-    start = math.floor(x_trench)
-    final = math.floor(np.max(x_ocean))
-    x_grid = np.arange(start,final,bet)
-    ox = np.zeros(len(x_grid))
-    oz = np.zeros(len(x_grid))
-    px = start-bet
-    kk=np.max(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])
-    x_ocean = x_ocean[z_ocean<kk]
-    z_ocean = z_ocean[z_ocean<kk]
-    for yy,xx in enumerate(x_grid):
-        if len(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])==0:
-            continue
-        oz[yy] = np.average(z_ocean[(x_ocean>=px)*(x_ocean<=xx)])
-        ox[yy] = np.average(x_ocean[(x_ocean>=px)*(x_ocean<=xx)])
-        px = xx
-    oxx=ox[ox>start]
-    oz=oz[ox>start]
-    ox=oxx
-    return ox,oz
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
     for i in range(1,end):
@@ -317,40 +289,34 @@ def get_stack_geometry(ictime=20,width=700):
         within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
         stslab += crust_z
         xmean += (crust_x-x_trench)
-        ox,oz = oceanic_slab2(i)
-        finx = ox-x_trench
-        finz = oz
+        finx = crust_x-x_trench
+        finz = crust_z
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
     return xx[xx>0][:-1],zz[xx>0][:-1],finx,finz
 def read_wedgevis(trench_index,depth1=80, depth2=130):
     viswedge=np.zeros(end)
     areawedge=np.zeros(end)
-    temwedge=np.zeros(end)
     for i in range(1,end+1):
         x, z = fl.read_mesh(i)
         vis=fl.read_visc(i)
         area=fl.read_area(i)
         ele_x, ele_z = nodes_to_elements(x,z)
-        temp = fl.read_temperature(i)
-        ele_tem = temp2elements(temp)
         crust_x,crust_z = oceanic_slab(i)
         wedge_area = np.zeros(nex-int(trench_index[i-1]))
         for ii in range(int(trench_index[i-1]),nex):
             if crust_z[ii]<-depth2:
                 break
-            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)
+            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<22)
             if True in up:
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
                 viswedge[i-1]+=np.mean(vis[ii,up])
-                temwedge[i-1]+=np.mean(ele_tem[ii,up])
         if len(wedge_area[wedge_area>0])==0:
             continue
         areawedge[i-1] = areawedge[i-1]
         viswedge[i-1] = viswedge[i-1]/len(wedge_area[wedge_area>0])
-        temwedge[i-1] = temwedge[i-1]/len(wedge_area[wedge_area>0])
-    return fl.time,areawedge,viswedge,temwedge
+    return fl.time,areawedge,viswedge
 
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
@@ -370,6 +336,8 @@ def flat_slab_duration():
         ox = np.zeros(len(x_grid))
         oz = np.zeros(len(x_grid))
         px = start-bet
+        if len(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])==0:
+            continue
         kk=np.max(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])
         x_ocean = x_ocean[z_ocean<kk]
         z_ocean = z_ocean[z_ocean<kk]
@@ -475,8 +443,9 @@ if wedge:
     print('-----creat wedge database-----' )
     name=model+'_wedge_data'
     trench_index,trench_x,trench_z=trench()
-    time,area,vis,temp=read_wedgevis(trench_index,depth1=80, depth2=130)
-    fs.save_4txt(name, savepath, time, area, vis,temp)
+    #time,trench_index,trench_x,trench_z=trench()
+    area,vis=read_wedgevis(trench_index,depth1=80, depth2=120)
+    fs.save_3txt(name, savepath, time, area, vis)
     print('=========== DONE =============')
 if flat_duraton:
     print('-----creat flattime database-----')
@@ -606,6 +575,7 @@ if metloc_plot:
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
+    fig.savefig(figpath+model+'_zmetloc.png')
     print('=========== DONE =============')
 #--------------------------------------------------------------------
 '''
@@ -816,31 +786,15 @@ if stack_gem_plot:
     ax2.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_gem.png')
     print('=========== DONE =============')
-if final_gem_plot:
-    print('-----plotting stacked geometry-----')
-    name=model+'_final_slab.txt'
-    xmean,ztop=np.loadtxt(savepath+name).T
-    fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
-    ax2.plot(xmean,ztop,c="#000080",lw=5)
-    ax2.set_xlim(0,max(xmean)+10)
-    bwith = 3
-    ax2.spines['bottom'].set_linewidth(bwith)
-    ax2.spines['top'].set_linewidth(bwith)
-    ax2.spines['right'].set_linewidth(bwith)
-    ax2.spines['left'].set_linewidth(bwith)
-    fig2.savefig(figpath+model+'_gem.png')
-    print('=========== DONE =============')
 if wedge_area_strength:
     print('-----plotting wedge info-----')
-    name=model+'_wedge_data.txt'
-    time, areawedge, viswedge,temwedge=np.loadtxt(savepath+name).T
-    fig,ax=plt.subplots(3,1,figsize=(10,6))
+    name=model+'_wedge_data'
+    time, areawedge, viswedge=np.loadtxt(savepath+name).T
+    fig,ax=plt.subplots(2,1,figsize=(10,6))
     ax[0].scatter(time[areawedge>0],areawedge[areawedge>0],c="#000080")
     ax[1].scatter(time[areawedge>0],viswedge[areawedge>0],c="#000080")
-    ax[2].scatter(time[areawedge>0],temwedge[areawedge>0],c="#000080")
     ax[0].set_ylabel('area (km)',fontsize=16)
     ax[1].set_ylabel('viscosity (Pa s)',fontsize=16)
-    ax[2].set_ylabel('Temperature',fontsize=16)
     ax[-1].set_xlabel('Time (Myr)',fontsize=16)
     for qq in range(len(ax)):
         ax[qq].set_xlim(0,30)

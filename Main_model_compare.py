@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
-dip_plot                = 0
+dip_plot                = 1
 plate_geometry          = 0
 force_plot_LR           = 0
 force_plot_RF           = 0

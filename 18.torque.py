@@ -10,8 +10,8 @@ import flac
 import os,sys
 import numpy as np
 from scipy import interpolate
-# import matplotlib
-# matplotlib.use('Agg')
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 import function_savedata as fs
@@ -77,7 +77,6 @@ for i in range(2,end):
     zc_ocean = zc_ocean[zc_ocean<kk]
     # interplate to the grid length "bet"
     for yy,xx in enumerate(x_grid):
-        # print(yy,xx,px)
         if len(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])==0:
             continue    
         ozc[yy] = np.average(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
@@ -104,10 +103,7 @@ for i in range(2,end):
     ane[i] = anglee
     ddz[i] = dz
     ddx[i] = dx
-    #Gravity
-    #rc=abs((max(crust_xc)-ele_x[trench_ind,0])/np.cos(anglec))*1e3
-    #re=abs((max(crust_xe)-max(crust_xc))/np.cos(anglee))*1e3
-    #Torque_G = rc**2*ocden*g*np.sin((90-anglec))-re*ecden*g*np.sin((90-anglee)) # kg*m/s^2
+
     basalt_length = (max(oxc)-x_trench)/np.cos(anglec) * 1e3
     eclogite_length = (max(oxe)-max(oxc))/np.cos(anglee) *1e3
     bc = g*thickness*basalt_length*ocden
@@ -129,8 +125,8 @@ ax.set_ylabel('Force (kg*m/s^2)',fontsize=16)
 ax.set_xlim(0, fl.time[-1])
 # ax.set_yscale('log')
 ax.set_title('Torque of '+model,fontsize=20,fontname="Times New Roman")
-# fig.savefig('/home/jiching/geoflac/figure/'+model+'_torque.png')
-# fs.save_2txt(model+'torque','/home/jiching/geoflac/data/',Torque_G,Torque_H)
+fig.savefig('/home/jiching/geoflac/figure/'+model+'_torque.png')
+fs.save_2txt(model+'torque','/home/jiching/geoflac/data/',Torque_G,Torque_H)
 
 
 ###==================== find crust by another way, (not a good way) =====================

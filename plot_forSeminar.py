@@ -24,14 +24,12 @@ fig6=0
 fig7=1
 plt.rcParams["font.family"] = "Times New Roman"
 model_list=['ch0913','ch0918','ch0919','ch0920']
-
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
              '#708090','#282130','#24788F','#849DAB',
              '#EA5E51','#414F67','#6B0D47','#52254F'] 
 savepath='/home/jiching/geoflac/data/'
-savepath = '/Users/ji-chingchen/Desktop/data/'
-savepath = '/Volumes/SSD500/data/'
+#savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath='D:/model/data/'
 
 
@@ -50,7 +48,7 @@ if fig1:
         ax4.plot(time,smooth_dep,label=model,color=newcolors[kk],lw=5)
         # ax3.plot(time,length,label=model,color=newcolors[kk],lw=3)
         # ax4.plot(time,depth,label=model,color=newcolors[kk],lw=3)
-        time,melt,xmelt,zmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+        time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
         qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
         name='melting_'+model
         time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
@@ -169,7 +167,7 @@ if fig3:
         time,length,depth=np.loadtxt(savepath+name).T
         ax1.axvspan(time[0],time[-1],facecolor='#414F67', alpha=0.2)
         ax2.axvspan(time[0],time[-1],facecolor='#414F67', alpha=0.15)
-        time,melt,xmelt,zmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+        time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
         qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
         # divider = make_axes_locatable(ax2)
         # cax = divider.new_vertical(size = '5%', pad = 0.5)
@@ -315,24 +313,24 @@ if fig5:
     ax3.spines['left'].set_linewidth(bwith)
 
 if fig6:
-    fig6, (ax2)= plt.subplots(1,1,figsize=(10,6))
+    fig6, (ax2)= plt.subplots(1,1,figsize=(10,4))
     for kk,model in enumerate(model_list):
         name=model+'_flatslab_time_len.txt'
         time,length,depth=np.loadtxt(savepath+name).T
         ax2.axvspan(time[0],30,facecolor='#414F67', alpha=0.15)
-        time,melt,xmelt,zmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
-        qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=70,cmap='OrRd',vmax=0.05,vmin=0.0)
+        time,melt,xmelt=np.loadtxt(savepath+'metloc_for_'+model+'.txt').T
+        qqq=ax2.scatter(time[melt>0.005],xmelt[melt>0.005],c=melt[melt>0.005],s=65,cmap='OrRd',vmax=0.05,vmin=0.0)
     #================================figure setting================================
-    ax2.tick_params(axis='x', labelsize=26)
-    ax2.tick_params(axis='y', labelsize=26)
-    ymajor_ticks = np.linspace(400,0,num=5)
-    ax2.set_yticks(ymajor_ticks)
+    # ax2.set_title(model,fontsize=26)
+
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
 
     ax2.set_xlim(0,30)
     ax2.set_ylim(0,400)
 
-    ax2.set_ylabel('Distance (km)',fontsize=30)
-    ax2.set_xlabel('Time (Myr)',fontsize=30)
+    ax2.set_ylabel('Distance (km)',fontsize=20)
+  #  ax2.set_xlabel('Time (Myr)',fontsize=20)
 
     ax2.grid()
 
