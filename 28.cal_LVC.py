@@ -22,10 +22,11 @@ path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
+path='/Users/ji-chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 
-model = 'ch1404'
+model = 'ch0913'
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -90,7 +91,7 @@ model_list=['ch1519','ch1522','ch1406','ch1512','ch1513','ch1510',
 model_list=['ch1522','ch1512','ch1513','ch1510','ch1528','ch1529','ch1521',
             'ch1530','ch1531','ch1517','ch1404','ch1532','ch1519','ch1406',
             'ch1520','ch1516','ch1523','ch1533','ch1531']
-
+model_list = [model]
 depth1 = 80
 depth2 = 130
 for www,model in enumerate(model_list):
@@ -111,24 +112,38 @@ for www,model in enumerate(model_list):
         crust_x,crust_z = oceanic_slab(i)
         temp = fl.read_temperature(i)
         ele_tem = temp_elements(temp)
+        magma = fl.read_fmagma(i)
         wedge_area = np.zeros(nex-int(trench_index[i-1]))
+        # fig2,aa=plt.subplots(1,1,figsize=(10,6))
+        # aa.scatter(ele_x,ele_z,c=vis,s = 300)
         for ii in range(int(trench_index[i-1]),nex):
             if crust_z[ii]<-depth2:
                 break
-            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<21)
+            if magma[ii,:].all() == 0:
+                continue  
+            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<=21)*(magma[ii,:]>=1e-3)
             if True in up:
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
                 viswedge[i-1]+=np.mean(vis[ii,up])
                 channel[i-1]=(max(ele_z[ii,up])-min(ele_z[ii,up]))
+                # aa.scatter(ele_x[ii,up],ele_z[ii,up],c='w',s=50)
         if len(wedge_area[wedge_area>0])==0:
             continue
+        # cx=aa.contour(ele_x,ele_z,vis,cmap = 'rainbow_r',levels =[22,23,24]) 
+        # aa.contour(x,z,temp,cmap = 'magma',levels =[600])
+        # aa.set_aspect('equal')
+        # aa.set_xlim(400,850)
+        # aa.set_ylim(-200,0)
+        # aa.contour(ele_x,ele_z,magma,cmap = 'OrRd',level=[1e-2,1e-1,1])
     ccc = fd.moving_window_smooth(channel[channel>0],3)
     if www >11:
-        ax3.plot(fl.time[channel>0], ccc,c = color[3],lw=3,label = model)
+        ax3.scatter(fl.time[channel>0], ccc,c = color[3],s=300,label = model)
     else:
-        ax3.plot(fl.time[channel>0], ccc,c = color[2],lw=3,label = model)
+        ax3.scatter(fl.time[channel>0], ccc,c = color[2],s=300,label = model)
 ax3.legend(fontsize = 25)
-ax3.set_ylim(0,40)
+# ax3.set_ylim(0,40)
 ax3.set_xlim(0,30)
-fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+ax3.tick_params(axis='x', labelsize=26)
+ax3.tick_params(axis='y', labelsize=26)
+# fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
