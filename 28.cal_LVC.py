@@ -22,10 +22,11 @@ path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
+path='/Users/ji-chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 
-model = 'ch1404'
+model = 'ch0913'
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -92,6 +93,7 @@ model_list=['ch1522','ch1512','ch1513','ch1510','ch1528','ch1529','ch1521',
             'ch1530','ch1531','ch1517','ch1404','ch1532','ch1519','ch1406',
             'ch1520','ch1516','ch1523','ch1533','ch1520']
 
+model_list = [model]
 depth1 = 80
 depth2 = 130
 for www,model in enumerate(model_list):
@@ -113,17 +115,23 @@ for www,model in enumerate(model_list):
         crust_x,crust_z = oceanic_slab(i)
         temp = fl.read_temperature(i)
         ele_tem = temp_elements(temp)
+        magma = fl.read_fmagma(i)
         wedge_area = np.zeros(nex-int(trench_index[i-1]))
+        # fig2,aa=plt.subplots(1,1,figsize=(10,6))
+        # aa.scatter(ele_x,ele_z,c=vis,s = 300)
         for ii in range(int(trench_index[i-1]),nex):
             if crust_z[ii]<-depth2:
                 break
-            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<21)
+            if magma[ii,:].all() == 0:
+                continue  
+            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<=21)*(magma[ii,:]>=1e-3)
             if True in up:
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
                 viswedge[i-1]+=np.mean(vis[ii,up])
                 temwedge[i-1]+=np.mean(ele_tem[ii,up])
                 channel[i-1]=(max(ele_z[ii,up])-min(ele_z[ii,up]))
+                # aa.scatter(ele_x[ii,up],ele_z[ii,up],c='w',s=50)
         if len(wedge_area[wedge_area>0])==0:
             continue
         temwedge[i-1] = temwedge[i-1]/len(wedge_area[wedge_area>0])
@@ -151,4 +159,5 @@ ax4.spines['bottom'].set_linewidth(bwith)
 ax4.spines['top'].set_linewidth(bwith)
 ax4.spines['right'].set_linewidth(bwith)
 ax4.spines['left'].set_linewidth(bwith)
-fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel4_21.png')
+# fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+>>>>>>> c81097fcd7c44e6176be62ec1363dce8aeebf7fc
