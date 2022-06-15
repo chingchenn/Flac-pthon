@@ -54,7 +54,7 @@ flat_slab_plot          = 1
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-#path = '/scratch2/jiching/03model/'
+path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'

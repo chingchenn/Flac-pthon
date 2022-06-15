@@ -160,4 +160,3 @@ ax4.spines['top'].set_linewidth(bwith)
 ax4.spines['right'].set_linewidth(bwith)
 ax4.spines['left'].set_linewidth(bwith)
 # fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
->>>>>>> c81097fcd7c44e6176be62ec1363dce8aeebf7fc
