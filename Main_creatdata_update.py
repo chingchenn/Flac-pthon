@@ -58,9 +58,13 @@ if __name__ == '__main__':
     path = '/scratch2/jiching/03model/'
     #path = '/scratch2/jiching/'
     #path = 'F:/model/'
+    path = '/Users/ji-chingchen/Desktop/model/'
     savepath='/home/jiching/geoflac/data/'
+    savepath='/Users/ji-chingchen/Desktop/model/data/'
     figpath='/home/jiching/geoflac/figure/'
-    model = sys.argv[1]
+    
+    # model = sys.argv[1]
+    model = 'b0201'
     os.chdir(path+model)
 
     fl = flac.Flac()
@@ -77,7 +81,7 @@ def trench(start_vts=1,model_steps=end):
     arc_x=np.zeros(end)
     arc_z=np.zeros(end)
     arc_index=np.zeros(end)
-    for i in range(start_vts,model_steps):
+    for i in range(1,end):
         x,z = fl.read_mesh(i)
         sx = x[:,0];sz = z[:,0]
         arc_ind,trench_ind=fd.find_trench_index(z)
@@ -85,8 +89,8 @@ def trench(start_vts=1,model_steps=end):
         arc_index[i]=arc_ind
         trench_x[i]=sx[trench_ind]
         trench_z[i]=sz[trench_ind]
-        arc_x[i]=sx[arc_index]
-        arc_z[i]=sz[arc_index]
+        arc_x[i]=sx[arc_ind]
+        arc_z[i]=sz[arc_ind]
     return trench_index,trench_x,trench_z,arc_index,arc_x,arc_z
 trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench()
 def get_topo(start=1,end_frame=end): 
@@ -111,7 +115,7 @@ def oceanic_slab(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = nodes_to_elements(x,z)
     phase = fl.read_phase(frame)
-    trench_ind = trench_index[frame]
+    trench_ind = int(trench_index[frame])
     crust_x = np.zeros(nex)
     crust_z = np.zeros(nex)
     for j in range(trench_ind,nex):
@@ -184,7 +188,7 @@ def get_gravity(start=1,end_frame=end):
         for yy in range(len(px)):
             time.append(fl.time[step])
     return dis,time,to,tom,fa,bg
-def get_magma(start_vts=1,model_steps=end-1):
+def get_magma():
     melt=np.zeros(end)
     magma=np.zeros(end)
     yymelt=np.zeros(end)
@@ -202,13 +206,12 @@ def get_magma(start_vts=1,model_steps=end-1):
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,arc_vol
 magmafile=path+'data/magma_for_'+model+'.csv' 
-def melting_location(start_vts=1,model_steps=end-1):
+def melting_location():
     melt=np.zeros(end)
     x_melt=np.zeros(end)
     z_melt= np.zeros(end)
     for i in range(1,end):
         x,z=fl.read_mesh(i)
-        phase = fl.read_phase(i)
         mm=fl.read_fmelt(i)
         melt[i] = np.max(mm)
         maxindex_x=unravel_index(mm.argmax(),mm.shape)[0]
