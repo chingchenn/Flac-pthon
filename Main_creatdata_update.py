@@ -74,7 +74,7 @@ if __name__ == '__main__':
     time = fl.time
     bwith = 3
 #------------------------------------------------------------------------------
-def trench(start_vts=1,model_steps=end):
+def trench():
     trench_x=np.zeros(end)
     trench_z=np.zeros(end)
     trench_index=np.zeros(end)
@@ -93,9 +93,9 @@ def trench(start_vts=1,model_steps=end):
         arc_z[i]=sz[arc_ind]
     return trench_index,trench_x,trench_z,arc_index,arc_x,arc_z
 trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench()
-def get_topo(start=1,end_frame=end): 
+def get_topo(): 
     topo = [];dis = [];time = []  # do not change to array since the topo database is 3D
-    for i in range(start,end_frame):
+    for i in range(1,end):
         x,z = fl.read_mesh(i)
         sx,sz=fd.get_topo(x,z)
         topo.append(sz) 
@@ -126,11 +126,7 @@ def oceanic_slab(frame):
             if len(kk[kk<-15])==0:
                 continue
             crust_x[j] = np.max(xx[kk<-15])
-            crust_z[j] = np.max(kk[kk<-15])
-            # crust_x[j] = np.average(ele_x[j,ind_oceanic])
-            # crust_z[j] = np.average(ele_z[j,ind_oceanic])        
-            # crust_x[j] = np.max(ele_x[j,ind_oceanic])
-            # crust_z[j] = np.max(ele_z[j,ind_oceanic])        
+            crust_z[j] = np.max(kk[kk<-15])    
     return crust_x,crust_z
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
@@ -195,7 +191,6 @@ def get_magma():
     yychamber=np.zeros(end)
     arc_vol=np.zeros(end)
     for i in range(1,end):
-        x,z=fl.read_mesh(i)
         phase = fl.read_phase(i)
         mm=fl.read_fmelt(i)
         chamber=fl.read_fmagma(i)
@@ -322,7 +317,6 @@ def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
     bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
     for i in range(1,end):
-        x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
         x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
         z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
@@ -394,7 +388,7 @@ if dip:
     print('-----creat angle database-----')
     name='plate_dip_of_'+model
     time,dip = plate_dip(-5,-120)
-    fs.save_2array(name,savepath,time,dip,'time','angle')
+    fs.save_2txt(name,savepath,time,dip)
     print("============ DONE ============")
 if gravity:
     print('-----creat gravity database----- ')
@@ -494,46 +488,26 @@ if magma_plot:
     filepath = '/home/jiching/geoflac/data/'
     temp1 = np.loadtxt(filepath+name)
     melt,chamber,yymelt,yychamber,rrr = temp1.T
-    fig, (ax,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(15,15))
-    ax.plot(fl.time,yymelt,color='tomato')
-    ax2.plot(fl.time,yychamber,color='orange')
-    ax3.bar(fl.time,melt,width=0.1,color='tomato',label='fmelt')
-    ax4.bar(fl.time,chamber,width=0.1,color='orange',label='magma')
-    ax4.set_xlabel('Time (Myr)',fontsize=20)
-    ax.set_ylabel('melt * area',fontsize=20)
-    ax2.set_ylabel('chamber *area',fontsize=20)
-    ax3.set_ylabel('max melt',fontsize=20)
-    ax4.set_ylabel('max magma fraction',fontsize=20)
-    ax.set_xlim(0,fl.time[-1]);ax.grid()
-    ax2.set_xlim(0,fl.time[-1]);ax2.grid()
-    ax3.set_xlim(0,fl.time[-1]);ax3.grid()
-    ax4.set_xlim(0,fl.time[-1]);ax4.grid()
-    ax.tick_params(axis='x', labelsize=16 )
-    ax2.tick_params(axis='x', labelsize=16 )
-    ax3.tick_params(axis='x', labelsize=16 )
-    ax4.tick_params(axis='x', labelsize=16 )
-    ax.tick_params(axis='y', labelsize=16 )
-    ax2.tick_params(axis='y', labelsize=16 )
-    ax3.tick_params(axis='y', labelsize=16 )
-    ax4.tick_params(axis='y', labelsize=16 )
-    ax.set_title('Model : '+model,fontsize=25)
-    bwith = 3
-    ax.spines['bottom'].set_linewidth(bwith)
-    ax.spines['top'].set_linewidth(bwith)
-    ax.spines['right'].set_linewidth(bwith)
-    ax.spines['left'].set_linewidth(bwith)
-    ax2.spines['bottom'].set_linewidth(bwith)
-    ax2.spines['top'].set_linewidth(bwith)
-    ax2.spines['right'].set_linewidth(bwith)
-    ax2.spines['left'].set_linewidth(bwith)
-    ax3.spines['bottom'].set_linewidth(bwith)
-    ax3.spines['top'].set_linewidth(bwith)
-    ax3.spines['right'].set_linewidth(bwith)
-    ax3.spines['left'].set_linewidth(bwith)
-    ax4.spines['bottom'].set_linewidth(bwith)
-    ax4.spines['top'].set_linewidth(bwith)
-    ax4.spines['right'].set_linewidth(bwith)
-    ax4.spines['left'].set_linewidth(bwith)
+    fig, (ax) = plt.subplots(4,1,figsize=(15,15))
+    ax[0].plot(fl.time,yymelt,color='tomato')
+    ax[1].plot(fl.time,yychamber,color='orange')
+    ax[2].bar(fl.time,melt,width=0.1,color='tomato',label='fmelt')
+    ax[3].bar(fl.time,chamber,width=0.1,color='orange',label='magma')
+    ax[3].set_xlabel('Time (Myr)',fontsize=20)
+    ax[0].set_ylabel('melt * area',fontsize=20)
+    ax[1].set_ylabel('chamber *area',fontsize=20)
+    ax[2].set_ylabel('max melt',fontsize=20)
+    ax[3].set_ylabel('max magma fraction',fontsize=20)
+    ax[0].set_title('Model : '+model,fontsize=25)
+    for qq in range(len(ax)):
+        ax[qq].set_xlim(0,fl.time[-1])
+        ax[qq].grid()
+        ax[qq].tick_params(axis='x', labelsize=16 )
+        ax[qq].tick_params(axis='y', labelsize=16 )
+        ax[qq].spines['bottom'].set_linewidth(bwith)
+        ax[qq].spines['top'].set_linewidth(bwith)
+        ax[qq].spines['right'].set_linewidth(bwith)
+        ax[qq].spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_magma.png')
     print('=========== DONE =============')
 if metloc_plot:
@@ -550,7 +524,6 @@ if metloc_plot:
     ax.set_ylabel('Distance with trench (km)',fontsize=20)
     ax.tick_params(axis='x', labelsize=16 )
     ax.tick_params(axis='y', labelsize=16 )
-    bwith = 3
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
@@ -656,7 +629,6 @@ if phase_accre:
     cb = fig.colorbar(cb_plot1,cax=ax_cbin,orientation='horizontal')
     ax_cbin.set_title('Phase')
     ax.plot(df.trench_x,df.time,c='k',lw=2) 
-    bwith = 3
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
@@ -681,7 +653,6 @@ if melting_plot:
     ax.set_xlabel('Time (Myr)',fontsize=20)
     ax.set_ylabel('molten rocks (km3/km)',fontsize=20)
     ax.legend(fontsize=25)
-    bwith = 3
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
@@ -691,30 +662,23 @@ if melting_plot:
 if force_plot_LR:
     print('-----plotting boundary force-----')
     filepath = savepath+model+'_forc.txt'
-    fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
+    fig, (ax)= plt.subplots(2,1,figsize=(12,8))   
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
     ax.scatter(time,forc_l,c="#6A5ACD",s=4)
     ax2.scatter(time,forc_r,c="#D2691E",s=4)
     ax.set_xlim(0,time[-1])
     ax.set_title('oceanic side force',fontsize=16)
-    ax.tick_params(axis='x', labelsize=16)
-    ax.tick_params(axis='y', labelsize=16)
-    ax.grid()
     ax2.set_xlim(0,time[-1])
     ax2.set_title('continental side force',fontsize=16)
-    ax2.tick_params(axis='x', labelsize=16)
-    ax2.tick_params(axis='y', labelsize=16)
-    ax2.grid()
-    bwith = 3
-    ax.spines['bottom'].set_linewidth(bwith)
-    ax.spines['top'].set_linewidth(bwith)
-    ax.spines['right'].set_linewidth(bwith)
-    ax.spines['left'].set_linewidth(bwith)
-    ax2.spines['bottom'].set_linewidth(bwith)
-    ax2.spines['top'].set_linewidth(bwith)
-    ax2.spines['right'].set_linewidth(bwith)
-    ax2.spines['left'].set_linewidth(bwith)
+    for qq in range(len(ax)):
+        ax[qq].spines['bottom'].set_linewidth(bwith)
+        ax[qq].spines['top'].set_linewidth(bwith)
+        ax[qq].spines['right'].set_linewidth(bwith)
+        ax[qq].spines['left'].set_linewidth(bwith)
+        ax[qq].tick_params(axis='x', labelsize=16)
+        ax[qq].tick_params(axis='y', labelsize=16)
+        ax[qq].grid()
     fig.savefig(figpath+model+'_forc.png')
     print('=========== DONE =============')
 if force_plot_RF:
@@ -728,6 +692,10 @@ if force_plot_RF:
     ax3.tick_params(axis='x', labelsize=16)
     ax3.tick_params(axis='y', labelsize=16)
     ax3.grid()
+    ax3.spines['bottom'].set_linewidth(bwith)
+    ax3.spines['top'].set_linewidth(bwith)
+    ax3.spines['right'].set_linewidth(bwith)
+    ax3.spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_ringforc.png')
     print('=========== DONE =============')
 if vel_plot:
@@ -747,7 +715,6 @@ if vel_plot:
     ax4.grid()
     ax4.set_xlabel('Time (Myr)',fontsize=16)
     ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
-    bwith = 3
     ax4.spines['bottom'].set_linewidth(bwith)
     ax4.spines['top'].set_linewidth(bwith)
     ax4.spines['right'].set_linewidth(bwith)
@@ -761,7 +728,6 @@ if stack_topo_plot:
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
     ax2.set_xlim(0,max(xmean)+10)
-    bwith = 3
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
@@ -775,7 +741,6 @@ if stack_gem_plot:
     fig2, (ax2) = plt.subplots(1,1,figsize=(8,6))
     ax2.plot(xmean,ztop,c="#000080",lw=3)
     ax2.set_xlim(0,max(xmean)+10)
-    bwith = 3
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
@@ -806,29 +771,21 @@ if flat_slab_plot:
     print('-----plotting flatslab-----')
     name=model+'_flatslab_time_len.txt'
     time,length,depth=np.loadtxt(savepath+name).T
-    fig2, (ax1,ax2) = plt.subplots(2,1,figsize=(10,8))
-    ax1.plot(time,length,c="#000080",lw=3)
-    ax2.plot(time,depth,c="#000080",lw=3)
-    ax1.set_xlim(0,45)
-    ax1.set_title('flat slab properties',fontsize=16)
-    ax1.tick_params(axis='x', labelsize=16)
-    ax1.tick_params(axis='y', labelsize=16)
-    ax1.grid()
-    ax1.set_ylabel('length (km)',fontsize=16)
-    ax2.set_xlim(0,45)
-    ax2.tick_params(axis='x', labelsize=16)
-    ax2.tick_params(axis='y', labelsize=16)
-    ax2.grid()
-    ax2.set_xlabel('Time (Myr)',fontsize=16)
-    ax2.set_ylabel('depth (km) ',fontsize=16)
-    bwith = 3
-    ax1.spines['bottom'].set_linewidth(bwith)
-    ax1.spines['top'].set_linewidth(bwith)
-    ax1.spines['right'].set_linewidth(bwith)
-    ax1.spines['left'].set_linewidth(bwith)
-    ax2.spines['bottom'].set_linewidth(bwith)
-    ax2.spines['top'].set_linewidth(bwith)
-    ax2.spines['right'].set_linewidth(bwith)
-    ax2.spines['left'].set_linewidth(bwith)
+    fig2, (ax) = plt.subplots(2,1,figsize=(10,8))
+    ax[0].plot(time,length,c="#000080",lw=3)
+    ax[1].plot(time,depth,c="#000080",lw=3)
+    ax[0].set_title('flat slab properties',fontsize=16)
+    ax[0].set_ylabel('length (km)',fontsize=16)
+    ax[1].set_xlabel('Time (Myr)',fontsize=16)
+    ax[1].set_ylabel('depth (km) ',fontsize=16)
+    for qq in range(len(ax)):
+        ax[qq].tick_params(axis='x', labelsize=16)
+        ax[qq].tick_params(axis='y', labelsize=16)
+        ax[qq].set_xlim(0,time[-1])
+        ax[qq].grid()
+        ax[qq].spines['bottom'].set_linewidth(bwith)
+        ax[qq].spines['top'].set_linewidth(bwith)
+        ax[qq].spines['right'].set_linewidth(bwith)
+        ax[qq].spines['left'].set_linewidth(bwith)
     fig2.savefig(figpath+model+'_flatslab_length.png')
     print('=========== DONE =============')
