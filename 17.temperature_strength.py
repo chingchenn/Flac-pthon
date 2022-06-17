@@ -69,7 +69,7 @@ elif geo == 9:
 edot = 1e-14  # high strain rate
 edot = 1e-15  # low strain rate
 deepz = layerz[-1] * 40
-z = np.linspace(0, deepz, num=5000)
+z = np.linspace(0, deepz, num=50000)
 if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 40)
 elif tem == 3:
@@ -143,6 +143,7 @@ for yy in range(1,len(applied_strength)):
         qq +=(applied_strength[yy])*(z[yy]-z[yy-1])
 print(qq/1e13)
 print(qq/1e13/0.3931863060287225)
+print(qq/1e13/0.7907327461243084)
 ## ----------------------------  temperature Plot  ----------------------------
 temp = z/1000*0.6+T
 ax3.plot(temp,-z/1000,color='#B22222',label='temperature',lw=10)
