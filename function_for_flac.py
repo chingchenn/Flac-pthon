@@ -38,9 +38,13 @@ def read_depth(z_array,x_index,z_index):
     return depth
 
 def nodes_to_elements(x,z):
-    ele_x = (x[:len(x)-1,:len(z)-1] + x[1:,:len(z)-1] + x[1:,1:] + x[:len(x)-1,1:]) / 4.
-    ele_z = (z[:len(x)-1,:len(z)-1] + z[1:,:len(z)-1] + z[1:,1:] + z[:len(x)-1,1:]) / 4.
+    ele_x = (x[:len(x)-1,:len(z[0])-1] + x[1:,:len(z[0])-1] + x[1:,1:] + x[:len(x)-1,1:]) / 4.
+    ele_z = (z[:len(x)-1,:len(z[0])-1] + z[1:,:len(z[0])-1] + z[1:,1:] + z[:len(x)-1,1:]) / 4.
     return ele_x, ele_z
+
+def temp_elements(x,z,temp):
+    ttt = (temp[:len(x)-1,:len(z[0])-1] + temp[1:,:len(z[0])-1] + temp[1:,1:] + temp[:len(x)-1,1:]) / 4.
+    return ttt
 
 def read_area(xmesh,zmesh,x_index,z_index):
     x1 = xmesh[x_index,z_index]
@@ -57,7 +61,7 @@ def read_area(xmesh,zmesh,x_index,z_index):
     return area
 def oceanic_slab(frame,x,z,phase,trench_index):
     ele_x, ele_z = nodes_to_elements(x,z)
-    trench_ind = int(trench_index[frame])
+    trench_ind = int(trench_index[frame-1])
     crust_x = np.zeros(len(ele_x))
     crust_z = np.zeros(len(ele_x))
     for j in range(trench_ind,len(ele_x)):
