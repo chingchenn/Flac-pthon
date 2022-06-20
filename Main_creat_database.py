@@ -22,34 +22,34 @@ from numpy import unravel_index
 ## creat data
 vtp                     = 0
 trench_location         = 1
-dip                     = 1
-magma                   = 1
-melting_loc             = 1
+dip                     = 0
+magma                   = 0
+melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 1
-stack_topo              = 1
-stack_gem               = 1
+melting                 = 0
+stack_topo              = 0
+stack_gem               = 0
 wedge                   = 0
-flat_duraton            = 1
+flat_duraton            = 0
 
 # plot data
 trench_plot             = 0
-dip_plot                = 1
-magma_plot              = 1
-metloc_plot  	    	= 1
+dip_plot                = 0
+magma_plot              = 0
+metloc_plot  	    	= 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 1
-force_plot_LR           = 1
+melting_plot            = 0
+force_plot_LR           = 0
 force_plot_RF           = 0
 vel_plot                = 0
-stack_topo_plot         = 1
-stack_gem_plot	    	= 1
+stack_topo_plot         = 0
+stack_gem_plot	    	= 0
 wedge_area_strength     = 0
-flat_slab_plot          = 1
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -73,6 +73,9 @@ def trench(start_vts=1,model_steps=end):
     trench_x=np.zeros(end)
     trench_z=np.zeros(end)
     trench_index=np.zeros(end)
+    arc_x=np.zeros(end)
+    arc_z=np.zeros(end)
+    arc_index=np.zeros(end)
     for i in range(start_vts,model_steps):
         x,z = fl.read_mesh(i)
         sx,sz=fd.get_topo(x,z)
@@ -80,10 +83,13 @@ def trench(start_vts=1,model_steps=end):
         trench_index[i]=trench_ind
         trench_x[i]=sx[trench_ind]
         trench_z[i]=sz[trench_ind]
-    return trench_index,trench_x,trench_z
+        arc_index[i]=arc_ind
+        arc_x[i]=sx[arc_ind]
+        arc_z[i]=sz[arc_ind]
+    return trench_index,trench_x,trench_z,arc_index,arc_x,arc_z
+trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench()
 def get_topo(start=1,end_frame=end): 
     topo = [];dis = [];time = []  # do not change to array since the topo database is 3D
-    trench_index, xtrench, ztrench = trench(start,end_frame)
     for step in range(start,end_frame):
         x,z = fl.read_mesh(step)
         sx,sz=fd.get_topo(x,z)
@@ -92,15 +98,10 @@ def get_topo(start=1,end_frame=end):
         for ii in range(len(sx)):
             time.append(fl.time[step])
     return  dis, time, topo
-trenchfile=path+'data/trench_for_'+model+'.csv'
 def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
     ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
     return ele_x, ele_z
-def dip_setting(depth1,depth2):
-    depth1=depth1
-    depth2=depth2
-    return depth1,depth2
 def oceanic_slab(frame):
     phase_oceanic = 3
     phase_ecolgite = 13
@@ -109,7 +110,7 @@ def oceanic_slab(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = nodes_to_elements(x,z)
     phase = fl.read_phase(frame)
-    trench_ind = np.argmin(z[:,0]) 
+    trench_ind = int(trench_index[frame])
     crust_x = np.zeros(nex)
     crust_z = np.zeros(nex)
     for j in range(trench_ind,nex):
@@ -121,10 +122,6 @@ def oceanic_slab(frame):
                 continue
             crust_x[j] = np.max(xx[kk<-15])
             crust_z[j] = np.max(kk[kk<-15])
-            # crust_x[j] = np.average(ele_x[j,ind_oceanic])
-            # crust_z[j] = np.average(ele_z[j,ind_oceanic])        
-            # crust_x[j] = np.max(ele_x[j,ind_oceanic])
-            # crust_z[j] = np.max(ele_z[j,ind_oceanic])        
     return crust_x,crust_z
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
@@ -270,11 +267,10 @@ def get_stack_topo(width=600,ictime=20):
         zt = z[:,0]
         t = np.zeros(xt.shape)
         t[:] = i*0.2
-        x_trench = xt[np.argmin(zt)]
-        within_plot = (xt>x_trench-width) * (xt<x_trench+width)
+        within_plot = (xt>trench_x[i]-width) * (xt<trench_x[i]+width)
         topo1 += zt
-        xmean += (xt-x_trench)
-        finx = (xt-x_trench)
+        xmean += (xt-trench_x[i])
+        finx = (xt-trench_x[i])
         finz = zt
     xx=xmean[within_plot]/ictime
     zz=topo1[within_plot]/ictime
@@ -285,11 +281,10 @@ def get_stack_geometry(ictime=20,width=700):
         crust_x,crust_z = oceanic_slab(i)
         x, z = fl.read_mesh(i)
         ele_x, ele_z = nodes_to_elements(x,z)
-        x_trench = ele_x[:,0][np.argmin(ele_z[:,0])]
-        within_plot = (ele_x[:,0]>x_trench-width)* (crust_z < 0)
+        within_plot = (ele_x[:,0]>trench_x[i]-width)* (crust_z < 0)
         stslab += crust_z
-        xmean += (crust_x-x_trench)
-        finx = crust_x-x_trench
+        xmean += (crust_x-trench_x[i])
+        finx = crust_x-trench_x[i]
         finz = crust_z
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
@@ -324,13 +319,11 @@ def flat_slab_duration():
     for i in range(1,end):
         x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
-        trench_ind = np.argmin(z[:,0]) 
-        x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
         x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
         z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
-        if z_trench> -2 or min(z_ocean)>-200:
+        if trench_z[i]> -2 or min(z_ocean)>-200:
             continue
-        start = math.floor(x_trench)
+        start = math.floor(trench_x[i])
         final = math.floor(np.max(x_ocean))
         x_grid = np.arange(start,final,bet)
         ox = np.zeros(len(x_grid))
@@ -387,16 +380,16 @@ python /home/jiching/geoflac/util/flacmarker2vtk.py . -1
 if trench_location:
     print('-----creat trench database-----')
     name='trench_for_'+model
-    trench_index,trench_x,trench_z=trench()
-    fs.save_3array(name,savepath,fl.time,trench_x,trench_z,
-                'time','trench_x','trench_z')
+    trench_index,trench_x,trench_z,arc_index,arc_x,arc_z=trench()
+    fs.save_4txt(name, savepath, fl.time, trench_index, trench_x,trench_z)
+    name='arc_for_'+model
+    fs.save_4txt(name, savepath, fl.time, arc_x, arc_z, arc_index)
     print('=========== DONE =============')
 if dip:
     print('-----creat angle database-----')
     name='plate_dip_of_'+model
-    depth1,depth2 = dip_setting(-5,-120)
-    time,dip = plate_dip(depth1,depth2)
-    fs.save_2array(name,savepath,time,dip,'time','angle')
+    time,dip = plate_dip(-5,-120)
+    fs.save_2txt(name,savepath,time,dip)
     print("============ DONE ============")
 if gravity:
     print('-----creat gravity database----- ')
@@ -442,8 +435,6 @@ if stack_gem:
 if wedge:
     print('-----creat wedge database-----' )
     name=model+'_wedge_data'
-    trench_index,trench_x,trench_z=trench()
-    #time,trench_index,trench_x,trench_z=trench()
     area,vis=read_wedgevis(trench_index,depth1=80, depth2=120)
     fs.save_3txt(name, savepath, time, area, vis)
     print('=========== DONE =============')
@@ -459,12 +450,12 @@ if flat_duraton:
 if trench_plot:
     print('----- plotting topography-----')
     name='trench_for_'+model
-    df = pd.read_csv(savepath+name+'.csv')
+    trench_time, trench_x,trench_z,trench_index = np.loadtxt(savepath+name+'.txt').T
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
     qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=6,vmin=-10)
     cbar=fig.colorbar(qqq,ax=ax)
-    ax.plot(df.trench_x[df.trench_x>0],df.time[df.trench_x>0],c='k',lw=2)
+    ax.plot(trench_x[trench_x>0],trench_time[trench_x>0],c='k',lw=2)
     ax.set_xlim(0,dis[-1][-1])
     ax.set_ylim(0,fl.time[-1])
     ax.set_title(str(model)+" Bathymetry Evolution",fontsize=24)
@@ -476,14 +467,13 @@ if trench_plot:
 if dip_plot:
     print('------plotting dip angle------')
     name = 'plate_dip_of_'+model
-    depth1,depth2 = dip_setting(-5,-120)
-    df = pd.read_csv(savepath+name+'.csv')
+    time,dip = np.loadtxt(savepath+name+'.txt').T
     fig, (ax2)= plt.subplots(1,1,figsize=(10,7))
-    ax2.plot(fl.time[df.angle>0],df.angle[df.angle>0],c='royalblue',lw=2)
-    ax2.set_xlim(0,fl.time[-1])
+    ax2.plot(fl.time[dip>0],dip[dip>0],c='royalblue',lw=2)
+    ax2.set_xlim(0,time[-1])
     ax2.set_title('Angle Variation of '+str(model),fontsize=24)
     ax2.set_xlabel('Time (Myr)',fontsize=20)
-    ax2.set_ylabel('Angel ($^\circ$) from '+str(-depth1)+' to '+str(-depth2)+' depth',fontsize=20)
+    ax2.set_ylabel('Angel ($^\circ$) from '+str(5)+' to '+str(120)+' depth',fontsize=20)
     ax2.grid()
     bwith=3
     ax2.spines['bottom'].set_linewidth(bwith)
@@ -638,6 +628,7 @@ if phase_plot:
     ax_cbin.set_title('Phase')
     fig.savefig(figpath+model+'_phase.png')
     print('=========== DONE =============')
+'''
 if phase_accre:
     name='trench_for_'+model
     df = pd.read_csv(path+'data/'+name+'.csv')
@@ -667,6 +658,7 @@ if phase_accre:
     ax.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_acc.png')
     print('=========== DONE =============')
+'''
 if melting_plot:
     print('---plotting melting location---')
     name='melting_'+model
