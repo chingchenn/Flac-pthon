@@ -14,11 +14,6 @@ import numpy as np
 from math import sqrt
 from scipy.special import erf
 
-phase_oceanic = 3
-phase_ecolgite = 13
-phase_oceanic_1 = 17
-phase_ecolgite_1 = 18
-
 def get_topo(xmesh,zmesh):
     xtop=xmesh[:,0]
     ztop=zmesh[:,0]
@@ -37,15 +32,6 @@ def read_depth(z_array,x_index,z_index):
     depth=z_array[x_index,0]-z_array[x_index,z_index]
     return depth
 
-def nodes_to_elements(x,z):
-    ele_x = (x[:len(x)-1,:len(z[0])-1] + x[1:,:len(z[0])-1] + x[1:,1:] + x[:len(x)-1,1:]) / 4.
-    ele_z = (z[:len(x)-1,:len(z[0])-1] + z[1:,:len(z[0])-1] + z[1:,1:] + z[:len(x)-1,1:]) / 4.
-    return ele_x, ele_z
-
-def temp_elements(x,z,temp):
-    ttt = (temp[:len(x)-1,:len(z[0])-1] + temp[1:,:len(z[0])-1] + temp[1:,1:] + temp[:len(x)-1,1:]) / 4.
-    return ttt
-
 def read_area(xmesh,zmesh,x_index,z_index):
     x1 = xmesh[x_index,z_index]
     y1 = zmesh[x_index,z_index]
@@ -59,21 +45,7 @@ def read_area(xmesh,zmesh,x_index,z_index):
     area2 = ((x1-x4)*(y3-y4))-((x3-x4)*(y1-y4))    
     area = (abs(area1)+abs(area2))*0.5           
     return area
-def oceanic_slab(frame,x,z,phase,trench_index):
-    ele_x, ele_z = nodes_to_elements(x,z)
-    trench_ind = int(trench_index[frame-1])
-    crust_x = np.zeros(len(ele_x))
-    crust_z = np.zeros(len(ele_x))
-    for j in range(trench_ind,len(ele_x)):
-        ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
-        if True in ind_oceanic:
-            kk = ele_z[j,ind_oceanic]
-            xx = ele_x[j,ind_oceanic]
-            if len(kk[kk<-15])==0:
-                continue
-            crust_x[j] = np.max(xx[kk<-15])
-            crust_z[j] = np.max(kk[kk<-15])       
-    return crust_x,crust_z
+
 #find melt element
 def melt_element(xmesh,zmesh,frame,mm):
     melt_xele=[]
