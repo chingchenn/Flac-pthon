@@ -29,7 +29,7 @@ path = '/home/jiching/geoflac/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
-model_list = ['ch1405','ch1406']
+model_list = ['b0505m','b0506m']
 plotting_png = 1
 gif = 1
 mp4 = 1
@@ -105,7 +105,7 @@ if gif:
      
     # Save into a GIF file that loops forever
     frames[0].save('/home/jiching/geoflac/data/'+'frame_'+qq+'png_to_gif.gif', format='GIF', append_images=frames[1:], 
-                   save_all=True, duration=300, loop=0)
+                   save_all=True, duration=75, loop=0)
     
 #-----------------------------creat mp4-----------------------------------------    
 if mp4:

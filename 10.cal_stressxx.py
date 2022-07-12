@@ -12,57 +12,39 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-# model = 'w1202'
-# #path = '/home/jiching/geoflac/'+model+'/'
-# path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
-# path = '/Volumes/My Book/model/'+model+'/'
-# os.chdir(path)
-# # fl = flac.Flac()
-# fl = flac.Flac();end = fl.nrec
-# total_xx = np.zeros(end)
-# for kk in range(1,end):
-#     xx = fl.read_sxx(kk)
-#     x,z = fl.read_mesh(kk)
-#     zz = z[0,:]
-#     bxx = xx[0,:]
-#     for yy in range(len(bxx)):
-#         # print(yy,zz[yy],zz[yy+1])
-#         dl = abs(zz[yy]-zz[yy+1])
-#         total_xx[kk] += bxx[yy] * dl
-#         # print(total_xx[kk], bxx[yy])
-# fig, ax= plt.subplots(1,1,figsize=(12,8))        
-# ax.plot(fl.time,total_xx,c='k')
-# ax.set_xlim(0,fl.time[-1])
-# ax.tick_params(axis='x', labelsize=16)
-# ax.tick_params(axis='y', labelsize=16)
-model='s0209'
-path = '/Users/ji-chingchen/Desktop/model/data/forc'+model
-temp1=np.loadtxt(path+".txt")
-time,forc,forc_r = temp1.T
-fig, (ax,ax2)= plt.subplots(2,1,figsize=(12,8))   
-fig, (ax)= plt.subplots(1,1,figsize=(12,8))     
-ax.scatter(time,forc)
-x_grid = np.arange(0.2,time[-1],0.1)
-ox = np.zeros(len(x_grid))
-oz = np.zeros(len(x_grid))
-px = 0
-for yy,xx in enumerate(x_grid):
-    oz[yy] = np.average(forc[(time>=px)*(time<xx)])
-    ox[yy] = np.average(time[(time>=px)*(time<xx)])
-    # ox[yy] = np.average(x_ocean[(x_ocean>=px) *(x_ocean<=xx)])
-    px = xx
-ax.plot(ox,oz,c='k')
-ax.set_xlim(0,time[-1])
-ax.tick_params(axis='x', labelsize=16)
-ax.tick_params(axis='y', labelsize=16)
-ax.plot([time[0],time[-1]],[-5.7*10**12,-5.7*10**12],'r--')
-ax.grid()
-oo = np.zeros(len(ox))
-for qq in range(1,len(ox)):
-    oo[qq] = (oz[qq]-oz[qq-1]) /(ox[qq]-ox[qq-1])
-# ax2.plot(ox,oo,c='k')
-# ax2.set_xlim(0,time[-1])
-# ax2.set_ylim(-0.5*10**13,0.5*10**13)
-# ax2.tick_params(axis='x', labelsize=16)
-# ax2.tick_params(axis='y', labelsize=16)
-# ax2.plot([time[0],time[-1]],[0,0],'r--')
+model='b0505m'
+path = '/home/jiching/geoflac/data/'
+figpath = '/home/jiching/geoflac/figure/'
+print('-----plotting flatslab-----')
+bwith = 3
+name=model+'_flatslab_time_len.txt'
+time,length,depth=np.loadtxt(path+name).T
+fig2, (ax) = plt.subplots(5,1,figsize=(20,32))
+ax[0].scatter(time,depth,c="#000080",s=12)
+ax[4].set_xlabel('Time (Myr)',fontsize=16)
+ax[0].set_ylabel('depth (km) ',fontsize=16)
+ax[1].set_ylabel('Left force (N/m)',fontsize=16)
+ax[2].set_ylabel('Right force (N/m) ',fontsize=16)
+ax[3].set_ylabel('gravity torque (N*m)',fontsize=16)
+ax[4].set_ylabel('suction torque (N*m)',fontsize=16)
+
+for qq in range(len(ax)):
+    ax[qq].set_xlim(0,time[-1])
+    ax[qq].tick_params(axis='x', labelsize=16)
+    ax[qq].tick_params(axis='y', labelsize=16)
+    ax[qq].grid()
+    ax[qq].spines['bottom'].set_linewidth(bwith)
+    ax[qq].spines['top'].set_linewidth(bwith)
+    ax[qq].spines['right'].set_linewidth(bwith)
+    ax[qq].spines['left'].set_linewidth(bwith)
+
+print('=========== DONE =============')
+temp1=np.loadtxt(path+model+"_forc.txt")
+nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
+ax[1].scatter(time,forc_l,c="#6A5ACD",s=3)
+ax[2].scatter(time,forc_r,c = '#6A5ACD',s=3)
+temp2=np.loadtxt(path+model+"_torque.txt")
+time,Torque_G,Torque_H = temp2.T
+ax[3].scatter(time,Torque_G,c="#660000",s=12)
+ax[4].scatter(time,Torque_H,c="#660000",s=12)
+fig2.savefig(figpath+model+'_slab&force.png')

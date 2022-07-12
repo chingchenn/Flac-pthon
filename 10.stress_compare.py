@@ -15,7 +15,7 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #model = sys.argv[1]
-model_list=['Chi01','chih0601','chih0602','chih0603']
+model_list=['b0505m','b0506m']
 #model_list=['chimex0601','chimex0602','chimex0603','chimex0604','chimex0605','chimex0606','chimex0607','chimex0608','chimex0609','chimex0610','chimex0611']
 #model_list=['h0401','h0402','h0403','h0404']
 #rainbow = cm.get_cmap('rainbow',len(model_list))
@@ -30,12 +30,13 @@ for kk,model in enumerate(model_list):
         path = '/scratch2/jiching/03model/'+model+'/forc.0'
     #path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
     #path = '/Volumes/My Book/model/'+model+'/'
-    temp1=np.loadtxt(path)
+    path = '/home/jiching/geoflac/data/'
+    temp1=np.loadtxt(path+model+'_forc.txt')
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-    ax.scatter(time,forc_l,label=model,color=newcolors[kk],s=2)
-    ax2.scatter(time,forc_r,label=model,color=newcolors[kk],s=2)
-    ax3.scatter(time,ringforce,label=model,color=newcolors[kk],s=2)
-    ax4.scatter(time,vl*31545741325,label=model,color=newcolors[kk],s=2)
+    ax.scatter(time,forc_l,label=model,color=newcolors[kk],s=12)
+    ax2.scatter(time,forc_r,label=model,color=newcolors[kk],s=12)
+    ax3.scatter(time,ringforce,label=model,color=newcolors[kk],s=12)
+    ax4.scatter(time,vl*31545741325,label=model,color=newcolors[kk],s=12)
 
 ax.axhline(y=1.134747173859944351e13,xmin=0,xmax=24,color='r',linestyle='dashed')
 ax.set_xlim(0,time[-1])

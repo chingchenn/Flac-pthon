@@ -22,39 +22,39 @@ from numpy import unravel_index
 ## creat data
 vtp                     = 0
 trench_location         = 1
-dip                     = 0
-magma                   = 0
-melting_loc             = 0
+dip                     = 1
+magma                   = 1
+melting_loc             = 1
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 0
-stack_topo              = 0
-stack_gem               = 0
+melting                 = 1
+stack_topo              = 1
+stack_gem               = 1
 wedge                   = 0
-flat_duraton            = 0
+flat_duraton            = 1
 
 # plot data
-trench_plot             = 0
-dip_plot                = 0
-magma_plot              = 0
-metloc_plot  	    	= 0
+trench_plot             = 1
+dip_plot                = 1
+magma_plot              = 1
+metloc_plot  	    	= 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 0
-force_plot_LR           = 0
+melting_plot            = 1
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
-stack_topo_plot         = 0
-stack_gem_plot	    	= 0
+vel_plot                = 1
+stack_topo_plot         = 1
+stack_gem_plot	    	= 1
 wedge_area_strength     = 0
-flat_slab_plot          = 0
+flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/'
 #path = 'F:/model/'
 savepath='/home/jiching/geoflac/data/'
@@ -811,7 +811,7 @@ if flat_slab_plot:
     ax1.tick_params(axis='y', labelsize=16)
     ax1.grid()
     ax1.set_ylabel('length (km)',fontsize=16)
-    ax2.set_xlim(0,45)
+    ax2.set_xlim(0,time[-1])
     ax2.tick_params(axis='x', labelsize=16)
     ax2.tick_params(axis='y', labelsize=16)
     ax2.grid()

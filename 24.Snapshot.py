@@ -103,7 +103,7 @@ if plotting_png:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_phase_vis.pdf')
+        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_phase_vis.png')
         fig.gca()
         plt.close(fig)
 
@@ -115,7 +115,7 @@ if gif:
     # Create the frames
     frames = []
     imgs = glob.glob(path+model+"/phase_vis/*_phase_vis.png")
-    for i in  range(1,end+1):
+    for i in  range(1,end):
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
@@ -128,7 +128,7 @@ if gif:
      
     # Save into a GIF file that loops forever
     frames[0].save(path+model+'/phase_vis/png_to_gif.gif', format='GIF', append_images=frames[1:], 
-                   save_all=True, duration=300, loop=0)
+                   save_all=True, duration=80, loop=0)
     
 #-----------------------------creat mp4-----------------------------------------    
 if mp4:

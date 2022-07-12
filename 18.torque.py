@@ -13,12 +13,12 @@ from scipy import interpolate
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import function_for_flac as f2
+import function_for_flac as fd
 import function_savedata as fs
 model = str(sys.argv[1])
 #model = 'ch1404'
 path = '/home/jiching/geoflac/'+model+'/'
-path = '/scratch2/jiching/03model/'+model+'/'
+#path = '/scratch2/jiching/03model/'+model+'/'
 #path = '/Volumes/SSD500/model/'+model+'/'
 # path = '/Volumes/My Book/model/'+model+'/'
 #path = 'F:/model/'+model+'/'
@@ -36,34 +36,48 @@ g=10
 thickness=6000
 viscosity = 1e24                                                                        #kg/m/s^2 *s
 U = 5*3.17*10**-10 
-bet=2
+bet=1
 ###======================================Time Series==========================================
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx - 1;nez = fl.nz - 1
 Torque_G = np.zeros(end)
 Torque_H = np.zeros(end)
-###===================================find lithisohere========================================
 PBB = np.zeros(end)
 PAA = np.zeros(end)
 anc = np.zeros(end)
 ane = np.zeros(end)
 ddz = np.zeros(end)
 ddx = np.zeros(end)
-for i in range(2,end):
-    x, z = fl.read_mesh(i)
+###======================================Functions==========================================
+def trench(end):
+    trench_x=np.zeros(end)
+    trench_z=np.zeros(end)
+    trench_index=np.zeros(end)
+    arc_x=np.zeros(end)
+    arc_z=np.zeros(end)
+    arc_index=np.zeros(end)
+    for i in range(1,end):
+        x,z = fl.read_mesh(i)
+        sx = x[:,0];sz = z[:,0]
+        arc_ind,trench_ind=fd.find_trench_index(z)
+        trench_index[i]=trench_ind
+        arc_index[i]=arc_ind
+        trench_x[i]=sx[trench_ind]
+        trench_z[i]=sz[trench_ind]
+        arc_x[i]=sx[arc_ind]
+        arc_z[i]=sz[arc_ind]
+    return trench_index,trench_x,trench_z,arc_index,arc_x,arc_z
+trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench(end)
+def find_slab(i):
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
-    ## In this code, we considered the marker phase, not the element phase
-    trench_ind = np.argmin(z[:,0])
-    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
     xc_ocean = mx[(phase==phase_oceanic)]
     zc_ocean = mz[(phase==phase_oceanic)]
     xe_ocean = mx[(phase==phase_ecolgite)]
     ze_ocean = mz[(phase==phase_ecolgite)]
-    if z_trench> -2 or min(zc_ocean)>-50:
-        continue
-    start = math.floor(x_trench)
-    final = math.floor(np.max(xe_ocean))
+    start = math.floor(trench_x[i])
+    #final = math.floor(np.max(xe_ocean))
+    final = math.floor(trench_x[i]+500)
     x_grid = np.arange(start,final,bet)
     oxc = np.zeros(len(x_grid))
     ozc = np.zeros(len(x_grid))
@@ -79,13 +93,13 @@ for i in range(2,end):
     for yy,xx in enumerate(x_grid):
         if len(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])==0:
             continue    
-        ozc[yy] = np.average(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
+        ozc[yy] = np.min(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
         oxc[yy] = np.average(xc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
         px1 = xx
     for yy,xx in enumerate(x_grid):
         if len(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])==0:
             continue
-        oze[yy] = np.average(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
+        oze[yy] = np.min(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
         oxe[yy] = np.average(xe_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
         px2 = xx
     oxxc=oxc[oxc>start]
@@ -94,19 +108,69 @@ for i in range(2,end):
     oxxe=oxe[oxe>start]
     oze=oze[oxe>start]
     oxe=oxxe
+    return oxc,ozc,oxe,oze
+
+###===================================find lithosphere========================================
+for i in range(3,end):
+#    x, z = fl.read_mesh(i)
+#    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
+#    ## In this code, we considered the marker phase, not the element phase
+#    trench_ind = np.argmin(z[:,0])
+#    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
+#    xc_ocean = mx[(phase==phase_oceanic)]
+#    zc_ocean = mz[(phase==phase_oceanic)]
+#    xe_ocean = mx[(phase==phase_ecolgite)]
+#    ze_ocean = mz[(phase==phase_ecolgite)]
+#    if z_trench> -2 or min(zc_ocean)>-50:
+#        continue
+#    start = math.floor(x_trench)
+#    final = math.floor(np.max(xe_ocean))
+#    x_grid = np.arange(start,final,bet)
+#    oxc = np.zeros(len(x_grid))
+#    ozc = np.zeros(len(x_grid))
+#    oxe = np.zeros(len(x_grid))
+#    oze = np.zeros(len(x_grid))
+#    px1 = start-bet
+#    px2 = start-bet
+#    #find initial basalt depth to remove the weage basalt
+#    kk=np.max(zc_ocean[(xc_ocean>=start) *(xc_ocean<=start+bet)])
+#    xc_ocean = xc_ocean[zc_ocean<kk]
+#    zc_ocean = zc_ocean[zc_ocean<kk]
+#    # interplate to the grid length "bet"
+#    for yy,xx in enumerate(x_grid):
+#        if len(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])==0:
+#            continue    
+#        ozc[yy] = np.average(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
+#        oxc[yy] = np.average(xc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
+#        px1 = xx
+#    for yy,xx in enumerate(x_grid):
+#        if len(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])==0:
+#            continue
+#        oze[yy] = np.average(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
+#        oxe[yy] = np.average(xe_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
+#        px2 = xx
+#    oxxc=oxc[oxc>start]
+#    ozc=ozc[oxc>start]
+#    oxc=oxxc
+#    oxxe=oxe[oxe>start]
+#    oze=oze[oxe>start]
+#    oxe=oxxe
+    oxc,ozc,oxe,oze = find_slab(i)
     dx = max(oxc)-min(oxc);dz = max(ozc)-min(ozc)
     anglec= math.degrees(math.atan(dz/dx))*np.pi/180
     anc[i] = anglec
+    ddz[i] = dz
+    ddx[i] = dx
+    basalt_length = (max(oxc)-trench_x[i])/np.cos(anglec) * 1e3
+    bc = g*thickness*basalt_length*ocden
+    if len(oxe)==0:
+        Torque_G[i] = 0.5*bc*(basalt_length)**2*np.cos(anglec)
+        continue 
     edx = max(oxe)-min(oxe);edz = max(oze)-min(oze)
     anglee= math.degrees(math.atan(edz/edx))*np.pi/180
     anc[i] = anglec
     ane[i] = anglee
-    ddz[i] = dz
-    ddx[i] = dx
-
-    basalt_length = (max(oxc)-x_trench)/np.cos(anglec) * 1e3
     eclogite_length = (max(oxe)-max(oxc))/np.cos(anglee) *1e3
-    bc = g*thickness*basalt_length*ocden
     be = g*thickness*eclogite_length*ecden
     Torque_G[i] = 0.5*bc*(basalt_length)**2*np.cos(anglec)+0.5*be*(eclogite_length)**2*np.cos(anglee) # kg*m/s^2
 
@@ -126,7 +190,7 @@ ax.set_xlim(0, fl.time[-1])
 # ax.set_yscale('log')
 ax.set_title('Torque of '+model,fontsize=20,fontname="Times New Roman")
 fig.savefig('/home/jiching/geoflac/figure/'+model+'_torque.png')
-fs.save_2txt(model+'torque','/home/jiching/geoflac/data/',Torque_G,Torque_H)
+fs.save_3txt(model+'_torque','/home/jiching/geoflac/data/',fl.time,Torque_G,Torque_H)
 
 
 ###==================== find crust by another way, (not a good way) =====================

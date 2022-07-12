@@ -22,11 +22,11 @@ path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
 #path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
-path='/Users/ji-chingchen/Desktop/model/'
+#path='/Users/ji-chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 
-model = 'ch0913'
+model = 'ch1528'
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -35,49 +35,7 @@ nex = fl.nx - 1
 nez = fl.nz - 1
 bwith=3
 
-def trench(start_vts=1,model_steps=end):
-    trench_x=np.zeros(end)
-    trench_z=np.zeros(end)
-    trench_index=np.zeros(end)
-    for i in range(start_vts,model_steps):
-        x,z = fl.read_mesh(i)
-        sx,sz=fd.get_topo(x,z)
-        arc_ind,trench_ind=fd.find_trench_index(z)
-        trench_index[i]=trench_ind
-        trench_x[i]=sx[trench_ind]
-        trench_z[i]=sz[trench_ind]
-    return trench_index,trench_x,trench_z
-
-start_vts=1
-def nodes_to_elements(xmesh,zmesh):
-    ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
-    ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
-    return ele_x, ele_z
-def temp_elements(temp):
-    ttt = (temp[:fl.nx-1,:fl.nz-1] + temp[1:,:fl.nz-1] + temp[1:,1:] + temp[:fl.nx-1,1:]) / 4.
-    return ttt
-trench_index,trench_x,trench_z=trench()
-def oceanic_slab(frame):
-    phase_oceanic = 3
-    phase_ecolgite = 13
-    phase_oceanic_1 = 17
-    phase_ecolgite_1 = 18
-    x, z = fl.read_mesh(frame)
-    ele_x, ele_z = nodes_to_elements(x,z)
-    phase = fl.read_phase(frame)
-    trench_ind = np.argmin(z[:,0]) 
-    crust_x = np.zeros(nex)
-    crust_z = np.zeros(nex)
-    for j in range(trench_ind,nex):
-        ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
-        if True in ind_oceanic:
-            kk = ele_z[j,ind_oceanic]
-            xx = ele_x[j,ind_oceanic]
-            if len(kk[kk<-15])==0:
-                continue    
-            crust_x[j] = np.max(xx[kk<-15])
-            crust_z[j] = np.max(kk[kk<-15])
-    return crust_x,crust_z
+#time, trench_index,trench_x,trench_z = np.loadtxt(savepath+'trench_for_'+model+'.txt').T
 fig3,(ax3,ax4)=plt.subplots(2,1,figsize=(20,18))
 ax3.grid()
 ax4.grid()
@@ -93,7 +51,7 @@ model_list=['ch1522','ch1512','ch1513','ch1510','ch1528','ch1529','ch1521',
             'ch1530','ch1531','ch1517','ch1404','ch1532','ch1519','ch1406',
             'ch1520','ch1516','ch1523','ch1533','ch1520']
 
-model_list = [model]
+#model_list = [model]
 depth1 = 80
 depth2 = 130
 for www,model in enumerate(model_list):
@@ -107,14 +65,16 @@ for www,model in enumerate(model_list):
     areawedge=np.zeros(end)
     temwedge=np.zeros(end)
     channel = np.zeros(end)
+    time, trench_index,trench_x,trench_z = np.loadtxt(savepath+'trench_for_'+model+'.txt').T
     for i in range(1,end+1):
         x, z = fl.read_mesh(i)
+        phase = fl.read_phase(i)
         vis=fl.read_visc(i)
         area=fl.read_area(i)
-        ele_x, ele_z = nodes_to_elements(x,z)
-        crust_x,crust_z = oceanic_slab(i)
+        ele_x, ele_z = fd.nodes_to_elements(x,z)
+        crust_x,crust_z = fd.oceanic_slab(i,x,z,phase,trench_index)
         temp = fl.read_temperature(i)
-        ele_tem = temp_elements(temp)
+        ele_tem = fd.temp_elements(x,z,temp)
         magma = fl.read_fmagma(i)
         wedge_area = np.zeros(nex-int(trench_index[i-1]))
         # fig2,aa=plt.subplots(1,1,figsize=(10,6))
@@ -124,7 +84,7 @@ for www,model in enumerate(model_list):
                 break
             if magma[ii,:].all() == 0:
                 continue  
-            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<=21)*(magma[ii,:]>=1e-3)
+            up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<=21)*(magma[ii,:]>=1e-5)
             if True in up:
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
@@ -159,4 +119,4 @@ ax4.spines['bottom'].set_linewidth(bwith)
 ax4.spines['top'].set_linewidth(bwith)
 ax4.spines['right'].set_linewidth(bwith)
 ax4.spines['left'].set_linewidth(bwith)
-# fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')

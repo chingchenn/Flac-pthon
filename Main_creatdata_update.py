@@ -38,7 +38,7 @@ if __name__ == '__main__':
     trench_plot             = 0
     dip_plot                = 1
     magma_plot              = 1
-    metloc_plot  	    	= 1
+    metloc_plot             = 1
     marker_number           = 0
     gravity_plot            = 0
     phase_plot              = 0
@@ -48,23 +48,23 @@ if __name__ == '__main__':
     force_plot_RF           = 0
     vel_plot                = 0
     stack_topo_plot         = 1
-    stack_gem_plot	    	= 1
+    stack_gem_plot	    = 1
     wedge_area_strength     = 0
     flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
     path = '/home/jiching/geoflac/'
     #path = '/scratch2/jiching/22winter/'
-    path = '/scratch2/jiching/03model/'
+    #path = '/scratch2/jiching/03model/'
     #path = '/scratch2/jiching/'
     #path = 'F:/model/'
-    path = '/Users/ji-chingchen/Desktop/model/'
+    #path = '/Users/ji-chingchen/Desktop/model/'
     savepath='/home/jiching/geoflac/data/'
     savepath='/Users/ji-chingchen/Desktop/model/data/'
     figpath='/home/jiching/geoflac/figure/'
     
-    # model = sys.argv[1]
-    model = 'b0201'
+    model = sys.argv[1]
+    #model = 'b0201'
     os.chdir(path+model)
 
     fl = flac.Flac()
@@ -73,8 +73,48 @@ if __name__ == '__main__':
     nez = fl.nz - 1
     time = fl.time
     bwith = 3
+    trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench(end)
+else:
+    ## creat data
+    vtp                     = 0
+    trench_location         = 0
+    dip                     = 0
+    magma                   = 0
+    melting_loc             = 0
+    gravity                 = 0
+    gravity_frame           = 0
+    melting                 = 0
+    stack_topo              = 0
+    stack_gem               = 0
+    wedge                   = 0
+    flat_duraton            = 0
+
+    # plot data
+    trench_plot             = 0
+    dip_plot                = 0
+    magma_plot              = 0
+    metloc_plot             = 0
+    marker_number           = 0
+    gravity_plot            = 0
+    phase_plot              = 0
+    phase_accre             = 0
+    melting_plot            = 0
+    force_plot_LR           = 0
+    force_plot_RF           = 0
+    vel_plot                = 0
+    stack_topo_plot         = 0
+    stack_gem_plot          = 0
+    wedge_area_strength     = 0
+    flat_slab_plot          = 0
+    
+    fl = flac.Flac()
+    end = fl.nrec
+    nex = fl.nx - 1
+    nez = fl.nz - 1
+    time = fl.time
 #------------------------------------------------------------------------------
-def trench():
+end = 120
+def trench(end):
     trench_x=np.zeros(end)
     trench_z=np.zeros(end)
     trench_index=np.zeros(end)
@@ -92,7 +132,6 @@ def trench():
         arc_x[i]=sx[arc_ind]
         arc_z[i]=sz[arc_ind]
     return trench_index,trench_x,trench_z,arc_index,arc_x,arc_z
-trench_index,trench_x,trench_z,arc_index,arc_x,arc_z = trench()
 def get_topo(): 
     topo = [];dis = [];time = []  # do not change to array since the topo database is 3D
     for i in range(1,end):
@@ -200,7 +239,6 @@ def get_magma():
         yymelt[i]=(fl.read_fmelt(i)*fl.read_area(i)/1e6).sum()
         yychamber[i]=(fl.read_fmagma(i)*fl.read_area(i)/1e6).sum()
     return melt,magma,yymelt,yychamber,arc_vol
-magmafile=path+'data/magma_for_'+model+'.csv' 
 def melting_location():
     melt=np.zeros(end)
     x_melt=np.zeros(end)
