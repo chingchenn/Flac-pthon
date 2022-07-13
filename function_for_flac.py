@@ -174,7 +174,21 @@ def getDistance(latA, lonA, latB, lonB):
     distance = ra * (x + dr)
     distance = round(distance / 1000, 4)
     return distance
+
 def phase_pro(phasenumber):
     ff=pd.read_csv('phase.csv',index_col='phase')
     density,alfa,bata,n,A,E,rl,rm,plas1,plas2,fric1,fric2,coh1,coh2,dilat1,dilat2,cond,cp,Ts,Tl,Tk,fk=ff.iloc[phasenumber-1]
     return density,alfa,bata,n,A,E,rl,rm,plas1,plas2,fric1,fric2,coh1,coh2,dilat1,dilat2,cond,cp,Ts,Tl,Tk,fk
+
+def make_grid(xmin, xmax, zmin, zmax, dx, dz):
+    # grid size
+    nx = int((xmax - xmin) / dx + 1)
+    nz = int((zmax - zmin) / dz + 1)
+
+    # generate uniform grid
+    xx = np.linspace(xmin, xmax, nx)
+    zz = np.linspace(zmin, zmax, nz)
+
+    # the order of argument ensures the shape of arrays is (nx, nz)
+    z, x = np.meshgrid(zz, xx)
+    return x, z
