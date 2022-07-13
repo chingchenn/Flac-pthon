@@ -192,3 +192,16 @@ def make_grid(xmin, xmax, zmin, zmax, dx, dz):
     # the order of argument ensures the shape of arrays is (nx, nz)
     z, x = np.meshgrid(zz, xx)
     return x, z
+
+def clip_topo(x, z, f, x0, z0):
+    '''Setting f=NaN for nodes above (x0, z0).
+    x, z, f x0, z0 are 2d arrays.'''
+    xx0 = x0[:,0]
+    zz0 = z0[:,0]
+    xx = x[:,0]
+    zz = np.interp(xx, xx0, zz0)
+
+    for i in range(len(xx)):
+        ind = z[i,:] > zz[i]
+        f[i,ind] = np.nan
+    return np.ma.masked_array(f, mask=np.isnan(f))
