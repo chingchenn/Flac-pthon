@@ -43,14 +43,14 @@ figure_plot1= 0 # single step viscosity
 figure_plot2= 0 # single step phase 
 figure_plot3= 1 # 30,60,90,150 step viscosity 
 figure_plot4= 0 # 30,60,90,150 step phase
-#-------------------------------------------------------------------
+# -------------------------------------------------------------------
 # domain bounds
 left = -300
 right = 800
 up = 10
 down = -200
-dx = 1.6
-dz = 0.6
+dx = 1
+dz = 1
 
 def find_trench_index(z):
     '''Returns the i index of trench location.'''
@@ -60,7 +60,6 @@ def find_trench_index(z):
     # the trench is the lowest point west of forearc
     i = zz[:imax].argmin()
     return i
-
 
 def interpolate_phase(frame, xtrench):
     # domain bounds in km

@@ -27,7 +27,7 @@ oceanic litho, MEX                   =   9
 geo = 2
 withregion = 0
 strength_fill = 0
-max_depth = -100
+max_depth = -300
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
@@ -68,7 +68,7 @@ elif geo == 9:
 #---------------------- define strain rate & Temperature ----------------------
 edot = 1e-14  # high strain rate
 edot = 1e-15  # low strain rate
-deepz = layerz[-1] * 40
+deepz = layerz[-1] * 20
 z = np.linspace(0, deepz, num=50000)
 if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 40)
@@ -145,7 +145,8 @@ print(qq/1e13)
 print(qq/1e13/0.3931863060287225)
 print(qq/1e13/0.7907327461243084)
 ## ----------------------------  temperature Plot  ----------------------------
-temp = z/1000*0.6+T
+adiabatic = 3e-5*(1330-10)*10
+temp = z/1000*adiabatic+T
 ax3.plot(temp,-z/1000,color='#B22222',label='temperature',lw=10)
 ax3.set_xlim(0,2000)
 ax3.set_ylim(max_depth,0)
