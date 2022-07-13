@@ -205,3 +205,22 @@ def clip_topo(x, z, f, x0, z0):
         ind = z[i,:] > zz[i]
         f[i,ind] = np.nan
     return np.ma.masked_array(f, mask=np.isnan(f))
+def gaussian_interpolation2d(x0, z0, f0, x, z):
+    '''Interpolating field f0, which is defined on (x0, z0)
+    to a new grid (x, z) using weighted gaussian method'''
+
+    # using 1d index for x0, z0, f0
+    x0 = x0.flat
+    z0 = z0.flat
+    f0 = f0.flat
+    dx = 1.5 * (x[1,0] - x[0,0])
+    dz = 1.5 * (z[0,1] - z[0,0])
+
+    f = np.zeros(x.shape)
+    g = np.zeros(x.shape)
+    for i in range(len(x0)):
+        weight = np.exp(-((x - x0[i]) / dx)**2 - ((z - z0[i]) / dz)**2)
+        f += weight * f0[i]
+        g += weight
+
+    return f / g

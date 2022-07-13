@@ -39,7 +39,8 @@ for i in range(1,end+1):
     points = np.vstack((ele_x.flat, ele_z.flat)).T
     
     values = fl.read_visc(frame)
-    vis = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
+    #vis = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
+    vis = fd.aussian_interpolation2d(ele_x, ele_z, values, grid_x, grid_z)
     f = fd.clip_topo(grid_x, grid_z, vis, x, z)
     fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc','/home/jiching/geoflac/data/',
         grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
@@ -52,9 +53,9 @@ for i in range(1,end+1):
     fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph','/home/jiching/geoflac/data/',
         grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f0[~np.isnan(f)])
     
-    points = np.vstack((x.flat, z.flat)).T
-    values = fl.read_temperature(frame)
-    temp = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
-    f = fd.clip_topo(grid_x, grid_z, temp, x, z)
-    fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_temperature','/home/jiching/geoflac/data/',
-        grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
+    # points = np.vstack((x.flat, z.flat)).T
+    # values = fl.read_temperature(frame)
+    # temp = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
+    # f = fd.clip_topo(grid_x, grid_z, temp, x, z)
+    # fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_temperature','/home/jiching/geoflac/data/',
+    #     grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
