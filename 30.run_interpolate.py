@@ -52,6 +52,7 @@ for i in range(1,end+1):
     fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph','/home/jiching/geoflac/data/',
         grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f0[~np.isnan(f)])
     
+    points = np.vstack((x.flat, z.flat)).T
     values = fl.read_temperature(frame)
     temp = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
     f = fd.clip_topo(grid_x, grid_z, temp, x, z)
