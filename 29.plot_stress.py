@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Tue Jul 12 16:48:01 2022
@@ -17,8 +18,7 @@ from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
-
-
+from Main_creat_database import oceanic_slab,nodes_to_elements
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -41,9 +41,21 @@ bwith = 3
 frame = 125
 stressxx = fl.read_sxx(frame)
 x,z = fl.read_mesh(frame)
-fig2, (ax) = plt.subplots(5,1,figsize=(20,32))
-depth1 = 20
-depth2 = 80
-ax.plot(x[:,depth1],stressxx[:,depth1],c = 'red',lw = 4)
-ax.plot(x[:,depth2],stressxx[:,depth2],c = 'b', lw = 4)
+ele_x, ele_z = nodes_to_elements(x,z)
+fig2, (ax) = plt.subplots(1,1,figsize=(20,22))
+newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378',
+    '#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D',
+    '#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
+for kk,depth in enumerate([10,20,30,40,50,60,70]):
+    sxx = stressxx[:,depth] * 1e2 # kb to MPa
+    ax.scatter(ele_x[:,depth],sxx,c = newcolors[kk], lw = 4, label = str(depth*2)+' km')
+ax.legend(fontsize = 16)
+ax.set_xlim(550,850)
+ax.tick_params(axis='x', labelsize=16)
+ax.tick_params(axis='y', labelsize=16)
+ax.grid()
+ax.spines['bottom'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
+ax.spines['left'].set_linewidth(bwith)
 fig2.savefig(figpath+model+'_sxx_in_depth.png')
