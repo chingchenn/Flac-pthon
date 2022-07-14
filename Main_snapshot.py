@@ -18,7 +18,7 @@ from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
-import flac_interpolate as fi
+#import flac_interpolate as fi
 
 #---------------------------------- DO WHAT -----------------------------------
 ### interpolate data
@@ -28,12 +28,14 @@ inter_srII      = 0
 gravity         = 0
 
 ### plot
-shot            = 1
+shot            = 0
 shot_interp     = 0
 pressure        = 0
 gravity_plot    = 0
-viscosity       = 1
+viscosity       = 0
 stressII        = 0
+Vx              = 1
+Vz              = 0
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
@@ -283,3 +285,24 @@ if stressII:
     ax.set_ylim(min(ele_z[0,:]),20)
     ax.set_title('StressII '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
     fig.savefig(figpath+model+'frame_'+str(frame)+'_stressII.pdf')
+if Vx:
+    fig,(ax)=plt.subplots(1,1,figsize=(12,8))
+    cc = plt.cm.get_cmap('BrBG')
+    x,z, = fl.read_mesh(frame)
+    vx,vz = fl.read_vel(frame) # cm/yr
+    cb_plot = ax.scatter(x,z,c=vx,cmap = cc,vmin = -8, vmax = 8)
+    ax_cbin = fig.add_axes([0.2,0.4,0.15,0.01])
+    cb = fig.colorbar(cb_plot,cax = ax_cbin,orientation = 'horizontal')
+    ax.set_ylabel('Depth (km)',fontsize=20)
+    ax.set_xlabel('Distance (km)',fontsize=20)
+    ax_cbin.set_title('cm/yr',fontsize=20)
+    ax.set_aspect('equal')
+    ax.set_xlim(0,1200)
+    ax.set_ylim(-300,20)
+    bwith = 3
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    ax.set_title('horizontal velocity (cm/yr) '+str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_Vx.png')
