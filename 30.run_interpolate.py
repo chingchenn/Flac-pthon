@@ -31,7 +31,7 @@ figpath='/home/jiching/geoflac/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 
-for i in range(1,end+1):
+for i in range(121,122):
     frame = i
     grid_x, grid_z = fd.make_grid(xmin-padding, xmax+padding, zmin-padding, zmax+padding, dx, dz)
     x, z= fl.read_mesh(frame)
@@ -40,7 +40,7 @@ for i in range(1,end+1):
     
     values = fl.read_visc(frame)
     #vis = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
-    vis = fd.aussian_interpolation2d(ele_x, ele_z, values, grid_x, grid_z)
+    vis = fd.gaussian_interpolation2d(ele_x, ele_z, values, grid_x, grid_z)
     f = fd.clip_topo(grid_x, grid_z, vis, x, z)
     fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc','/home/jiching/geoflac/data/',
         grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
