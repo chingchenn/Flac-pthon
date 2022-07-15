@@ -9,6 +9,7 @@ Created on Thu Jul 14 17:42:12 2022
 import sys, os
 import numpy as np
 import flac
+from matplotlib import cm
 import function_for_flac as fd
 import function_savedata as fs
 from scipy import interpolate
@@ -26,7 +27,8 @@ time,trench_index, trench_x, trench_z = np.loadtxt('/home/jiching/geoflac/data/t
 ###----------------------- Slab sinking force with time-------------------------------
 #    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
 def slab_sinking_force(frame):
-    phase_mantle = 4
+    phase_mantle1 = 4
+    phase_mantle2 = 8
     phase_serpentinite = 9
     phase_hydratedmantle = 16
     phase_eclogite = 13
@@ -38,11 +40,12 @@ def slab_sinking_force(frame):
     area = fl.read_area(frame)
     rho_diff = np.zeros(nez)
     slab_area = np.zeros(nez)
-    Fsb = 0; g = 10; Fsb_A = 0
+    Fsb = 0; g = 10
     for z_ind in range(1,len(ele_z[0])):
-        ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) + (phase[:,z_ind] == phase_hydratedmantle)
-        man_eclogite = (phase[:,z_ind]== phase_mantle) + (phase[:,z_ind] == phase_serpentinite)
-        if True in ind_eclogite:
+    #for z_ind in range(11,15):
+        ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) + (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2)
+        man_eclogite = (phase[:,z_ind]== phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)
+        if True in ind_eclogite and True in man_eclogite:
             den_mantle = np.average(density[man_eclogite,z_ind])
             den_eco = np.average(density[ind_eclogite,z_ind])
             rho_diff[z_ind] = den_eco - den_mantle
@@ -73,25 +76,42 @@ def mantle_traction_force(frame):
         Ft += stressxz[qq] * dx[qq] # N/m
     return Ft # N/m (2D)
 
-#def find_baseContinent(frame):
-frame = 150
-phase_uppercrust = 2
-phase_lowercrust = 14
-x,z, = fl.read_mesh(frame)
-ele_x,ele_z = flac.elem_coord(x,z)
-phase = fl.read_phase(frame)
-sxz = fl.read_sxz(frame)
-stressxz = np.zeros(nex)
-for qq in range(1,nex):
-        upper_plate = (phase[qq,:]== phase_uppercrust) + (phase[qq,:] == phase_lowercrust)
-        if True in upper_plate:
-            last_deep= np.argmin(ele_z[qq,upper_plate])
-            stressxz[qq] = sxz[qq,last_deep]*1e8
-fig, (ax2) = plt.subplots(1,1,figsize=(10,6))
-ssxz = fd.moving_window_smooth(stressxz,8)
-ax2.plot(ele_x[:,0],ssxz,c = '#c06c84',lw=4)
-ax2.set_xlim(trench_x[frame-1],1200)
-fig.savefig('/home/jiching/geoflac/figure/'+model+'_frame_'+str(frame)+'_sxx.png')
+def shearstress_indistance(frame):
+    phase_uppercrust = 2
+    phase_lowercrust = 14
+    x,z, = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x,z)
+    phase = fl.read_phase(frame)
+    sxz = fl.read_sxz(frame)
+    stressxz = np.zeros(nex)
+    for qq in range(1,nex):
+            upper_plate = (phase[qq,:]== phase_uppercrust) + (phase[qq,:] == phase_lowercrust)
+            if True in upper_plate:
+                last_deep= np.argmin(ele_z[qq,upper_plate])
+                stressxz[qq] = sxz[qq,last_deep]*1e2
+    ssxz = fd.moving_window_smooth(stressxz,8)
+    return ele_x[:,0], ssxz
+
+fig, (ax2) = plt.subplots(1,1,figsize=(15,9))
+rainbow = cm.get_cmap('gray_r',end)
+newcolors = rainbow(np.linspace(0, 1, end))
+for i in range(1,end,20):
+    dis, ssxz = shearstress_indistance(i)
+    ax2.plot(dis-trench_x[i],ssxz,c = newcolors[i],lw=4)
+ax2.set_xlim(0,700)
+#ax2.set_xlim(np.average(trench_x),1200)
+ax2.set_xlabel('Distance (km)',fontsize=16)
+ax2.set_ylabel('$\sigma_{xz}$ (MPa)',fontsize=16)
+ax2.tick_params(axis='x', labelsize=16)
+ax2.tick_params(axis='y', labelsize=16)
+ax2.grid()
+bwith = 3
+ax2.spines['bottom'].set_linewidth(bwith)
+ax2.spines['top'].set_linewidth(bwith)
+ax2.spines['right'].set_linewidth(bwith)
+ax2.spines['left'].set_linewidth(bwith)
+
+fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxx_time.png')
     
 
 #------------------------------------------------------------------------------
@@ -111,7 +131,6 @@ if __name__ == '__main__':
     #ax.scatter(fl.time[fsb>0],fsb[fsb>0],c='#c06c84',label='slab pull (N/m)')
     #ax.scatter(fl.time[ft>0],ft[ft>0],c="#355c7d",label='traction force (N/m)')
     ax.legend(fontsize=16,loc='upper left')
-    
     #================================figure setting================================
     ax.set_xlabel('Time (Myr)',fontsize=16)
     ax.set_ylabel('Force (N/m)',fontsize=16)
@@ -125,5 +144,5 @@ if __name__ == '__main__':
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
     #ax.set_yscale('log')
-    ax.set_title('Forces of '+model,fontsize=20,fontname="Times New Roman")
+    ax.set_title('Forces of '+model,fontsize=20)
     fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
