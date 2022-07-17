@@ -319,11 +319,11 @@ def flat_slab_duration():
     for i in range(1,end):
         x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
-        x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
-        z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+        x_ocean = mx[((phase==phase_ecolgite)+(phase==phase_oceanic))*(mz>-300)]
+        z_ocean = mz[((phase==phase_ecolgite)+(phase==phase_oceanic))*(mz>-300)]
         if trench_z[i]> -2 or min(z_ocean)>-200:
             continue
-        start = math.floor(trench_x[i])
+        start = math.floor(trench_x[i]-50)
         final = math.floor(np.max(x_ocean))
         x_grid = np.arange(start,final,bet)
         ox = np.zeros(len(x_grid))

@@ -16,11 +16,16 @@ import function_savedata as fs
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 #=========================setting=============================
-model = str(sys.argv[1])
+#model = str(sys.argv[1])
+model = 'b0610k'
 path = '/home/jiching/geoflac/'+model+'/'
+path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
 #path = 'D:/model/'+model+'/'
 #path = '/scratch2/jiching/sem02model/'+model+'/'
-path = '/scratch2/jiching/03model/'+model+'/'
+#path = '/scratch2/jiching/03model/'+model+'/'
+savepath = '/home/jiching/geoflac/data/'
+savepath = '/Users/ji-chingchen/Desktop/data/'
+figpath = '/home/jiching/geoflac/figure/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 #=========================Parameters=========================
@@ -33,23 +38,25 @@ flat_slab_length=[]
 flat_slab_depth=[]
 figg2=0
 #=========================main code===========================
-for i in range(1,end):
+for i in range(100,end):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
     ## In this code, we considered the marker phase, not the element phase
     trench_ind = np.argmin(z[:,0]) 
     x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
-    x_ocean = mx[(phase==phase_ecolgite)+(phase==phase_oceanic)]
-    z_ocean = mz[(phase==phase_ecolgite)+(phase==phase_oceanic)]
+    x_ocean = mx[((phase==phase_ecolgite)+(phase==phase_oceanic))*(mz>-300)]
+    z_ocean = mz[((phase==phase_ecolgite)+(phase==phase_oceanic))*(mz>-300)]
     if z_trench> -2 or min(z_ocean)>-200:
         continue
-    start = math.floor(x_trench)
+    start = math.floor(x_trench-50)
     final = math.floor(np.max(x_ocean))
     x_grid = np.arange(start,final,bet)
     ox = np.zeros(len(x_grid))
     oz = np.zeros(len(x_grid))
     px = start-bet
     #find initial basalt depth to remove the weage basalt
+    if len(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])==0:
+            continue
     kk=np.max(z_ocean[(x_ocean>=start) *(x_ocean<=start+bet)])
     x_ocean = x_ocean[z_ocean<kk]
     z_ocean = z_ocean[z_ocean<kk]
@@ -75,15 +82,16 @@ for i in range(1,end):
         ### This figure show the origin point fitting with polynomail function
         fig2,(q1,q2,q3)= plt.subplots(3,1,figsize=(9,12))
         q1.plot(ox,w1,c='k',lw=3,label ='4st polynomial')
-        q1.scatter(ox,oz,c='cyan',s=20,label ='average marker points')           
+        q1.scatter(ox,oz,c='#306754',s=20,label ='average marker points')
         q2.plot(ox,w2,c='k',label ='3st polynomial')
-        q2.axhline(y=-0.1, xmin=0, xmax=800,color='r',linestyle='dashed')
+        q2.axhline(y=-0.2, xmin=0, xmax=800,color='r',linestyle='dashed')
         q3.plot(ox,w3,c='k',label ='2st polynomial')
         q3.plot([start,final],[0,0],'--',zorder=0,color='red')
         q1.set_title('frame='+str(i))
         q2.set_xlim(start,final)
         q1.set_xlim(start,final) 
         q3.set_xlim(start,final) 
+        q1.set_ylim(-300,0)
         q1.grid();q2.grid();q3.grid() 
         q1.tick_params(axis='x', labelsize=16)
         q1.tick_params(axis='y', labelsize=16)
@@ -91,23 +99,24 @@ for i in range(1,end):
         q2.tick_params(axis='y', labelsize=16)
         q3.tick_params(axis='y', labelsize=16)
         q3.set_xlabel('Distance (km)')
-        fig2.savefig('/home/jiching/geoflac/figure/'+model+'_frame='+str(i)+'_fig2.png')
+        q1.set_aspect('equal')
+        fig2.savefig(figpath+model+'_frame='+str(i)+'_fig2.png')
     cc=-1;ff1=[]
     for rr,oo in enumerate(w2):
-        if cc*(oo+0.1)<0:
+        if cc*(oo+0.2)<0:
             ff1.append(ox[rr])
-        cc = oo+0.1
+        cc = oo+0.2
     mm=-1;ff2=[]
     for pp,uu in enumerate(w3):
         if mm*uu<0:
             ff2.append(ox[pp])
         mm = uu  
-    if len(ff2)>1 and (ff2[1]-ff2[0])>100 and ff2[0]>start:
+    if len(ff2)>1 and (ff2[1]-ff2[0])>80 and ff2[0]>start:
         find_flat_dz2.append(fl.time[i])
-        if len(ff1)>3 and (ff1[-1]-ff1[-2])>50:
+        if (len(ff1)>2 and (ff1[-1]-ff1[-2])>50):
             find_flat_dz1.append(fl.time[i])
             flat_slab_length.append(ff1[-1]-ff1[-2])
             depth=np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])])
             flat_slab_depth.append(depth)
-fs.save_1txt(str(model)+'_flatslab_duration2','/home/jiching/geoflac/data',find_flat_dz2)
-fs.save_3txt(str(model)+'_flatslab_time_len','/home/jiching/geoflac/data',find_flat_dz1,flat_slab_length,flat_slab_depth)
+fs.save_1txt(str(model)+'_flatslab_duration2',savepath,find_flat_dz2)
+fs.save_3txt(str(model)+'_flatslab_time_len',savepath,find_flat_dz1,flat_slab_length,flat_slab_depth)
