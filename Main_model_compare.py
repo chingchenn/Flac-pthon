@@ -19,15 +19,15 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
-dip_plot                = 1
+dip_plot                = 0
 plate_geometry          = 0
-force_plot_LR           = 0
+force_plot_LR           = 1
 force_plot_RF           = 0
-vel_plot                = 0
+vel_plot                = 1
 stack_topo_plot         = 0
 flat_slab_plot          = 0
-magma_plot   	    	= 1
-melting_phase   	= 1
+magma_plot   	    	= 0
+melting_phase       	= 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -41,7 +41,7 @@ savepath='/home/jiching/geoflac/data/'
 #savepath='D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 model_list=['Ref03','h0401','h0402','h0403']
-model_list=['h1502','h1504']
+model_list=['b0607k','b0608k','b0609k','b0610k']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 bwith = 3
@@ -98,7 +98,7 @@ if plate_geometry:
     xmajor_ticks = np.linspace(0,150,num=4)
     ax2.set_yticks(xmajor_ticks)
     bwith = 3
-    ax2.set_ylim(150,0)
+    ax2.set_ylim(200,0)
     ax2.set_xlim(0,600)
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
@@ -118,9 +118,12 @@ if force_plot_LR:
         filepath = savepath+model+'_forc.txt'
         temp1=np.loadtxt(filepath)
         nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-        ax.scatter(time,forc_l+forc_r,s=4,label=model,color=newcolors[kk])
-        ax2.scatter(time,forc_r,s=4,label=model,color=newcolors[kk])
+        ffl = fd.moving_window_smooth(forc_l,100)
+        ffr = fd.moving_window_smooth(forc_r,100)
+        ax.plot(time,ffl,lw=3,label=model,color=newcolors[kk])
+        ax2.plot(time,ffr,lw=3,label=model,color=newcolors[kk])
     ax.set_xlim(0,time[-1])
+    ax.set_ylim(6e12,1.5e13)
     ax.set_title('oceanic side force',fontsize=16)
     ax.tick_params(axis='x', labelsize=16)
     ax.tick_params(axis='y', labelsize=16)
@@ -240,23 +243,25 @@ if magma_plot:
     print('--------plotting magma--------')
     fig, (ax,ax2,ax3,ax4) = plt.subplots(4,1,figsize=(15,15))
     for kk,model in enumerate(model_list):
+        name='melting_'+model
+        time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
         name = 'magma_for_'+model+'.txt'
         filepath = '/home/jiching/geoflac/data/'
         temp1 = np.loadtxt(filepath+name)
         melt,chamber,yymelt,yychamber,rrr = temp1.T
-        ax.plot(yymelt,color=newcolors[kk],label=model)
-        ax2.plot(yychamber,color=newcolors[kk],label=model)
-#        ax3.bar(fl.time,melt,width=0.1,color=newcolors[kk],label='fmelt')
-#        ax4.bar(fl.time,chamber,width=0.1,color=newcolors[kk],label='magma')
+        ax.plot(yymelt,color=newcolors[kk],label=model,lw=3)
+        ax2.plot(yychamber,color=newcolors[kk],label=model,lw=3)
+        ax3.bar(time,melt,width=0.1,color=newcolors[kk],label='fmelt')
+        ax4.bar(time,chamber,width=0.1,color=newcolors[kk],label='magma')
     ax4.set_xlabel('Time (Myr)',fontsize=20)
     ax.set_ylabel('melt * area',fontsize=20)
     ax2.set_ylabel('chamber *area',fontsize=20)
     ax3.set_ylabel('max melt',fontsize=20)
     ax4.set_ylabel('max magma fraction',fontsize=20)
-#    ax.set_xlim(0,time[-1]);ax.grid()
-#    ax2.set_xlim(0,time[-1]);ax2.grid()
-#    ax3.set_xlim(0,time[-1]);ax3.grid()
-#    ax4.set_xlim(0,time[-1]);ax4.grid()
+    ax.set_xlim(0,30);ax.grid()
+    ax2.set_xlim(0,30);ax2.grid()
+    ax3.set_xlim(0,30);ax3.grid()
+    ax4.set_xlim(0,30);ax4.grid()
     ax.tick_params(axis='x', labelsize=16 )
     ax2.tick_params(axis='x', labelsize=16 )
     ax3.tick_params(axis='x', labelsize=16 )
