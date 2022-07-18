@@ -37,11 +37,10 @@ time=fl.time
 plotting_png = 0
 plotting_vx = 0
 plotting_vz = 0
-gif = 1
 mp4 = 1
 labelsize = 26
-if not os.path.isdir(path+model+'/phase_vis'):
-    os.mkdir(path+model+'/phase_vis')
+if not os.path.isdir(path+model+'/frame_plot'):
+    os.mkdir(path+model+'/frame_plot')
 #------------------------------------------------------------------------------
 # x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
 
@@ -95,9 +94,10 @@ if plotting_png:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_phase_vis.png')
+        fig.savefig(path+model+'/frame_plot/frame_'+qq+'_phase_vis.png')
         fig.gca()
         plt.close(fig)
+        print('----- finish figure '+qq+' -----')
 if plotting_vx:
     for i in range(1,end):
         fig,(ax)=plt.subplots(1,1,figsize=(12,8))
@@ -128,7 +128,8 @@ if plotting_vx:
         else:
             qq=str(i)
         ax.set_title('horizontal velocity (cm/yr) '+str(model)+' at '+str(round(fl.time[i-1],1))+' Myr',fontsize=24)
-        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_Vx.png')
+        fig.savefig(path+model+'/frame_plot/frame_'+qq+'_Vx.png')
+        print('----- finish figure '+qq+' -----')
 if plotting_vz:
     for i in range(1,end):
         fig,(ax)=plt.subplots(1,1,figsize=(12,8))
@@ -159,32 +160,39 @@ if plotting_vz:
         else:
             qq=str(i)
         ax.set_title('vertical velocity (cm/yr) '+str(model)+' at '+str(round(fl.time[i-1],1))+' Myr',fontsize=24)
-        fig.savefig(path+model+'/phase_vis/frame_'+qq+'_Vz.png')
+        fig.savefig(path+model+'/frame_plot/frame_'+qq+'_Vz.png')
+        print('----- finish figure '+qq+' -----')
 #-----------------------------creat GIF-----------------------------------------
-if gif: 
+if mp4: 
     from PIL import Image
     import glob
      
     # Create the frames
     frames = []
-    for i in  range(1,end):
+    for i in  range(1,100):
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        img=path+model+'/phase_vis/frame_'+qq+'_phase_vis.png'
+        if plotting_png:
+            name = '_phase_vis'
+        elif plotting_vx:
+            name = '_Vx'
+        elif plotting_vz:
+            name = '_Vz'
+        else:
+            name = '_phase_vis'
+        img=path+model+'/frame_plot/frame_'+qq+name+'.png'
         new_frame = Image.open(img)
         frames.append(new_frame)
      
     # Save into a GIF file that loops forever
-    frames[0].save(path+model+'/phase_vis/phase_vis.gif', format='GIF', append_images=frames[1:], 
+    frames[0].save(path+model+'/frame_plot/'+name+'.gif', format='GIF', append_images=frames[1:], 
                    save_all=True, duration=80, loop=0)
-    
 #-----------------------------creat mp4-----------------------------------------    
-if mp4:
     import moviepy.editor as mp
-    clip = mp.VideoFileClip(path+model+"/phase_vis/phase_vis.gif")
+    clip = mp.VideoFileClip(path+model+"/frame_plot/"+name+".gif")
     #clip.write_videofile(figpath+'phase_vis_'+model+".mp4")
     clip.write_videofile(figpath+'Vz_'+model+".mp4")
