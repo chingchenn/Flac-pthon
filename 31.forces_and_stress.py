@@ -95,24 +95,25 @@ def shearstress_indistance(frame):
 fig, (ax2) = plt.subplots(1,1,figsize=(15,9))
 rainbow = cm.get_cmap('gray_r',end)
 newcolors = rainbow(np.linspace(0, 1, end))
-for i in range(1,end,20):
+for i in range(40,end,20):
     dis, ssxz = shearstress_indistance(i)
-    ax2.plot(dis-trench_x[i],ssxz,c = newcolors[i],lw=4)
+    ax2.plot(dis-trench_x[i],ssxz,c = newcolors[i],lw=4,label=str(round(fl.time[i],1))+' Myr')
 ax2.set_xlim(0,700)
 #ax2.set_xlim(np.average(trench_x),1200)
-ax2.set_xlabel('Distance (km)',fontsize=16)
+ax2.set_title(model+' $\sigma_{xz}$ and distance',fontsize = 24)
+ax2.set_xlabel('Distance from trench (km)',fontsize=16)
 ax2.set_ylabel('$\sigma_{xz}$ (MPa)',fontsize=16)
 ax2.tick_params(axis='x', labelsize=16)
 ax2.tick_params(axis='y', labelsize=16)
 ax2.grid()
+ax2.legend(fontsize=20)
 bwith = 3
 ax2.spines['bottom'].set_linewidth(bwith)
 ax2.spines['top'].set_linewidth(bwith)
 ax2.spines['right'].set_linewidth(bwith)
 ax2.spines['left'].set_linewidth(bwith)
 
-fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxx_time.png')
-    
+fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxz_dis.png')
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -138,7 +139,6 @@ if __name__ == '__main__':
     ax.tick_params(axis='x', labelsize=16)
     ax.tick_params(axis='y', labelsize=16)
     ax.grid()
-    bwith = 3
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
