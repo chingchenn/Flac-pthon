@@ -93,105 +93,105 @@ def mantle_traction_force(frame):
         Ft += stressxz[qq] * dx[qq] # N/m
     return Ft # N/m (2D)
 ###---------------------- Mantle suction force with time -------------------------------
-for frame in range(1,end):
-#frame = 51
-    x, z = fl.read_mesh(frame)
-    ele_x, ele_z = flac.elem_coord(x, z)
-    phase = fl.read_phase(frame)
-    density = fl.read_density(frame)
-    pressure = fl.read_pres(frame)
-    area = fl.read_area(frame)
-    
-    aatop = 0;aasub = 0
-    Fsub = 0; Ftop = 0
-    onepre=-pressure.flatten()
-    a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
-    fit=(ele_z.flatten()-b)/a
-    dypre=(onepre-fit).reshape(len(phase),len(phase[0]))*1e8  # N/m^2
-    #static = -density.flatten() * 10*1000*ele_z.flatten() # N/m^2
-    #dypre = (pressure.flatten()*1e8+static).reshape(len(phase),len(phase[0]))/1e6 #MPa
-    
-    # colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
-    #           "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
-    #           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
-    #           "#F67280","#00FF00","#FFFF00","#7158FF"]
-    # phase15= matplotlib.colors.ListedColormap(colors)
-    # plt.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmin = 1,vmax = 20, s= 40)
-    # plt.ylim(-450,-0)
-    # plt.xlim(500,800)
-    # plt.axes().set_aspect('equal')
-    final_ind = int(trench_index[frame])
-    ind_trench = int(trench_index[frame])
-    xoceanic = np.zeros(len(ele_z)-ind_trench)
-    #ffsub = np.zeros(len(ele_z)-ind_trench)
-    #fftop = np.zeros(len(ele_z)-ind_trench)
-    #asub = np.zeros(len(ele_z)-ind_trench)
-    #atop = np.zeros(len(ele_z)-ind_trench)
-    iiind = np.zeros(len(ele_z)-ind_trench)
-    length = 0
-    for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
-    #for ii,x_ind in enumerate(range(196,210)):
-        ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
-        subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
-    
-        if True in (ind_oceanic+subducted_sed):
-            if (x_ind - final_ind) > 2:
-                break
-            final_ind = x_ind
-    
-            oceanic_plate_index = [ww for ww, x in enumerate(ind_oceanic+subducted_sed) if x]
-            xoceanic[ii] = int(np.median(oceanic_plate_index))
-            xstd = np.std(oceanic_plate_index)
-            oo = oceanic_plate_index
-            if xstd > 15:
-                oo = np.array(oceanic_plate_index)[abs(ele_z[x_ind,oceanic_plate_index]-ele_z[x_ind,int(xoceanic[ii-1])])<30]
-                if len(oo)==0:
-                    continue
-                xoceanic[ii] = int(np.median(oo))
-            av_oc_ind = int(np.median(oo))
-            iiind[ii] = av_oc_ind 
-            # make sure the top element is continent
-            if phase[x_ind,0]!=2 and phase[x_ind,0]!=14 and phase[x_ind,0]!=6: 
+#for frame in range(1,end):
+frame = 51
+x, z = fl.read_mesh(frame)
+ele_x, ele_z = flac.elem_coord(x, z)
+phase = fl.read_phase(frame)
+density = fl.read_density(frame)
+pressure = fl.read_pres(frame)
+area = fl.read_area(frame)
+
+aatop = 0;aasub = 0
+Fsub = 0; Ftop = 0
+onepre=-pressure.flatten()
+a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
+fit=(ele_z.flatten()-b)/a
+dypre=(onepre-fit).reshape(len(phase),len(phase[0]))*1e8  # N/m^2
+#static = -density.flatten() * 10*1000*ele_z.flatten() # N/m^2
+#dypre = (pressure.flatten()*1e8+static).reshape(len(phase),len(phase[0]))/1e6 #MPa
+
+# colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
+#           "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
+#           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
+#           "#F67280","#00FF00","#FFFF00","#7158FF"]
+# phase15= matplotlib.colors.ListedColormap(colors)
+# plt.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmin = 1,vmax = 20, s= 40)
+# plt.ylim(-450,-0)
+# plt.xlim(500,800)
+# plt.axes().set_aspect('equal')
+final_ind = int(trench_index[frame])
+ind_trench = int(trench_index[frame])
+xoceanic = np.zeros(len(ele_z)-ind_trench)
+#ffsub = np.zeros(len(ele_z)-ind_trench)
+#fftop = np.zeros(len(ele_z)-ind_trench)
+#asub = np.zeros(len(ele_z)-ind_trench)
+#atop = np.zeros(len(ele_z)-ind_trench)
+iiind = np.zeros(len(ele_z)-ind_trench)
+length = 0
+for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
+#for ii,x_ind in enumerate(range(196,210)):
+    ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
+    subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
+
+    if True in (ind_oceanic+subducted_sed):
+        if (x_ind - final_ind) > 2:
+            break
+        final_ind = x_ind
+
+        oceanic_plate_index = [ww for ww, x in enumerate(ind_oceanic+subducted_sed) if x]
+        xoceanic[ii] = int(np.median(oceanic_plate_index))
+        xstd = np.std(oceanic_plate_index)
+        oo = oceanic_plate_index
+        if xstd > 15:
+            oo = np.array(oceanic_plate_index)[abs(ele_z[x_ind,oceanic_plate_index]-ele_z[x_ind,int(xoceanic[ii-1])])<30]
+            if len(oo)==0:
                 continue
-            # area of sub mantle 
-            submantle = (ele_z[x_ind,av_oc_ind:]> -660)*((phase[x_ind,av_oc_ind:]==phase_mantle1) + \
-                (phase[x_ind,av_oc_ind:]==phase_mantle2) + \
-                (phase[x_ind,av_oc_ind:]==phase_serpentinite)+\
-                (phase[x_ind,av_oc_ind:]==phase_hydratedmantle))
+            xoceanic[ii] = int(np.median(oo))
+        av_oc_ind = int(np.median(oo))
+        iiind[ii] = av_oc_ind 
+        # make sure the top element is continent
+        if phase[x_ind,0]!=2 and phase[x_ind,0]!=14 and phase[x_ind,0]!=6: 
+            continue
+        # area of sub mantle 
+        submantle = (ele_z[x_ind,av_oc_ind:]> -660)*((phase[x_ind,av_oc_ind:]==phase_mantle1) + \
+            (phase[x_ind,av_oc_ind:]==phase_mantle2) + \
+            (phase[x_ind,av_oc_ind:]==phase_serpentinite)+\
+            (phase[x_ind,av_oc_ind:]==phase_hydratedmantle))
+
+        # area of top mantle
+        topmantle = (phase[x_ind,:av_oc_ind]==phase_mantle1) + \
+            (phase[x_ind,:av_oc_ind]==phase_mantle2) + \
+            (phase[x_ind,:av_oc_ind]==phase_serpentinite)
     
-            # area of top mantle
-            topmantle = (phase[x_ind,:av_oc_ind]==phase_mantle1) + \
-                (phase[x_ind,:av_oc_ind]==phase_mantle2) + \
-                (phase[x_ind,:av_oc_ind]==phase_serpentinite)
-        
-            if True in topmantle or True in submantle:
-                aasub += (area[x_ind,av_oc_ind:][submantle]).sum()
-                aatop += (area[x_ind,:av_oc_ind][topmantle]).sum()
-                #asub[ii] = (area[x_ind,av_oc_ind:][submantle]).sum()
-                #atop[ii] = (area[x_ind,:av_oc_ind][topmantle]).sum()
-                
-                #ffsub[ii] = ((dypre*area)[x_ind,av_oc_ind:][submantle]).sum()
-                #fftop[ii] = ((dypre*area)[x_ind,:av_oc_ind][topmantle]).sum()
-                Fsub += ((dypre*area)[x_ind,av_oc_ind:][submantle]).sum()
-                Ftop += ((dypre*area)[x_ind,:av_oc_ind][topmantle]).sum()
-                # plt.scatter(ele_x[x_ind,av_oc_ind:][submantle],\
-                #             ele_z[x_ind,av_oc_ind:][submantle],\
-                #             c= 'b',s = 5)
-                # plt.scatter(ele_x[x_ind,:av_oc_ind][topmantle],\
-                #             ele_z[x_ind,:av_oc_ind][topmantle],\
-                #             c= 'r',s = 5)  
-                # plt.scatter(ele_x[x_ind,av_oc_ind],ele_z[x_ind,av_oc_ind],c = 'k') 
-                
-                if ii > 1:
-                    dx = ele_x[x_ind,av_oc_ind]-ele_x[x_ind-1,int(iiind[ii-1])]
-                    dz = ele_z[x_ind,av_oc_ind]-ele_z[x_ind-1,int(iiind[ii-1])]
-                    length += np.sqrt(dx**2 + dz**2)*1000
-    if length != 0 and aasub !=0 and aatop !=0:
-        Fsu = (Fsub/aasub-Ftop/aatop)*length
-    else:
-        Fsu = 0
-    
-    print(fl.time[frame],Fsu)  
+        if True in topmantle or True in submantle:
+            aasub += (area[x_ind,av_oc_ind:][submantle]).sum()
+            aatop += (area[x_ind,:av_oc_ind][topmantle]).sum()
+            #asub[ii] = (area[x_ind,av_oc_ind:][submantle]).sum()
+            #atop[ii] = (area[x_ind,:av_oc_ind][topmantle]).sum()
+            
+            #ffsub[ii] = ((dypre*area)[x_ind,av_oc_ind:][submantle]).sum()
+            #fftop[ii] = ((dypre*area)[x_ind,:av_oc_ind][topmantle]).sum()
+            Fsub += ((dypre*area)[x_ind,av_oc_ind:][submantle]).sum()
+            Ftop += ((dypre*area)[x_ind,:av_oc_ind][topmantle]).sum()
+            # plt.scatter(ele_x[x_ind,av_oc_ind:][submantle],\
+            #             ele_z[x_ind,av_oc_ind:][submantle],\
+            #             c= 'b',s = 5)
+            # plt.scatter(ele_x[x_ind,:av_oc_ind][topmantle],\
+            #             ele_z[x_ind,:av_oc_ind][topmantle],\
+            #             c= 'r',s = 5)  
+            # plt.scatter(ele_x[x_ind,av_oc_ind],ele_z[x_ind,av_oc_ind],c = 'k') 
+            
+            if ii > 1:
+                dx = ele_x[x_ind,av_oc_ind]-ele_x[x_ind-1,int(iiind[ii-1])]
+                dz = ele_z[x_ind,av_oc_ind]-ele_z[x_ind-1,int(iiind[ii-1])]
+                length += np.sqrt(dx**2 + dz**2)*1000
+if length != 0 and aasub !=0 and aatop !=0:
+    Fsu = (Fsub/aasub-Ftop/aatop)*length
+else:
+    Fsu = 0
+
+print(fl.time[frame],Fsu)  
    
     
 def suction_force(frame):
