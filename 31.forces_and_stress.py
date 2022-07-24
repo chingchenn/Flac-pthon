@@ -9,21 +9,25 @@ Created on Thu Jul 14 17:42:12 2022
 import sys, os
 import numpy as np
 import flac
+import matplotlib
 from matplotlib import cm
 import function_for_flac as fd
 import function_savedata as fs
 from scipy import interpolate
 import matplotlib.pyplot as plt
 #------------------------------------------------------------------------------
-model = sys.argv[1]
+#model = sys.argv[1]
+model = 'b0702k'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
+path='/Users/ji-chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
+savepath='/Users/ji-chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx-1; nez=fl.nz-1
-time,trench_index, trench_x, trench_z = np.loadtxt('/home/jiching/geoflac/data/trench_for_'+str(model)+'.txt').T
+time,trench_index, trench_x, trench_z = np.loadtxt(savepath+'trench_for_'+str(model)+'.txt').T
 ###----------------------- Slab sinking force with time-------------------------------
 #    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
 def slab_sinking_force(frame):
@@ -75,6 +79,62 @@ def mantle_traction_force(frame):
             stressxz[qq] = abs(sxz[qq,last_deep]*1e8) # stress kb --> N/m^2
         Ft += stressxz[qq] * dx[qq] # N/m
     return Ft # N/m (2D)
+###---------------------- Mantle suction force with time -------------------------------
+#def suction_force(frame):
+phase_mantle1 = 4
+phase_mantle2 = 8
+phase_serpentinite = 9
+phase_hydratedmantle = 16
+phase_eclogite = 13
+phase_eclogite_1 = 18
+phase_oceanic = 3
+phase_oceanic_1 = 17
+phase_sediment = 10
+phase_sediment_1 = 11
+phase_schist = 5
+frame = 36
+
+x, z = fl.read_mesh(frame)
+ele_x, ele_z = flac.elem_coord(x, z)
+phase = fl.read_phase(frame)
+density = fl.read_density(frame)
+pressure = fl.read_pres(frame)
+area = fl.read_area(frame)
+pdiff = np.zeros(nez)
+slab_area = np.zeros(nez)
+Fs = 0; g = 10
+
+colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
+          "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
+          "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
+          "#F67280","#00FF00","#FFFF00","#7158FF"]
+phase15= matplotlib.colors.ListedColormap(colors)
+plt.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmin = 1,vmax = 20)
+#plt.ylim(-250,-50)
+#plt.xlim(600,800)
+ins = 15
+for x_ind in range(int(trench_index[frame]),len(ele_z)):
+#for x_ind in range(145,146):
+    #man_eclogite = (phase[x_ind,:]== phase_mantle1) + (phase[x_ind,:] == phase_serpentinite) + (phase[x_ind,:] == phase_hydratedmantle)
+    ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
+    subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
+    ### NEED TO DELETED THE LINEAR PRESSURE HERE. S
+    if True in (ind_oceanic+subducted_sed):
+        oceanic_plate_index = [ww for ww, x in enumerate(ind_oceanic+subducted_sed) if x]
+        bottom_slab_ind = max(oceanic_plate_index) + 1
+        top_slab_ind = min(oceanic_plate_index) - 1
+        if top_slab_ind  < 0:
+            continue
+        pre_submantle = (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle1) + (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle1)
+        print(phase[x_ind,top_slab_ind-ins])
+        plt.scatter(ele_x[x_ind,bottom_slab_ind:bottom_slab_ind+ins],ele_z[x_ind,bottom_slab_ind:bottom_slab_ind+ins], c= 'w')
+        plt.scatter(ele_x[x_ind,top_slab_ind:top_slab_ind+ins],ele_z[x_ind,top_slab_ind:top_slab_ind+ins], c= 'r')        
+        #pre_submantle = np.average(pressure[x_ind,man_eclogite])
+        pre_upmantle = np.average(pressure[x_ind,ind_oceanic])
+        #rho_diff[z_ind] = den_eco - den_mantle
+        #slab_area[z_ind] = area[ind_eclogite,z_ind].sum()
+    #Fsb += rho_diff[z_ind] * g * slab_area[z_ind]
+
 
 def shearstress_indistance(frame):
     phase_uppercrust = 2
@@ -113,7 +173,7 @@ ax2.spines['top'].set_linewidth(bwith)
 ax2.spines['right'].set_linewidth(bwith)
 ax2.spines['left'].set_linewidth(bwith)
 
-fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxz_dis.png')
+#fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxz_dis.png')
 
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
@@ -123,7 +183,7 @@ if __name__ == '__main__':
         fsb[i] = slab_sinking_force(i)
         ft[i] = mantle_traction_force(i)
 
-    fs.save_3txt(model+'_forces','/home/jiching/geoflac/data/',fl.time,fsb,ft)
+    #fs.save_3txt(model+'_forces','/home/jiching/geoflac/data/',fl.time,fsb,ft)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
     sb = fd.moving_window_smooth(fsb[fsb>0],8)
     tt = fd.moving_window_smooth(ft[ft>0],8)
@@ -145,4 +205,4 @@ if __name__ == '__main__':
     ax.spines['left'].set_linewidth(bwith)
     #ax.set_yscale('log')
     ax.set_title('Forces of '+model,fontsize=20)
-    fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
+    #fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
