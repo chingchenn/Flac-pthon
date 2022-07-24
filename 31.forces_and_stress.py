@@ -23,7 +23,7 @@ model = sys.argv[1]
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
-#path = '/scratch2/jiching/22summer/'
+path = '/scratch2/jiching/22summer/'
 #path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
 #savepath='/Users/ji-chingchen/Desktop/data/'
@@ -106,7 +106,7 @@ aatop = 0;aasub = 0
 Fsub = 0; Ftop = 0
 onepre=pressure.flatten()
 a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
-fit=(1000*ele_z.flatten()-b)/a
+fit=(ele_z.flatten()-b)/a
 dypre=(onepre-fit).reshape(len(phase),len(phase[0]))*1e8  # N/m^2
 #static = -density.flatten() * 10*1000*ele_z.flatten() # N/m^2
 #dypre = (pressure.flatten()*1e8+static).reshape(len(phase),len(phase[0]))/1e6 #MPa
@@ -147,7 +147,7 @@ for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
             oo = np.array(oceanic_plate_index)[abs(ele_z[x_ind,oceanic_plate_index]-ele_z[x_ind,int(xoceanic[ii-1])])<30]
             if len(oo)==0:
                 continue
-            xoceanic[ii] = np.median(oo)
+            xoceanic[ii] = int(np.median(oo))
         av_oc_ind = int(np.median(oo))
         iiind[ii] = av_oc_ind 
         # make sure the top element is continent
@@ -187,7 +187,7 @@ for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
                 dz = ele_z[x_ind,av_oc_ind]-ele_z[x_ind-1,int(iiind[ii-1])]
                 length += np.sqrt(dx**2 + dz**2)*1000
 if length != 0 and aasub !=0 and aatop !=0:
-    Fsu = (Fsub/aasub-Ftop/aatop)/length
+    Fsu = (Fsub/aasub-Ftop/aatop)*length
 else:
     Fsu = 0
 
@@ -205,7 +205,7 @@ def suction_force(frame):
     Fsub = 0; Ftop = 0
     onepre=pressure.flatten()
     a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
-    fit=(1000*ele_z.flatten()-b)/a
+    fit=(ele_z.flatten()-b)/a
     dypre=(onepre-fit).reshape(len(phase),len(phase[0]))*1e8  # N/m^2
     final_ind = int(trench_index[frame])
     ind_trench = int(trench_index[frame])
@@ -227,9 +227,9 @@ def suction_force(frame):
             oo = oceanic_plate_index
             if xstd > 15:
                 oo = np.array(oceanic_plate_index)[abs(ele_z[x_ind,oceanic_plate_index]-ele_z[x_ind,int(xoceanic[ii-1])])<30]
-                xoceanic[ii] = np.median(oo)
                 if len(oo)==0:
                     continue
+                xoceanic[ii] = int(np.median(oo))
             av_oc_ind = int(np.median(oo))
             iiind[ii] = av_oc_ind 
             # make sure the top element is continent
@@ -257,7 +257,7 @@ def suction_force(frame):
                     dz = ele_z[x_ind,av_oc_ind]-ele_z[x_ind-1,int(iiind[ii-1])]
                     length += np.sqrt(dx**2 + dz**2)*1000
     if length != 0 and aasub !=0 and aatop !=0:
-        Fsu = (Fsub/aasub-Ftop/aatop)/length
+        Fsu = (Fsub/aasub-Ftop/aatop)*length
     else:
         Fsu = 0
     return Fsu
@@ -322,7 +322,7 @@ if __name__ == '__main__':
     sb = fd.moving_window_smooth(fsb[fsb>0],8)
     tt = fd.moving_window_smooth(fsu[fsu>0],8)
     ax.plot(fl.time[fsb>0],sb,c='#c06c84',label='slab pull (N/m)',lw=4)
-    ax.plot(fl.time[ft>0],tt,c="#355c7d",label='suction force (N/m)',lw=4)
+    ax.plot(fl.time[fsu>0],tt,c="#355c7d",label='suction force (N/m)',lw=4)
     #ax.scatter(fl.time[fsb>0],fsb[fsb>0],c='#c06c84',label='slab pull (N/m)')
     #ax.scatter(fl.time[ft>0],ft[ft>0],c="#355c7d",label='traction force (N/m)')
     ax.legend(fontsize=16,loc='upper left')
@@ -337,7 +337,7 @@ if __name__ == '__main__':
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
-    #ax.set_yscale('log')
+    ax.set_yscale('log')
     ax.set_title('Forces of '+model,fontsize=20)
     fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
     # fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
