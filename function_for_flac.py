@@ -16,7 +16,7 @@ from scipy.special import erf
 
 def get_topo(xmesh,zmesh):
     xtop=xmesh[:,0]
-    ztop=zmesh[:,0]
+    ztop=zmesh[:,0]-zmesh[-4,0]
     return xtop,ztop
 
 def find_trench_index(z):

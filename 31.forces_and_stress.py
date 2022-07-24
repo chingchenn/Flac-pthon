@@ -20,7 +20,8 @@ import matplotlib.pyplot as plt
 model = 'b0702k'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
-path='/Users/ji-chingchen/Desktop/model/'
+#path='/Users/ji-chingchen/Desktop/model/'
+#path = '/scratch2/jiching/22summer/'
 savepath='/home/jiching/geoflac/data/'
 savepath='/Users/ji-chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
@@ -145,10 +146,10 @@ def shearstress_indistance(frame):
     sxz = fl.read_sxz(frame)
     stressxz = np.zeros(nex)
     for qq in range(1,nex):
-            upper_plate = (phase[qq,:]== phase_uppercrust) + (phase[qq,:] == phase_lowercrust)
-            if True in upper_plate:
-                last_deep= np.argmin(ele_z[qq,upper_plate])
-                stressxz[qq] = sxz[qq,last_deep]*1e2
+        upper_plate = (phase[qq,:]== phase_uppercrust) + (phase[qq,:] == phase_lowercrust)
+        if True in upper_plate:
+            last_deep= np.argmin(ele_z[qq,upper_plate])
+            stressxz[qq] = sxz[qq,last_deep]*1e2
     ssxz = fd.moving_window_smooth(stressxz,8)
     return ele_x[:,0], ssxz
 
@@ -179,11 +180,16 @@ ax2.spines['left'].set_linewidth(bwith)
 if __name__ == '__main__':
     fsb=np.zeros(end)
     ft=np.zeros(end)
+    ratio=np.zeros(end)
     for i in range(1,end):
         fsb[i] = slab_sinking_force(i)
         ft[i] = mantle_traction_force(i)
+        if ft[i] ==0:
+            ratio[i] = 0
+        else:
+            ratio[i] = fsb[i]/ft[i]
 
-    #fs.save_3txt(model+'_forces','/home/jiching/geoflac/data/',fl.time,fsb,ft)
+    fs.save_4txt(model+'_forces','/home/jiching/geoflac/data/',fl.time,fsb,ft,ratio)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
     sb = fd.moving_window_smooth(fsb[fsb>0],8)
     tt = fd.moving_window_smooth(ft[ft>0],8)
@@ -205,4 +211,17 @@ if __name__ == '__main__':
     ax.spines['left'].set_linewidth(bwith)
     #ax.set_yscale('log')
     ax.set_title('Forces of '+model,fontsize=20)
-    #fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
+    fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
+    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
+    ratio_f = fd.moving_window_smooth(ratio[ratio>0],5)
+    ax2.plot(fl.time[ratio>0],ratio_f,c="#355c7d",label='ratio of these forces)',lw=4)
+    ax2.set_xlabel('Time (Myr)',fontsize=16)
+    ax2.set_xlim(0, fl.time[-1])
+    ax2.tick_params(axis='x', labelsize=16)
+    ax2.tick_params(axis='y', labelsize=16)
+    ax2.grid()
+    ax2.spines['bottom'].set_linewidth(bwith)
+    ax2.spines['top'].set_linewidth(bwith)
+    ax2.spines['right'].set_linewidth(bwith)
+    ax2.spines['left'].set_linewidth(bwith)
+    fig2.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force_ratio.png')

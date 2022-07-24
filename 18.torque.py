@@ -25,7 +25,7 @@ path = '/home/jiching/geoflac/'+model+'/'
 
 ###================================= parameter setting =======================================
 depth1=0
-depth2=-200
+depth2=-750
 phase_oceanic = 3
 phase_ecolgite = 13
 phase_oceanic_1 = 17
@@ -75,7 +75,7 @@ def find_slab(i):
     zc_ocean = mz[(phase==phase_oceanic)]
     xe_ocean = mx[(phase==phase_ecolgite)]
     ze_ocean = mz[(phase==phase_ecolgite)]
-    start = math.floor(trench_x[i])
+    start = math.floor(trench_x[i]-50)
     #final = math.floor(np.max(xe_ocean))
     final = math.floor(trench_x[i]+500)
     x_grid = np.arange(start,final,bet)
@@ -112,50 +112,51 @@ def find_slab(i):
 
 ###===================================find lithosphere========================================
 for i in range(3,end):
-#    x, z = fl.read_mesh(i)
-#    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
-#    ## In this code, we considered the marker phase, not the element phase
-#    trench_ind = np.argmin(z[:,0])
-#    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
-#    xc_ocean = mx[(phase==phase_oceanic)]
-#    zc_ocean = mz[(phase==phase_oceanic)]
-#    xe_ocean = mx[(phase==phase_ecolgite)]
-#    ze_ocean = mz[(phase==phase_ecolgite)]
-#    if z_trench> -2 or min(zc_ocean)>-50:
-#        continue
-#    start = math.floor(x_trench)
-#    final = math.floor(np.max(xe_ocean))
-#    x_grid = np.arange(start,final,bet)
-#    oxc = np.zeros(len(x_grid))
-#    ozc = np.zeros(len(x_grid))
-#    oxe = np.zeros(len(x_grid))
-#    oze = np.zeros(len(x_grid))
-#    px1 = start-bet
-#    px2 = start-bet
-#    #find initial basalt depth to remove the weage basalt
-#    kk=np.max(zc_ocean[(xc_ocean>=start) *(xc_ocean<=start+bet)])
-#    xc_ocean = xc_ocean[zc_ocean<kk]
-#    zc_ocean = zc_ocean[zc_ocean<kk]
-#    # interplate to the grid length "bet"
-#    for yy,xx in enumerate(x_grid):
-#        if len(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])==0:
-#            continue    
-#        ozc[yy] = np.average(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
-#        oxc[yy] = np.average(xc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
-#        px1 = xx
-#    for yy,xx in enumerate(x_grid):
-#        if len(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])==0:
-#            continue
-#        oze[yy] = np.average(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
-#        oxe[yy] = np.average(xe_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
-#        px2 = xx
-#    oxxc=oxc[oxc>start]
-#    ozc=ozc[oxc>start]
-#    oxc=oxxc
-#    oxxe=oxe[oxe>start]
-#    oze=oze[oxe>start]
-#    oxe=oxxe
-    oxc,ozc,oxe,oze = find_slab(i)
+    x, z = fl.read_mesh(i)
+    mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
+    ## In this code, we considered the marker phase, not the element phase
+    trench_ind = np.argmin(z[:,0])
+    x_trench,z_trench = x[trench_ind,0], z[trench_ind,0]
+    xc_ocean = mx[(phase==phase_oceanic)]
+    zc_ocean = mz[(phase==phase_oceanic)]
+    xe_ocean = mx[(phase==phase_ecolgite)]
+    ze_ocean = mz[(phase==phase_ecolgite)]
+    if z_trench> -2 or min(zc_ocean)>-50:
+        continue
+    start = math.floor(x_trench)
+    final = math.floor(np.max(xe_ocean))
+    x_grid = np.arange(start,final,bet)
+    oxc = np.zeros(len(x_grid))
+    ozc = np.zeros(len(x_grid))
+    oxe = np.zeros(len(x_grid))
+    oze = np.zeros(len(x_grid))
+    px1 = start-bet
+    px2 = start-bet
+    #find initial basalt depth to remove the weage basalt
+    if len(zc_ocean[(xc_ocean>=start) *(xc_ocean<=start+bet)])==0:
+            continue
+    kk=np.max(zc_ocean[(xc_ocean>=start) *(xc_ocean<=start+bet)])
+    xc_ocean = xc_ocean[zc_ocean<kk]
+    zc_ocean = zc_ocean[zc_ocean<kk]
+    # interplate to the grid length "bet"
+    for yy,xx in enumerate(x_grid):
+        if len(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])==0:
+            continue    
+        ozc[yy] = np.average(zc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
+        oxc[yy] = np.average(xc_ocean[(xc_ocean>=px1)*(xc_ocean<=xx)])
+        px1 = xx
+    for yy,xx in enumerate(x_grid):
+        if len(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])==0:
+            continue
+        oze[yy] = np.average(ze_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
+        oxe[yy] = np.average(xe_ocean[(xe_ocean>=px2)*(xe_ocean<=xx)])
+        px2 = xx
+    oxxc=oxc[oxc>start]
+    ozc=ozc[oxc>start]
+    oxc=oxxc
+    oxxe=oxe[oxe>start]
+    oze=oze[oxe>start]
+    oxe=oxxe
     dx = max(oxc)-min(oxc);dz = max(ozc)-min(ozc)
     anglec= math.degrees(math.atan(dz/dx))*np.pi/180
     anc[i] = anglec

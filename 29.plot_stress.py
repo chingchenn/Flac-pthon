@@ -18,7 +18,6 @@ from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
-from Main_creat_database import oceanic_slab,nodes_to_elements
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -38,10 +37,10 @@ nez = fl.nz - 1
 time = fl.time
 bwith = 3
 
-frame = 125
+frame = 150
 stressxx = fl.read_sxx(frame)
 x,z = fl.read_mesh(frame)
-ele_x, ele_z = nodes_to_elements(x,z)
+ele_x, ele_z = flac.elem_coord(x,z)
 fig2, (ax) = plt.subplots(1,1,figsize=(20,22))
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378',
     '#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D',

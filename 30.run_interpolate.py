@@ -21,7 +21,7 @@ dz = 0.5
 xmin = 0
 xmax = 1200
 zmin = -300
-zmax = 20
+zmax = 30
 #------------------------------------------------------------------------------
 model = sys.argv[1]
 frame = int(sys.argv[2])
@@ -31,7 +31,7 @@ figpath='/home/jiching/geoflac/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 #------------------------------------------------------------------------------
-run_interpolatation = 0
+run_interpolatation = 1
 phasein     = 1
 tin         = 0
 vis         = 0
@@ -40,7 +40,7 @@ if not os.path.isdir(path+model+'/phase_vis'):
     os.mkdir(path+model+'/phase_vis')
 #-----------------------------------interpolatation----------------------------
 if run_interpolatation:
-    for i in range(50,end):
+    for i in range(frame,frame+1):
         frame = i
         grid_x, grid_z = fd.make_grid(xmin-padding, xmax+padding, zmin-padding, zmax+padding, dx, dz)
         x, z= fl.read_mesh(frame)
@@ -77,7 +77,7 @@ cp /home/jiching/GMT/phase19.cpt .
 tail -n +2 %(phase_interpolate_file)s | xyz2grd -Gphase_vis/%(model)s_frame%(frame)s_phase.grd -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f
 
 gmt set FONT_ANNOT_PRIMARY          8p,4,#0D057A \
-        FONT_TITLE                  30p,4,#0D057A 
+        FONT_TITLE                  20p,4,#0D057A 
 
 gmt begin %(figpath)s/%(model)s_frame%(frame)s_phase pdf
 gmt grdimage -JX9c/3c -R0/1200/-300/0 phase_vis/%(model)s_frame%(frame)s_phase.grd -Cphase19.cpt -BWSne -Bxa100f50+l"Distance (Myr)" -Bya100+l"Depth (km)"

@@ -450,7 +450,7 @@ if flat_duraton:
 if trench_plot:
     print('----- plotting topography-----')
     name='trench_for_'+model
-    trench_time, trench_x,trench_z,trench_index = np.loadtxt(savepath+name+'.txt').T
+    trench_time, trench_index, trench_x,trench_z = np.loadtxt(savepath+name+'.txt').T
     fig, (ax)= plt.subplots(1,1,figsize=(10,12))
     dis,time,topo=get_topo(start=1,end_frame=end)
     qqq=ax.scatter(dis,time,c=topo,cmap='gist_earth',vmax=6,vmin=-10)
@@ -701,22 +701,27 @@ if vel_plot:
     filepath = savepath+model+'_forc.txt'
     temp1=np.loadtxt(filepath)
     nloop,time,forc_l,forc_r,ringforce,vl,vr,lstime,limit_force = temp1.T
-    fig3, (ax4)= plt.subplots(1,1,figsize=(10,8))
+    fig3, (ax4)= plt.subplots(2,1,figsize=(10,8))
     movvl = fd.moving_window_smooth(vl,500)
+    movvr = fd.moving_window_smooth(vr,500)
     #ax4.plot(time,vl*31545741325,c="darkred",lw=2)
-    ax4.plot(time,movvl*31545741325,c="#000080",lw=2)
-    ax4.set_xlim(0,time[-1])
-    ax4.set_ylim(0,100)
-    ax4.set_title('oceanic side velocity',fontsize=16)
-    ax4.tick_params(axis='x', labelsize=16)
-    ax4.tick_params(axis='y', labelsize=16)
-    ax4.grid()
-    ax4.set_xlabel('Time (Myr)',fontsize=16)
-    ax4.set_ylabel('Velocity (mm/yr)',fontsize=16)
-    ax4.spines['bottom'].set_linewidth(bwith)
-    ax4.spines['top'].set_linewidth(bwith)
-    ax4.spines['right'].set_linewidth(bwith)
-    ax4.spines['left'].set_linewidth(bwith)
+    ax4[0].plot(time,movvl*31545741325,c="#000080",lw=2)
+    ax4[1].plot(time,-movvr*31545741325,c="#000080",lw=2)
+    ax4[1].set_xlabel('Time (Myr)',fontsize=16)
+    ax4[0].set_ylabel('Velocity (mm/yr)',fontsize=16)
+    ax4[1].set_ylabel('Velocity (mm/yr)',fontsize=16)
+    ax4[0].set_title('oceanic side velocity',fontsize=16)
+    ax4[1].set_ylim(0,10)
+    ax4[0].set_ylim(0,100)
+    for qq in range(len(ax4)):
+        ax4[qq].set_xlim(0,time[-1])
+        ax4[qq].tick_params(axis='x', labelsize=16)
+        ax4[qq].tick_params(axis='y', labelsize=16)
+        ax4[qq].grid()
+        ax4[qq].spines['bottom'].set_linewidth(bwith)
+        ax4[qq].spines['top'].set_linewidth(bwith)
+        ax4[qq].spines['right'].set_linewidth(bwith)
+        ax4[qq].spines['left'].set_linewidth(bwith)
     fig3.savefig(figpath+model+'_vel.png')
     print('=========== DONE =============')
 if stack_topo_plot:

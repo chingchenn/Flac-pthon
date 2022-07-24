@@ -34,7 +34,7 @@ model = sys.argv[1]
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 time=fl.time
-plotting_png = 0
+plotting_png = 1
 plotting_vx = 0
 plotting_vz = 0
 mp4 = 1
@@ -50,7 +50,7 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 if plotting_png:
-    for i in range(1,end):
+    for i in range(1,end,10):
         fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
         x,z,ele_x,ele_z,phase,temp,ztop=Ms.plot_snapshot(i)
         xm, zm, age, ph, idd, a1, a2, ntriag = fl.read_markers(i)
@@ -77,17 +77,17 @@ if plotting_png:
         ax2.spines['left'].set_linewidth(bwith)
         ax2.tick_params(axis='x', labelsize=labelsize)
         ax2.tick_params(axis='y', labelsize=labelsize)
-        ymajor_ticks = np.linspace(200,0,num=5)
+        ymajor_ticks = np.linspace(200,0,num=7)
         ax.set_yticks(ymajor_ticks)
         ax2.set_yticks(ymajor_ticks)
-        xmajor_ticks = np.linspace(250,1000,num=6)
+        xmajor_ticks = np.linspace(250,1200,num=6)
         ax.set_xticks(xmajor_ticks)
         ax2.set_xticks(xmajor_ticks)
-        ax.set_xlim(250,1000)
+        ax.set_xlim(250,1200)
         ax.set_ylim(200,-30)
         ax.set_title(str(round(fl.time[i-1],1))+' Myr',fontsize=36)
-        ax2.set_xlim(250,1000)
-        ax2.set_ylim(200,-30)
+        ax2.set_xlim(250,1200)
+        ax2.set_ylim(250,-30)
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
@@ -169,7 +169,7 @@ if mp4:
      
     # Create the frames
     frames = []
-    for i in  range(1,100):
+    for i in  range(1,end,10):
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
@@ -195,4 +195,4 @@ if mp4:
     import moviepy.editor as mp
     clip = mp.VideoFileClip(path+model+"/frame_plot/"+name+".gif")
     #clip.write_videofile(figpath+'phase_vis_'+model+".mp4")
-    clip.write_videofile(figpath+'Vz_'+model+".mp4")
+    clip.write_videofile(figpath+model+name+".mp4")
