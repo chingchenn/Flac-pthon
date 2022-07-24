@@ -23,7 +23,7 @@ path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 savepath='/home/jiching/geoflac/data/'
-savepath='/Users/ji-chingchen/Desktop/data/'
+#savepath='/Users/ji-chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
@@ -93,7 +93,7 @@ phase_oceanic_1 = 17
 phase_sediment = 10
 phase_sediment_1 = 11
 phase_schist = 5
-frame = 36
+frame = 55
 
 x, z = fl.read_mesh(frame)
 ele_x, ele_z = flac.elem_coord(x, z)
@@ -103,7 +103,12 @@ pressure = fl.read_pres(frame)
 area = fl.read_area(frame)
 pdiff = np.zeros(nez)
 slab_area = np.zeros(nez)
-Fs = 0; g = 10
+Psub = 0; Ptop = 0
+aatop = 0;aasub = 0
+onepre=-pressure.flatten()
+a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
+fit=(ele_z.flatten()-b)/a
+dypre=(onepre-fit).reshape(len(phase),len(phase[0]))*100  # MPa
 
 colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
@@ -113,7 +118,7 @@ phase15= matplotlib.colors.ListedColormap(colors)
 plt.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmin = 1,vmax = 20)
 #plt.ylim(-250,-50)
 #plt.xlim(600,800)
-ins = 15
+ins = 15 # pressure area
 for x_ind in range(int(trench_index[frame]),len(ele_z)):
 #for x_ind in range(145,146):
     #man_eclogite = (phase[x_ind,:]== phase_mantle1) + (phase[x_ind,:] == phase_serpentinite) + (phase[x_ind,:] == phase_hydratedmantle)
@@ -126,12 +131,19 @@ for x_ind in range(int(trench_index[frame]),len(ele_z)):
         top_slab_ind = min(oceanic_plate_index) - 1
         if top_slab_ind  < 0:
             continue
-        pre_submantle = (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle1) + (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle1)
-        print(phase[x_ind,top_slab_ind-ins])
-        plt.scatter(ele_x[x_ind,bottom_slab_ind:bottom_slab_ind+ins],ele_z[x_ind,bottom_slab_ind:bottom_slab_ind+ins], c= 'w')
-        plt.scatter(ele_x[x_ind,top_slab_ind:top_slab_ind+ins],ele_z[x_ind,top_slab_ind:top_slab_ind+ins], c= 'r')        
-        #pre_submantle = np.average(pressure[x_ind,man_eclogite])
-        pre_upmantle = np.average(pressure[x_ind,ind_oceanic])
+        submantle = (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle1) + (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_mantle2) + (phase[x_ind,bottom_slab_ind:bottom_slab_ind+ins]==phase_serpentinite)
+        topmantle = (phase[x_ind,top_slab_ind:top_slab_ind+ins]==phase_mantle1) + (phase[x_ind,top_slab_ind:top_slab_ind+ins]==phase_mantle2) + (phase[x_ind,top_slab_ind:top_slab_ind+ins]==phase_serpentinite)
+    
+    if True in submantle:
+        Psub += dypre[x_ind,bottom_slab_ind:bottom_slab_ind+ins]
+        Ptop += dypre[x_ind,top_slab_ind:top_slab_ind+ins]
+        aasub += (area[x_ind,bottom_slab_ind:bottom_slab_ind+ins]).sum()
+        aatop += (area[x_ind,top_slab_ind:top_slab_ind+ins]).sum()
+    print(x_ind,aatop,aasub)
+        #plt.scatter(ele_x[x_ind,bottom_slab_ind:bottom_slab_ind+ins],ele_z[x_ind,bottom_slab_ind:bottom_slab_ind+ins], c= 'w')
+        #plt.scatter(ele_x[x_ind,top_slab_ind:top_slab_ind+ins],ele_z[x_ind,top_slab_ind:top_slab_ind+ins], c= 'r')     
+        #print(x_ind,Fsub-Ftop)   
+        
         #rho_diff[z_ind] = den_eco - den_mantle
         #slab_area[z_ind] = area[ind_eclogite,z_ind].sum()
     #Fsb += rho_diff[z_ind] * g * slab_area[z_ind]
