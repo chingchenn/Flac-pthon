@@ -13,16 +13,18 @@ import flacmarker2vtk
 import function_for_flac as fd
 import matplotlib.pyplot as plt
 
-path = '/home/jiching/geoflac/'
-#path = '/scratch2/jiching/22winter/'
-path = '/scratch2/jiching/03model/'
-#path = 'F:/model/'
-#path = 'D:/model/'
-#path = '/Volumes/SSD500/model/'
+#model = sys.argv[1]
+model = 'b0702k'
+#frame = int(sys.argv[2])
+path='/home/jiching/geoflac/'
+#path='/Users/ji-chingchen/Desktop/model/'
+#path = '/scratch2/jiching/22summer/'
+path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
+#savepath='/Users/ji-chingchen/Desktop/data/'
+savepath = 'D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 
-model = 'ch1404'
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -74,64 +76,16 @@ def oceanic_slab(frame):
             crust_x[j] = np.max(xx[kk<-15])
             crust_z[j] = np.max(kk[kk<-15])
     return crust_x,crust_z
-#####===============================low viscosity area===============================
-# fig,ax=plt.subplots(2,1,figsize=(10,6))
-# # def read_wedgevis(trench_indexend,depth1=100, depth2=120):
-# color=['r','g','b','k']
-# # for www,depth1 in enumerate([80,90,100,110]):
-# depth1 = 80
-# depth2 = 130
-# viswedge=np.zeros(end)
-# areawedge=np.zeros(end)
 
-# for i in range(1,end+1):
-#     x, z = fl.read_mesh(i)
-#     vis=fl.read_visc(i)
-#     area=fl.read_area(i)
-#     ele_x, ele_z = nodes_to_elements(x,z)
-#     crust_x,crust_z = oceanic_slab(i)
-#     temp = fl.read_temperature(i)
-#     fig2,aa=plt.subplots(1,1,figsize=(10,6))
-#     aa.scatter(ele_x,ele_z,c=vis)
-
-#     wedge_area = np.zeros(nex-int(trench_index[i-1]))
-#     for ii in range(int(trench_index[i-1]),nex):
-#     # for ii in range(135,185):
-#         if crust_z[ii]<-depth2:
-#             break
-#         up= (ele_z[ii,:]> crust_z[ii])*(ele_z[ii,:]<-depth1)*(vis[ii,:]<22)
-#         if True in up:
-#             wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
-#             areawedge[i-1]+=sum(area[ii,up]/1e6)
-#             viswedge[i-1]+=np.mean(vis[ii,up])
-#             aa.scatter(ele_x[ii,up],ele_z[ii,up],c='w',s=300)
-#     if len(wedge_area[wedge_area>0])==0:
-#         continue
-#     areawedge[i-1] = areawedge[i-1]
-#     viswedge[i-1] = viswedge[i-1]/len(wedge_area[wedge_area>0])
-#     cx=aa.contour(ele_x,ele_z,vis,cmap = 'rainbow_r',levels =[23,24]) 
-#     aa.contour(x,z,temp,cmap = 'magma',levels =[700])
-#     aa.set_aspect('equal')
-#     aa.set_xlim(400,850)
-#     aa.set_ylim(-200,0)
-
-# ax[0].scatter(fl.time[areawedge>0],areawedge[areawedge>0])
-# ax[1].scatter(fl.time[areawedge>0],viswedge[areawedge>0])
-
-# for qq in range(len(ax)):
-#     ax[qq].set_xlim(0,30)
-#     # ax[qq].legend()
-    
-    # return wedgevis
 #####=====================low viscosity area (x direction)=====================
 fig,ax=plt.subplots(3,1,figsize=(10,6))
 # def read_wedgevis(trench_indexend,depth1=100, depth2=120):
 color=['r','g','b','k']
 # for www,depth1 in enumerate([80,90,100,110]):
-distance_from_trench = 550
+distance_from_trench = 200 # Distance where mantle wedge max far x range
 depth1 = 80
 depth2 = 150
-model_list=['ch1404','ch1406']
+model_list=[model]#,'ch1406']
 for yy,model in enumerate(model_list):
     os.chdir(path+model)
     fl = flac.Flac()
@@ -143,7 +97,8 @@ for yy,model in enumerate(model_list):
     areawedge=np.zeros(end)
     temwedge=np.zeros(end)
     
-    for i in range(1,end):
+    #for i in range(1,end):
+    for i in range(54,56):
         x, z = fl.read_mesh(i)
         vis=fl.read_visc(i)
         area=fl.read_area(i)
@@ -151,34 +106,34 @@ for yy,model in enumerate(model_list):
         crust_x,crust_z = oceanic_slab(i)
         temp = fl.read_temperature(i)
         ele_tem = temp_elements(temp)
-        # fig2,aa=plt.subplots(1,1,figsize=(10,6))
-        # aa.scatter(ele_x,ele_z,c=vis)
+        fig2,aa=plt.subplots(1,1,figsize=(10,6))
+        aa.scatter(ele_x,ele_z,c=vis)
     
         wedge_area = np.zeros(nex-int(trench_index[i-1]))
         for ii in range(int(trench_index[i-1]),nex):
-        # for ii in range(135,185):
             crust_zdonw = crust_z[ii]
             if crust_z[ii]==0 and ii>120:
                 crust_zdonw = min(crust_z)
+            #up= (ele_z[ii,:]> crust_zdonw)*(ele_z[ii,:]<-depth1)#*(vis[ii,:]<22)
             up= (ele_z[ii,:]> -depth2)*(ele_x[ii,:]<(trench_x[i]+distance_from_trench))*(ele_z[ii,:]< -depth1)*(ele_z[ii,:]>crust_zdonw)
             if True in up:
                 wedge_area[ii-int(trench_index[i-1])]=np.mean(area[ii,up]/1e6)
                 areawedge[i-1]+=sum(area[ii,up]/1e6)
                 viswedge[i-1]+=np.mean(vis[ii,up])
                 temwedge[i-1]+=np.mean(ele_tem[ii,up])
-                # aa.scatter(ele_x[ii,up],ele_z[ii,up],c='w',s=300)
+                aa.scatter(ele_x[ii,up],ele_z[ii,up],c='w',s=300)
         if len(wedge_area[wedge_area>0])==0:
             continue
         areawedge[i-1] = areawedge[i-1]
         viswedge[i-1] = viswedge[i-1]/len(wedge_area[wedge_area>0])
         temwedge[i-1] = temwedge[i-1]/len(wedge_area[wedge_area>0])
-        # cx=aa.contour(ele_x,ele_z,vis,cmap = 'rainbow_r',levels =[23,24]) 
-        # aa.contour(x,z,temp,cmap = 'magma',levels =[700])
-        # aa.set_aspect('equal')
-        # aa.set_xlim(200,900)
-        # aa.set_ylim(-200,0)
-        # aa.set_title(model+'_vis_'+str(i),fontsize=30)
-        # fig2.savefig(figpath+model+'_wedge_snapshot.png')
+        cx=aa.contour(ele_x,ele_z,vis,cmap = 'rainbow_r',levels =[23,24]) 
+        aa.contour(x,z,temp,cmap = 'magma',levels =[700])
+        aa.set_aspect('equal')
+        aa.set_xlim(200,900)
+        aa.set_ylim(-200,0)
+        aa.set_title(model+'_vis_'+str(i),fontsize=30)
+        fig2.savefig(figpath+model+'_wedge_snapshot.png')
     
     ax[0].scatter(fl.time[areawedge>0],areawedge[areawedge>0],c=color[yy],label=model)
     ax[1].scatter(fl.time[areawedge>0],viswedge[areawedge>0],c=color[yy],label=model)
