@@ -24,6 +24,7 @@ model = sys.argv[1]
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
+#path = '/scratch2/jiching/03model/'
 #path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
 #savepath='/Users/ji-chingchen/Desktop/data/'
@@ -62,11 +63,13 @@ def slab_sinking_force(frame):
     Fsb = 0; g = 10
     for z_ind in range(1,len(ele_z[0])):
     #for z_ind in range(11,15):
-        ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) + (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2)
-        man_eclogite = (phase[:,z_ind]== phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)
+        ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) #+ (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2)
+        man_eclogite = (phase[:,z_ind]== phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)+ (phase[:,z_ind] == phase_hydratedmantle)
         if True in ind_eclogite and True in man_eclogite:
             den_mantle = np.average(density[man_eclogite,z_ind])
             den_eco = np.average(density[ind_eclogite,z_ind])
+            if den_eco < den_mantle:
+                print(frame,z_ind, den_eco-den_mantle)
             rho_diff[z_ind] = den_eco - den_mantle
             slab_area[z_ind] = area[ind_eclogite,z_ind].sum()
         Fsb += rho_diff[z_ind] * g * slab_area[z_ind]
@@ -94,7 +97,7 @@ def mantle_traction_force(frame):
     return Ft # N/m (2D)
 ###---------------------- Mantle suction force with time -------------------------------
 #for frame in range(1,end):
-frame = 51
+frame = 30
 x, z = fl.read_mesh(frame)
 ele_x, ele_z = flac.elem_coord(x, z)
 phase = fl.read_phase(frame)
@@ -260,7 +263,7 @@ def suction_force(frame):
         Fsu = (Fsub/aasub-Ftop/aatop)*length
     else:
         Fsu = 0
-    return Fsu
+    return Fsu # N/m(2D)
     
 ###---------------------- couple zone -------------------------------
 def shearstress_indistance(frame):
@@ -337,7 +340,7 @@ if __name__ == '__main__':
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
-    ax.set_yscale('log')
+    #ax.set_yscale('log')
     ax.set_title('Forces of '+model,fontsize=20)
     fig.savefig('/home/jiching/geoflac/figure/'+model+'_slab_force.png')
     fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
