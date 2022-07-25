@@ -28,7 +28,7 @@ stack_topo_plot         = 0
 flat_slab_plot          = 0
 magma_plot   	    	= 0
 melting_phase       	= 0
-forces     		= 1
+forces     	        	= 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -43,7 +43,8 @@ savepath='/home/jiching/geoflac/data/'
 figpath='/home/jiching/geoflac/figure/'
 model_list=['Ref03','h0401','h0402','h0403']
 model_list=['b0607k','b0608k','b0609k','b0611k','b0614k','b0615k']
-model_list=['b0506m','b0505m']
+model_list=['ch1501','ch1502']
+model_list=['b0506m','b0701m']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 bwith = 3
@@ -291,25 +292,29 @@ if melting_phase:
     fig4.savefig(figpath+str(model)+'metvolume.png')
     # fig4.savefig(figpath+str(model)+'metphase.pdf') 
 if forces:
-    fig, (ax)= plt.subplots(1,1,figsize=(10,6))
-    fig3, (ax3)= plt.subplots(1,1,figsize=(10,6))
-    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
+    fig, (ax)= plt.subplots(1,1,figsize=(10,6)) # slab pull force
+    fig3, (ax3)= plt.subplots(1,1,figsize=(10,6)) # suction force
+    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6)) # ratio 
+    fig4, (ax4) = plt.subplots(1,1,figsize=(10,6)) # plot both suction and pull
     for kk,model in enumerate(model_list):
         name = model+'_forces.txt'
-        time,fsb,ft,ratio = np.loadtxt(savepath+name).T
+        time,fsb,ft,fsu,ratio = np.loadtxt(savepath+name).T
         sb = fd.moving_window_smooth(fsb[fsb>0],8)
-        tt = fd.moving_window_smooth(ft[ft>0],8)
+        tt = fd.moving_window_smooth(fsu[fsu>0],8)
         ax.plot(time[fsb>0],sb,c=newcolors[kk],label=model,lw=4)
-        ax3.plot(time[ft>0],tt,c=newcolors[kk],label=model,lw=4)
+        ax3.plot(time[fsu>0],tt,c=newcolors[kk],label=model,lw=4)
         ratio_f = fd.moving_window_smooth(ratio[ratio>0],5)
         ax2.plot(time[ratio>0],ratio_f,c=newcolors[kk],label=model,lw=4)
+        ax4.plot(time[fsb>0],sb,c=newcolors[kk+3],lw=4,linestyle='-.')
+        ax4.plot(time[fsu>0],tt,c=newcolors[kk+3],lw=4)
     #================================figure setting================================
-    ax.set_xlabel('Time (Myr)',fontsize=16)
     ax.set_ylabel('Force (N/m)',fontsize=16)
     ax.set_title('slab pull (N/m)',fontsize=16)
-    ax2.set_title('ratio of $F_{sb}$ and traction force',fontsize=16)
-    ax3.set_title('traction force (N/m)',fontsize=16)
-    for qq in (ax, ax2, ax3):
+    ax2.set_title('ratio of $F_{sb}$ and suction force',fontsize=16)
+    ax3.set_title('suction force (N/m)',fontsize=16)
+    ax4.set_title('Forces',fontsize=16)
+    ax4.set_ylabel('Force (N/m)',fontsize=16)
+    for qq in (ax, ax2, ax3, ax4):
         qq.legend(fontsize=16,loc='upper left')
         qq.set_xlim(0, time[-1])
         qq.tick_params(axis='x', labelsize=16)
@@ -319,16 +324,9 @@ if forces:
         qq.spines['top'].set_linewidth(bwith)
         qq.spines['right'].set_linewidth(bwith)
         qq.spines['left'].set_linewidth(bwith)
+        qq.set_xlabel('Time (Myr)',fontsize=16)
     #ax.set_yscale('log')
-    ax2.set_xlabel('Time (Myr)',fontsize=16)
-    #ax2.set_xlim(0, fl.time[-1])
-    #ax2.tick_params(axis='x', labelsize=16)
-    #ax2.tick_params(axis='y', labelsize=16)
-    #ax2.grid()
-    #ax2.spines['bottom'].set_linewidth(bwith)
-    #ax2.spines['top'].set_linewidth(bwith)
-    #ax2.spines['right'].set_linewidth(bwith)
-    #ax2.spines['left'].set_linewidth(bwith)
     fig.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_slab_pull.png')
-    fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_traction_force.png')
+    fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_suction_force.png')
     fig2.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_slab_force_ratio.png')
+    fig4.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_forces.png')
