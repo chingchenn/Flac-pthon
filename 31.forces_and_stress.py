@@ -64,7 +64,6 @@ def slab_sinking_force(frame):
     slab_area = np.zeros(nez)
     Fsb = 0; g = 10
     for z_ind in range(1,len(ele_z[0])):
-    #for z_ind in range(11,15):
         ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) #+ (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2)
         man_eclogite = (phase[:,z_ind]== phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)+ (phase[:,z_ind] == phase_hydratedmantle)
         if True in ind_eclogite and True in man_eclogite:
@@ -176,9 +175,13 @@ def find_slab_median_index(frame):
     slab_x = np.zeros(len(ele_z)-ind_trench)
     slab_z = np.zeros(len(ele_z)-ind_trench)
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
+    # for ii,x_ind in enumerate(range(140,272)):
         ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
         subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
+        # if x_ind >264:
+            # print(ind_oceanic,subducted_sed)
         if True in (ind_oceanic+subducted_sed):
+            # print(x_ind)
             if (x_ind - final_ind) > 2:
                 break
             final_ind = x_ind
@@ -188,13 +191,14 @@ def find_slab_median_index(frame):
             xstd = np.std(oceanic_plate_index)
             oo = oceanic_plate_index
             if xstd > 15:
-                oo = np.array(oceanic_plate_index)[abs(ele_z[x_ind,oceanic_plate_index]-ele_z[x_ind,int(xoceanic[ii-1])])<30]
+                oo = np.array(oceanic_plate_index)[oceanic_plate_index>=xoceanic[ii-1]]
                 if len(oo)==0:
                     continue
                 xoceanic[ii] = int(np.median(oo))
             av_oc_ind = int(np.median(oo))
-        slab_x[ii] = ele_x[x_ind,av_oc_ind]
-        slab_z[ii] = ele_z[x_ind,av_oc_ind]
+            slab_x[ii] = ele_x[x_ind,av_oc_ind]
+            slab_z[ii] = ele_z[x_ind,av_oc_ind]
+        # print(ii,av_oc_ind,oo,x_ind)
     return slab_x,slab_z
 
 def dynamic_pressure(frame):
@@ -207,8 +211,8 @@ def dynamic_pressure(frame):
 ###---------------------- Mantle suction force with time -------------------------------
 
 depth1 = -350
-depth2 = -40
-frame = 55
+depth2 = -0
+frame = 75
 x, z = fl.read_mesh(frame)
 ele_x, ele_z = flac.elem_coord(x, z)
 phase = fl.read_phase(frame)
@@ -220,103 +224,110 @@ list_subslab =  [[] for i in range(len(zslab))]
 list_topslab =  [[] for i in range(len(zslab))]
 ind_trench = int(trench_index[frame])
 
-# # colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
-# #           "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
-# #           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
-# #           "#F67280","#00FF00","#FFFF00","#7158FF"]
-# # phase15= matplotlib.colors.ListedColormap(colors)
-# # cm = plt.cm.get_cmap('RdYlBu_r')
-# # plt.scatter(ele_x,ele_z,c=-dpre/1e6,cmap=cm,vmin=-200, vmax=200,s=40)
-# # plt.ylim(-450,-0)
-# # plt.xlim(500,800)
-# # plt.axes().set_aspect('equal')
+colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
+          "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
+          "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
+          "#F67280","#00FF00","#FFFF00","#7158FF"]
+phase15= matplotlib.colors.ListedColormap(colors)
+cm = plt.cm.get_cmap('RdYlBu_r')
+# plt.scatter(ele_x,ele_z,c=-dpre/1e6,cmap=cm,vmin=-200, vmax=200,s=40)
+plt.scatter(ele_x,ele_z,c=phase,cmap=phase15,vmin=1, vmax=20,s=20)
+plt.ylim(-300,-0)
+plt.xlim(500,900)
+plt.axes().set_aspect('equal')
+# plt.scatter(slab_x,slab_z,c='k',s=40)
 
-# for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
-#     zind = np.where(ele_z[x_ind,:]==slab_z[ii])[0]
-#     if len(zind)==0:
-#         zind = 0
-#     else:
-#         zind = int(zind)
-#     # Choose the submantle area
-#     submantle = (ele_z[x_ind,zind:]< depth2)*(ele_z[x_ind,zind:]> depth1)*((phase[x_ind,zind:]==phase_mantle1) + \
-#             (phase[x_ind,zind:]==phase_mantle2) + \
-#             (phase[x_ind,zind:]==phase_serpentinite)+\
-#             (phase[x_ind,zind:]==phase_hydratedmantle))*(ele_x[x_ind,zind:]<max(slab_x))
-#     if True in submantle:
-#         for ele_index in range(len(ele_x[x_ind,zind:][submantle])):
-#             maxmax = 9999
-#             x1 = ele_x[x_ind,zind:][submantle][ele_index]
-#             z1 = ele_z[x_ind,zind:][submantle][ele_index]
-#             for slab_ind in range(len(xslab)):
-#                 dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
-#                 if dis<maxmax:
-#                     maxmax = dis
-#                     choosex = xslab[slab_ind]
-#                     choosez = zslab[slab_ind]
-#                     chooseind = slab_ind
-#             if maxmax < 80:
-#                 z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
-#                 list_subslab[chooseind].append([x_ind,z_ind])
-#                 # plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c= 'b',s = 5)
-#     # Choose the top mantle area
-#     if slab_z[ii]==0:
-#         slab_z[ii]=-410
-#     topmantle = (ele_z[x_ind,:]< depth2)*(ele_z[x_ind,:]> depth1)*((phase[x_ind,:]==phase_mantle1) + \
-#             (phase[x_ind,:]==phase_mantle2) + \
-#             (phase[x_ind,:]==phase_serpentinite)+(ele_x[x_ind,:]>max(slab_x)))*(ele_z[x_ind,:]>slab_z[ii])
-#     if True in topmantle:
-#         for ele_index in range(len(ele_x[x_ind,:][topmantle])):
-#             maxmax = 9999
-#             x1 = ele_x[x_ind,:][topmantle][ele_index]
-#             z1 = ele_z[x_ind,:][topmantle][ele_index]
-#             for slab_ind in range(len(xslab)):
-#                 dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
-#                 if dis<maxmax:
-#                     maxmax = dis
-#                     choosex = xslab[slab_ind]
-#                     choosez = zslab[slab_ind]
-#                     chooseind = slab_ind
-#             if maxmax < 80:
-#                 z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
-#                 list_topslab[chooseind].append([x_ind,z_ind])
-#                 # plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c= 'r',s = 5) 
+for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
+    zind = np.where(ele_z[x_ind,:]==slab_z[ii])[0]
+    if len(zind)==0:
+        zind = 0
+    else:
+        zind = int(zind)
+    # Choose the submantle area
+    submantle = (ele_z[x_ind,zind:]< depth2)*(ele_z[x_ind,zind:]> depth1)*((phase[x_ind,zind:]==phase_mantle1) + \
+            (phase[x_ind,zind:]==phase_mantle2) + \
+            (phase[x_ind,zind:]==phase_serpentinite)+\
+            (phase[x_ind,zind:]==phase_hydratedmantle))*(ele_x[x_ind,zind:]<max(slab_x))
+    if True in submantle:
+        for ele_index in range(len(ele_x[x_ind,zind:][submantle])):
+            maxmax = 9999
+            x1 = ele_x[x_ind,zind:][submantle][ele_index]
+            z1 = ele_z[x_ind,zind:][submantle][ele_index]
+            for slab_ind in range(len(xslab)):
+                dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
+                if dis<maxmax:
+                    maxmax = dis
+                    choosex = xslab[slab_ind]
+                    choosez = zslab[slab_ind]
+                    chooseind = slab_ind
+            if maxmax < 50:
+                z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
+                list_subslab[chooseind].append([x_ind,z_ind])
+                # plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='b',s = 5)
+    # Choose the top mantle area
+    if slab_z[ii]==0:
+        slab_z[ii]=-410
+    topmantle = (ele_z[x_ind,:]< depth2)*(ele_z[x_ind,:]> depth1)*\
+    ((phase[x_ind,:]==phase_mantle1) + (phase[x_ind,:]==phase_mantle2) + \
+            (phase[x_ind,:]==phase_serpentinite)+(ele_x[x_ind,:]>max(slab_x)))*(ele_z[x_ind,:]>slab_z[ii])
+    if True in topmantle:
+        for ele_index in range(len(ele_x[x_ind,:][topmantle])):
+            maxmax = 9999
+            x1 = ele_x[x_ind,:][topmantle][ele_index]
+            z1 = ele_z[x_ind,:][topmantle][ele_index]
+            for slab_ind in range(len(xslab)):
+                dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
+                if dis<maxmax:
+                    maxmax = dis
+                    choosex = xslab[slab_ind]
+                    choosez = zslab[slab_ind]
+                    chooseind = slab_ind
+            if maxmax < 50:
+                z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
+                list_topslab[chooseind].append([x_ind,z_ind])
+                # plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='r',s = 5) 
 
-# Ptotal = np.zeros(len(xslab))
-# dz = np.zeros(len(xslab))
+Ptotal = np.zeros(len(xslab))
+dl = np.zeros(len(xslab))
 # for ss in range(len(xslab)):
-#     psub = 0
-#     ptop = 0
-#     x0 = xslab[ss]
-#     z0 = zslab[ss]
-#     for rr in range(len(list_subslab[ss])):
-#         indx = list_subslab[ss][rr][0]
-#         indz = list_subslab[ss][rr][1]
-#         x1 = ele_x[indx,indz]
-#         z1 = ele_z[indx,indz]
-#         vec = [x0-x1,z0-z1]
-#         ref = [1,0]
-#         if np.linalg.norm(vec)==0:
-#             continue
-#         sinan = np.cross(vec,ref)/np.linalg.norm(vec)
-#         pre = dpre[list_subslab[ss][rr][0],list_subslab[ss][rr][1]] # N/m^2
-#         pre_vetical = pre*sinan
-#         psub += pre_vetical
+for ss in range(97,98):
+    psub = 0
+    ptop = 0
+    x0 = xslab[ss]
+    z0 = zslab[ss]
+    if ss >= 1:
+        dl[ss] = np.sqrt((-(zslab[ss]-zslab[ss-1]))**2+(-(xslab[ss]-xslab[ss-1]))**2)*1e3 # m
+    for rr in range(len(list_subslab[ss])):
+        indx = list_subslab[ss][rr][0]
+        indz = list_subslab[ss][rr][1]
+        x1 = ele_x[indx,indz]
+        z1 = ele_z[indx,indz]
+        plt.scatter(x1,z1,c='b',s = 50)
+        vec = [x0-x1,z0-z1]
+        ref = [1,0]
+        if np.linalg.norm(vec)==0:
+            continue
+        sinan = np.cross(vec,ref)/np.linalg.norm(vec)
+        pre = dpre[list_subslab[ss][rr][0],list_subslab[ss][rr][1]] # N/m^2
+        Ftotal_sub = pre * dl[ss]
+        pre_vetical = pre*sinan
+        psub += pre_vetical
 
-#     for rr in range(len(list_topslab[ss])):
-#         indx = list_topslab[ss][rr][0]
-#         indz = list_topslab[ss][rr][1]
-#         x1 = ele_x[indx,indz]
-#         z1 = ele_z[indx,indz]
-#         vec = [x0-x1,z0-z1]
-#         ref = [1,0]
-#         sinan = np.cross(vec,ref)/np.linalg.norm(vec)
-#         pre = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
-#         pre_vetical = pre*sinan
-#         ptop += pre_vetical
-#     Ptotal[ss] = psub-ptop
+    for rr in range(len(list_topslab[ss])):
+        indx = list_topslab[ss][rr][0]
+        indz = list_topslab[ss][rr][1]
+        x1 = ele_x[indx,indz]
+        z1 = ele_z[indx,indz]
+        plt.scatter(x1,z1,c='r',s = 50)
+        vec = [x0-x1,z0-z1]
+        ref = [1,0]
+        sinan = np.cross(vec,ref)/np.linalg.norm(vec)
+        pre = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
+        pre_vetical = pre*sinan
+        ptop += pre_vetical
+    Ptotal[ss] = psub-ptop
 
-#     if ss >= 1:
-#         dz[ss] = -(zslab[ss]-zslab[ss-1])*1e3
+    
 # Fsu = (Ptotal*dz).sum() # N/m
 
 def suction_force2(frame):
@@ -398,8 +409,6 @@ def suction_force2(frame):
             if np.linalg.norm(vec)==0:
                 continue
             sinan = np.cross(vec,ref)/np.linalg.norm(vec)
-            if abs(sinan - 1 )>0.1:
-                print(x1,z1)
             pre = dpre[list_subslab[ss][rr][0],list_subslab[ss][rr][1]] # N/m^2
             pre_vetical = pre*sinan
             psub += pre_vetical
@@ -412,8 +421,6 @@ def suction_force2(frame):
             vec = [x0-x1,z0-z1]
             ref = [1,0]
             sinan = np.cross(vec,ref)/np.linalg.norm(vec)
-            if abs(sinan - 1 )>0.1:
-                print(x1,z1)
             pre = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
             pre_vetical = pre*sinan
             ptop += pre_vetical
@@ -465,8 +472,8 @@ def shearstress_indistance(frame):
 # #fig.savefig('/home/jiching/geoflac/figure/'+model+'_sxz_dis.png')
 
 #------------------------------------------------------------------------------
-if __name__ == '__main__':
-# if __name__ == '__kk__':
+# if __name__ == '__main__':
+if __name__ == '__kk__':
     fsb=np.zeros(end)
     ft=np.zeros(end)
     fsu=np.zeros(end)
