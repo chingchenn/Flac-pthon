@@ -13,9 +13,9 @@ plt.rcParams["font.family"] = "Times New Roman"
 fontsize=30
 labelsize=25
 bwith = 5
-fig1 = 1 # basalt and eclogit 
+fig1 = 0 # basalt and eclogit 
 fig2 = 1 # perdotite and serpentinite
-fig3 = 1 # sediment to schist
+fig3 = 0 # sediment to schist
 if fig1:
 ###===============================basalt and eclogit ==========================
     x = np.linspace(0,514)
@@ -61,8 +61,8 @@ if fig1:
     
     # ax.set_title('metamorphosed MORB ',fontsize=25)
     # fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/ThesisNTU/figures/'+'basalt_phase_diagram'+'.pdf')
-    fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/'+'basalt_phase_diagram'+'.pdf')
-    ###==================== perdotite and serpentinite =============================
+    # fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/'+'basalt_phase_diagram'+'.pdf')
+###==================== perdotite and serpentinite =============================
 if fig2:
     fig2,ax = plt.subplots(1,1,figsize=(10,10))
     phase_change = (140/255, 20/255, 70/255)
@@ -74,18 +74,18 @@ if fig2:
     ttold = 2.1 + (0.6-2.1) * (x-730)/(670-730)
     ax.plot(x,ttold,c=phase_change,lw=5)
     
-    depth = np.linspace(0,900000,100)
+    depth = np.linspace(0,500e3,1000)
     solidus = np.zeros(len(depth))
     for i,kk in enumerate(depth):
-        if kk > 80e3:
-            solidus[i] = 800
+        if kk > 113e3:
+            solidus[i] = 800+(kk-114)/1e3*5e-3
         else:
-            solidus[i] = 800+6.2e-8*(kk-80e3)**2
+            solidus[i] = 800+3.14e-8*(kk-113e3)**2
     axdep = ax.twinx()
     axdep.plot(solidus,depth/1e3,c='#FF9900',lw=4,label = 'solidus')
-    ax.set_ylim(0,9)
-    ax.set_xlim(0,1200)
-    axdep.set_ylim(0,300)
+    ax.set_ylim(160*1000*10*3300/1e9,0)
+    ax.set_xlim(600,1200)
+    axdep.set_ylim(160,0)
     ax.tick_params(axis='x', labelsize=labelsize)
     ax.tick_params(axis='y', labelsize=labelsize)
     axdep.tick_params(axis='y', labelsize=labelsize)
@@ -96,9 +96,10 @@ if fig2:
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
-    ax.text(80,3.5,'serpentinite',fontsize=36)
-    ax.text(870,6.5,'perdotite',fontsize=36)
+    # ax.text(80,3.5,'serpentinite',fontsize=36)
+    # ax.text(870,6.5,'perdotite',fontsize=36)
     ax.legend(fontsize = fontsize-7, loc='upper left')
+    fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/ThesisNTU/figures/'+'serpentinite_phase_diagram'+'.pdf')
     
     ###====================sediment to schist =============================
 if fig3:    

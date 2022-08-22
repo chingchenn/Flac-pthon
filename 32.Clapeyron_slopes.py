@@ -11,18 +11,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 
-
-#fig, (ax)= plt.subplots(1,1,figsize=(6,6))
-#axdep = ax.twinx()
+# fig, (ax)= plt.subplots(1,1,figsize=(6,6))
+# axdep = ax.twinx()
 
 rho = 3450
 g = 10
 
 temp = np.linspace(1000,2400,1000)
-zzz = (-660e3+(temp-1330)* 500/6) # m
+zzz = (-660e3+(temp-1330)* 850/5) # m
 pres = -zzz* rho * g/1e6  #MPa
 #ax.plot(temp,pres/1e3,lw = 7,c = 'darkgreen') # GPa
-
 labelsize=15;fontsize = 20
 #axdep.set_ylim(200,800)
 #ax.set_ylim(200*1e3*rho*g/1e9,800*1e3*rho*g/1e9)
