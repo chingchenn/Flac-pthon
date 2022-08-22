@@ -20,19 +20,19 @@ from scipy.interpolate import  UnivariateSpline,Akima1DInterpolator, PchipInterp
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-#model = sys.argv[1]
-model = 'b0804m'
+model = sys.argv[1]
+#model = 'b0804m'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
-path='/Users/ji-chingchen/Desktop/model/'
+#path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
 #path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
-savepath='/Users/ji-chingchen/Desktop/data/'
+#savepath='/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-figpath='/Users/ji-chingchen/Desktop/figure/'
+#figpath='/Users/ji-chingchen/Desktop/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx-1; nez=fl.nz-1
