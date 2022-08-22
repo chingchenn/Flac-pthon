@@ -55,10 +55,13 @@ flat_slab_plot          = 1
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/'
 #path = 'F:/model/'
-savepath='/home/jiching/geoflac/data/'
-figpath='/home/jiching/geoflac/figure/'
+#savepath='/home/jiching/geoflac/data/'
+savepath='/scratch2/jiching//data/'
+#figpath='/home/jiching/geoflac/figure/'
+figpath='/scratch2/jiching/figure/'
 model = sys.argv[1]
 os.chdir(path+model)
 
