@@ -6,31 +6,31 @@ Created on Thu Jul 14 17:42:12 2022
 @author: ji-chingchen
 """
 
-import sys, os
-import numpy as np
+
 import flac
 import math
+import sys, os
 import matplotlib
+import numpy as np
 from matplotlib import cm
+from scipy import interpolate
 import function_for_flac as fd
 import function_savedata as fs
-from scipy import interpolate
 import matplotlib.pyplot as plt
-from scipy.interpolate import  UnivariateSpline,Akima1DInterpolator, PchipInterpolator
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-model = sys.argv[1]
-#model = 'b0804m'
+#model = sys.argv[1]
+model = 'b0702k'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
-#path = 'D:/model/'
+path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
 #savepath='/Users/ji-chingchen/Desktop/data/'
-#savepath = 'D:/model/data/'
+savepath = 'D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
 #figpath='/Users/ji-chingchen/Desktop/figure/'
 os.chdir(path+model)
@@ -53,40 +53,44 @@ phase_oceanic_1 = 17
 phase_eclogite_1 = 18
 
 bwith = 3
+g = 10
 def temp_elements(temp):
     ttt = (temp[:fl.nx-1,:fl.nz-1] + temp[1:,:fl.nz-1] + temp[1:,1:] + temp[:fl.nx-1,1:]) / 4.
     return ttt
 ###----------------------- Slab sinking force with time-------------------------------
 #    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
-def slab_sinking_force(frame):
-    x, z = fl.read_mesh(frame)
-    ele_x, ele_z = flac.elem_coord(x, z)
-    phase = fl.read_phase(frame)
-    density = fl.read_density(frame)
-    area = fl.read_area(frame)
-    rho_diff = np.zeros(nez)
-    slab_area = np.zeros(nez)
-    temp = fl.read_temperature(frame)
-    ele_temp = temp_elements(temp)
-    Fsb = 0; g = 10
-    for z_ind in range(1,len(ele_z[0])):
-        ind_eclogite = (phase[:,z_ind]==phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) #+ (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2)
-        man_eclogite = (phase[:,z_ind]== phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)+ (phase[:,z_ind] == phase_hydratedmantle)#+ (phase[:,z_ind] == phase_schist)
-        ind_slab = (ele_temp[:,z_ind]<700)*((phase[:,z_ind]== phase_mantle1)+ (phase[:,z_ind]==phase_eclogite)+ (phase[:,z_ind] == phase_eclogite_1)+ (phase[:,z_ind] == phase_hydratedmantle))
-        #print(man_eclogite)
-        if True in ind_eclogite and True in man_eclogite:
-            den_mantle = np.average(density[man_eclogite,z_ind])
-            den_eco = np.average(density[ind_eclogite,z_ind])
-            if den_eco < den_mantle:
-                #print(frame,z_ind, den_eco-den_mantle)
-                continue
-            rho_diff[z_ind] = den_eco - den_mantle
-            slab_area[z_ind] = area[ind_slab,z_ind].sum()
-            #if True in ind_slab:
-                #print(ele_x[ind_slab],z_ind)
-        Fsb += rho_diff[z_ind] * g * slab_area[z_ind]
-    print('Fsb=',Fsb/1e12)
-    return Fsb # N/m (2D)
+# def slab_sinking_force(frame):
+frame = 40
+# ------ read data from model -----
+x, z = fl.read_mesh(frame)
+ele_x, ele_z = flac.elem_coord(x, z)
+phase = fl.read_phase(frame)
+density = fl.read_density(frame)
+area = fl.read_area(frame)
+temp = fl.read_temperature(frame)
+ele_temp = temp_elements(temp)
+# ----- empty array and data -----
+rho_diff = np.zeros(nez)
+slab_area = np.zeros(nez)
+Fsb = 0 
+
+for z_ind in range(1,len(ele_z[0])):
+    ind_eclogite = (phase[:,z_ind] == phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1)\
+        #+ (phase[:,z_ind] == phase_hydratedmantle) + (phase[:,z_ind] == phase_mantle2) # denser plate 
+    man_eclogite = (phase[:,z_ind] == phase_mantle1) + (phase[:,z_ind] == phase_serpentinite)\
+        + (phase[:,z_ind] == phase_hydratedmantle) # lighter plate
+    ind_slab = (ele_temp[:,z_ind]<700)*((phase[:,z_ind]== phase_mantle1)+ (phase[:,z_ind]==phase_eclogite)+ (phase[:,z_ind] == phase_eclogite_1)+ (phase[:,z_ind] == phase_hydratedmantle))
+    if True in ind_eclogite and True in man_eclogite:
+        den_mantle = np.average(density[man_eclogite,z_ind])
+        den_eco = np.average(density[ind_eclogite,z_ind])
+        if den_eco < den_mantle:
+            continue
+        rho_diff[z_ind] = den_eco - den_mantle
+        slab_area[z_ind] = area[ind_slab,z_ind].sum()
+        #if True in ind_slab:
+            #print(ele_x[ind_slab],z_ind)
+    Fsb += rho_diff[z_ind] * g * slab_area[z_ind]
+    # return Fsb # N/m (2D)
 
 ###---------------------- Mantle flow traction force with time -------------------------------
 #   Ft = sum(shear stress * dx) = \sigma_xz * dx 
