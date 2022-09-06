@@ -53,13 +53,14 @@ flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
+#path = '/home/jiching/geoflac_T/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/'
 #path = 'F:/model/'
 #savepath='/home/jiching/geoflac/data/'
-savepath='/scratch2/jiching//data/'
+savepath='/scratch2/jiching/data/'
 #figpath='/home/jiching/geoflac/figure/'
 figpath='/scratch2/jiching/figure/'
 model = sys.argv[1]
@@ -483,13 +484,12 @@ if dip_plot:
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
-    fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
+    fig.savefig(figpath+model+'_dip.jpg')
     print('=========== DONE =============')
 if magma_plot:
     print('--------plotting magma--------')
     name = 'magma_for_'+model+'.txt'
-    filepath = '/home/jiching/geoflac/data/'
-    temp1 = np.loadtxt(filepath+name)
+    temp1 = np.loadtxt(savepath+name)
     melt,chamber,yymelt,yychamber,rrr = temp1.T
     fig, (ax) = plt.subplots(4,1,figsize=(15,15))
     ax[0].plot(fl.time,yymelt,color='tomato')

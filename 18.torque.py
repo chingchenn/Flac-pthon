@@ -22,6 +22,8 @@ path = '/home/jiching/geoflac/'+model+'/'
 #path = '/Volumes/SSD500/model/'+model+'/'
 # path = '/Volumes/My Book/model/'+model+'/'
 #path = 'F:/model/'+model+'/'
+savepath = '/scratch2/jiching/data/'
+figpath = '/scratch2/jiching/figure/'
 
 ###================================= parameter setting =======================================
 depth1=0
@@ -111,7 +113,7 @@ def find_slab(i):
     return oxc,ozc,oxe,oze
 
 ###===================================find lithosphere========================================
-for i in range(3,end):
+for i in range(10,end):
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
     ## In this code, we considered the marker phase, not the element phase
@@ -190,8 +192,8 @@ ax.set_ylabel('Force (kg*m/s^2)',fontsize=16)
 ax.set_xlim(0, fl.time[-1])
 # ax.set_yscale('log')
 ax.set_title('Torque of '+model,fontsize=20,fontname="Times New Roman")
-fig.savefig('/home/jiching/geoflac/figure/'+model+'_torque.png')
-fs.save_3txt(model+'_torque','/home/jiching/geoflac/data/',fl.time,Torque_G,Torque_H)
+fig.savefig(figpath+model+'_torque.png')
+fs.save_3txt(model+'_torque',savepath,fl.time,Torque_G,Torque_H)
 
 
 ###==================== find crust by another way, (not a good way) =====================

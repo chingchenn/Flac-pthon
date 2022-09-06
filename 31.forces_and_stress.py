@@ -29,9 +29,11 @@ path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
+savepath='/scratch2/jiching/data/'
 #savepath='/Users/ji-chingchen/Desktop/data/'
 savepath = 'D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
+figpath='/scratch2/jiching/figure/'
 #figpath='/Users/ji-chingchen/Desktop/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
