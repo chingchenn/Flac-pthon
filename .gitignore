@@ -1,2 +1,5 @@
 __pycache__/
 *pyc
+gmt.history
+gmt.conf
+*cpt
