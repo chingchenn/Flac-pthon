@@ -13,8 +13,8 @@ plt.rcParams["font.family"] = "Times New Roman"
 fontsize=30
 labelsize=25
 bwith = 5
-fig1 = 0 # basalt and eclogit 
-fig2 = 1 # perdotite and serpentinite
+fig1 = 1 # basalt and eclogit 
+fig2 = 0 # perdotite and serpentinite
 fig3 = 0 # sediment to schist
 if fig1:
 ###===============================basalt and eclogit ==========================
@@ -27,7 +27,8 @@ if fig1:
     y = 0.0022 * x - 0.3
     ax.plot(x,y,c=basalt_change,lw=8,label='basalt-eclogite')
 
-    pressure=np.linspace(0,9,100)
+    pressure_limit = 5 # GPa
+    pressure=np.linspace(0,pressure_limit,100)
     sss=np.zeros(len(pressure))
     for q,dd in enumerate(pressure):
         if dd<1:
@@ -38,10 +39,10 @@ if fig1:
             ss=630+26*((-dd)**2)/2 
         sss[q] = ss
     ax.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
-    ax.set_ylim(0,9)
+    ax.set_ylim(0,pressure_limit)
     ax.set_xlim(0,1200)
     axdep = ax.twinx()
-    axdep.set_ylim(0,300)
+    axdep.set_ylim(0,pressure_limit*1e9/3300/10/1e3)
     ax.legend(fontsize=fontsize-7)
     axdep.tick_params(axis='y', labelsize=labelsize)
     ax.tick_params(axis='x', labelsize=labelsize)
@@ -49,8 +50,8 @@ if fig1:
     ax.set_xlabel('Temperature ($^\circ$C)',fontsize=fontsize)
     ax.set_ylabel('Pressure (GPa)',fontsize=fontsize)
     axdep.set_ylabel('Depth (km)',fontsize=fontsize)
-    ax.text(80,3.5,'Basalt',fontsize=36)
-    ax.text(570,5.5,'Eclogite',fontsize=36)
+    ax.text(80,2.5,'Basalt',fontsize=36)
+    ax.text(570,3.5,'Eclogite',fontsize=36)
     # ax.text(480,2.5,'Phase boundary from',fontsize=fontsize)
     # ax.text(520,2.1,'Hacker et al. (2003)',fontsize=fontsize)
     ax.spines['bottom'].set_linewidth(bwith)
@@ -107,14 +108,17 @@ if fig3:
     depth = np.linspace(0,300000,100)
     sss=np.zeros(len(depth))
     for q,dd in enumerate(depth):
-        ss1 = 680+0.6e-3*(dd-140e3)
-        ss2=930-313*(1-np.exp(-dd/7e3))
+        ss1 = 620+0.4e-3*(dd-140e3)
+        ss2 = 930-313*(1-np.exp(-dd/18e3))
         sss[q] = max(ss1,ss2)
+        
     axdep = ax.twinx()
+    ax.axvline(x=650,c='green',lw = 5,linestyle = '--')
     axdep.plot(sss,depth/1e3,c='#FF9900',lw=5)
-    ax.set_ylim(0,9)
-    axdep.set_ylim(0,300)
-    ax.set_xlim(0,1200)
+    ax.axvline(x=200,c='#008B8B',lw = 5,linestyle = '--')
+    ax.set_ylim(5,0)
+    axdep.set_ylim(300,0)
+    ax.set_xlim(0,1500)
     ax.tick_params(axis='x', labelsize=labelsize)
     ax.tick_params(axis='y', labelsize=labelsize)
     axdep.tick_params(axis='y', labelsize=labelsize)
@@ -125,7 +129,7 @@ if fig3:
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
-    ax.text(80,3.5,'sediment',fontsize=36)
-    ax.text(770,5.5,'schist',fontsize=36)
+    # ax.text(80,3.5,'sediment',fontsize=36)
+    ax.text(770,1.5,'schist',fontsize=36)
     
     
