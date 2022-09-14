@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
 Created on Tue Sep  6 10:13:28 2022
@@ -129,3 +130,12 @@ for kk,idd in enumerate([248644, 248647, 247521, 634356, 617652, 485634, 598651,
     ax2.tick_params(axis='y', labelsize=labelsize)
     
 
+    fig,ax = plt.subplots(1,1,figsize=(10,10))
+    ax.scatter(px[px>0],pz[px>0],color = colors[kk],s = 30)
+    ax.set_xlim(700,950)
+    ax.set_ylim(-150,0)
+    ax.grid()
+    ax.set_title(str(idd),fontsize = labelsize)
+    ax.tick_params(axis='x', labelsize=labelsize)
+    ax.tick_params(axis='y', labelsize=labelsize)
+    fig.close()
