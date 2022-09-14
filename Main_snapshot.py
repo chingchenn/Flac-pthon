@@ -28,7 +28,7 @@ inter_srII      = 0
 gravity         = 0
 
 ### plot
-shot            = 0
+shot            = 1
 shot_interp     = 0
 pressure        = 0
 gravity_plot    = 0
@@ -40,11 +40,13 @@ Vz              = 0
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
+#path = '/scratch2/jiching/22summer/'
+path = '/scratch2/jiching/04model/'
 #path = 'F:/model/'
 #path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
-savepath='/home/jiching/geoflac/data/'
-figpath='/home/jiching/geoflac/figure/'
+savepath='/scratch2/jiching/data/'
+figpath='/scratch2/jiching/figure/'
 
 model = sys.argv[1]
 frame = int(sys.argv[2])
