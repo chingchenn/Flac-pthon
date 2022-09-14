@@ -43,6 +43,7 @@ gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 1
+melting_location2D      = 1
 force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 1
@@ -57,6 +58,7 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/22summer/'
+#path = '/scratch2/jiching/04model/'
 #path = '/scratch2/jiching/'
 #path = 'F:/model/'
 #savepath='/home/jiching/geoflac/data/'
@@ -665,6 +667,33 @@ if melting_plot:
     ax.spines['left'].set_linewidth(bwith)
     fig.savefig(figpath+model+'_bar_plot_melting.png')
     print('=========== DONE =============')
+if melting_location2D:
+    rainbow = cm.get_cmap('gray_r',end)
+    meltcolor = cm.get_cmap('OrRd',end)
+    newcolors = rainbow(np.linspace(0, 1, end))
+    time_color = meltcolor(np.linspace(0,1,end))
+    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
+    for i in range(1,end):
+        x, z = fl.read_mesh(i)
+        ele_x, ele_z = nodes_to_elements(x,z)
+        magma_chamber = fl.read_fmagma(i)
+        melt = fl.read_fmelt(i)
+        ax.scatter(ele_x[magma_chamber>1e-4],-ele_z[magma_chamber>1e-4],color=newcolors[i],zorder=1,s=10)
+        if len(ele_x[melt>1e-4]) !=0:
+            time = fl.time[i]
+            qqq=ax.scatter(ele_x[melt>1e-4],-ele_z[melt>1e-4],color=time_color[i],s = 10)
+    ax.set_ylim(150,0)
+    #ax.set_xlim(0,1200)
+    ax.set_title(str(model)+" Melting location",fontsize=24)
+    ax.set_xlabel('X location',fontsize=20)
+    ax.set_ylabel('Depth (km)',fontsize=20)
+    ax.tick_params(axis='x', labelsize=16 )
+    ax.tick_params(axis='y', labelsize=16 )
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    fig.savefig(figpath+model+'_melting_location_2D.png')
 if force_plot_LR:
     print('-----plotting boundary force-----')
     filepath = savepath+model+'_forc.txt'
