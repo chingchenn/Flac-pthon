@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 # ===================================initial set up ======================================
 fig_GMT            = 1
-fig_origin         = 0
-path = '/home/jiching/geoflac/figure/'
+fig_origin         = 1
+path = '/scratch2/jiching/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
 DIR='/home/jiching/GMT/slab'
