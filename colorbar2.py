@@ -24,6 +24,7 @@ savepath='/home/jiching/geoflac/data/'
 savepath='/Volumes/SSD500/data/'
 figpath='/home/jiching/geoflac/figure/'
 figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
+figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/colorbar/'
 
 fig, axes = plt.subplots(1, 1, figsize=(15, 1))
 fig.subplots_adjust(wspace=2.5)
@@ -43,5 +44,5 @@ norm4 = mcolors.BoundaryNorm(bins, nbin)
 im4 = cm.ScalarMappable(norm=norm4, cmap=cmap4)
 cbar4 = fig.colorbar(im4, cax=axes2,orientation='horizontal')
 cbar4.ax.tick_params(labelsize=labelsize) 
-fig.savefig(figpath+'viscosity.pdf')
-fig2.savefig(figpath+'temperature.pdf')
+fig.savefig(figpath+'viscosity_hor.pdf')
+fig2.savefig(figpath+'temperature_hor.pdf')

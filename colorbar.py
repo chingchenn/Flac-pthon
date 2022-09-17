@@ -20,6 +20,7 @@ Created on Thu Apr 28 23:46:15 2022
 
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/colorbar/'
 # plt.figure(figsize=(9, 1.5))
 fig, ax = plt.subplots(figsize=(2, 17))
 # fig.subplots_adjust(bottom=0.5)
@@ -44,6 +45,7 @@ cb2 = mpl.colorbar.ColorbarBase(ax,cmap=cmap,
                                  norm=norm,
                                 orientation='vertical')
 cb2.ax.tick_params(labelsize=40)
+fig.savefig(figpath+'temperature_ver.pdf')
 # # cb2.set_label("Discrete intervals with extend='both' keyword")
 # fig.show()
 
