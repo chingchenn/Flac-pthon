@@ -18,21 +18,27 @@ from scipy import interpolate
 import matplotlib.pyplot as plt
 from scipy.interpolate import  UnivariateSpline,Akima1DInterpolator, PchipInterpolator
 #------------------------------------------------------------------------------
-plt.rcParams["font.family"] = "Times New Roman"
-plt.rcParams["figure.figsize"] = (10,12)
+# plt.rcParams["font.family"] = "Times New Roman"
+# plt.rcParams["figure.figsize"] = (10,12)
 #model = sys.argv[1]
-model = 'b0801c'
+model = 'ch1528'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
-path='/Users/ji-chingchen/Desktop/model/'
+#path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
-#path = 'D:/model/'
+path = 'D:/model/'
+path = '/Users/chingchen/Desktop/model/'
+#path = 'F:/model/'
+# path = 'D:/model/'
+#path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
-savepath='/Users/ji-chingchen/Desktop/data/'
+savepath='/scratch2/jiching/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 #savepath = 'D:/model/data/'
 figpath='/home/jiching/geoflac/figure/'
-figpath='/Users/ji-chingchen/Desktop/figure/'
+figpath='/scratch2/jiching/figure/'
+figpath = '/Users/chingchen/Desktop/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx-1; nez=fl.nz-1
@@ -101,9 +107,13 @@ def find_slab_median_index2(i):
     ox=oxx
     return ox,oz
 
-depth1 = -350
-depth2 = -10
 frame = 140
+dis_range = 25
+g = 10
+
+###---------------------------------------------------------------------------------------------------------
+depth1 = -150
+depth2 = -10
 x, z = fl.read_mesh(frame)
 ele_x, ele_z = flac.elem_coord(x, z)
 phase = fl.read_phase(frame)
@@ -113,63 +123,111 @@ slab_x,slab_z = find_slab_median_index2(frame)
 xslab = slab_x[(slab_x>0)*(slab_z>depth1)*(slab_z<depth2)]
 zslab = slab_z[(slab_x>0)*(slab_z>depth1)*(slab_z<depth2)]
 
-
-z1=np.polyfit(xslab,zslab,4)
-p4=np.poly1d(z1)
-w1=p4(xslab) # 4st poly 
-p3=np.polyder(p4,1)
-p2=np.polyder(p4,2)
-w2=p3(xslab) # 3st poly 
-w3=p2(xslab) # 2st poly
-
 z5 =  np.polyfit(xslab,zslab,5)
 p5 = np.poly1d(z5)
 w5 = p5(xslab) # 5st poly
-
-list_subslab =  [[] for i in range(len(zslab))]
-list_topslab =  [[] for i in range(len(zslab))]
-ind_trench = int(trench_index[frame])
-
+###----------------------------------------------------------------------------
 colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#2E8B57","#524B52","#D14309","#ed45a7","#FF8C00",
           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase15= matplotlib.colors.ListedColormap(colors)
 cm = plt.cm.get_cmap('RdYlBu_r')
-#plt.scatter(ele_x,ele_z,c=-dpre/1e6,cmap=cm,vmin=-200, vmax=200,s=40)
-plt.scatter(ele_x,ele_z,c=phase,cmap=phase15,vmin=1, vmax=20,s=100)
-plt.ylim(-300,-0)
-plt.xlim(300,1000)
-plt.axes().set_aspect('equal')
+fig, (ax)= plt.subplots(1,1,figsize=(10,6))
+# ax.scatter(ele_x,ele_z,c=-dpre/1e6,cmap=cm,vmin=-200, vmax=200,s=40)
+ax.scatter(ele_x,ele_z,c=phase,cmap=phase15,vmin=1, vmax=20,s=100)
+ax.set_ylim(-300,-0)
+ax.set_xlim(300,1000)
+ax.set_aspect('equal')
 #plt.scatter(xslab,zslab,c = 'k',s = 50)
-plt.scatter(xslab,w5,c = 'k',s = 30)
-zslab = w5
+ax.scatter(xslab,w5,c = 'k',s = 30)
 
-#p = 0
+
+
+###----------------------- Slab sinking force with time-------------------------------
+#    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
+# frame = 75
+# def slab_sinking_torque(frame):
+    # ------ read data from model -----
+x, z = fl.read_mesh(frame)
+ele_x, ele_z = flac.elem_coord(x, z)
+phase = fl.read_phase(frame)
+density = fl.read_density(frame)
+area = fl.read_area(frame)
+temp = fl.read_temperature(frame)
+# ----- empty array and data -----
+rho_diff = np.zeros(nex)
+Fsb = 0 
+
+ind_trench = int(trench_index[frame])
+moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
 for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
-#for ii,x_ind in enumerate(range(ind_trench,170)):
-    zind = np.where(ele_z[x_ind,:]==slab_z[ii])[0]
-    if len(zind)==0:
-        zind = 0
-    else:
-        zind = int(zind)
+    # Choose the eclogite area
+    ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1)
+    if True in ind_eclogite:# and True in man_eclogite:
+        # ax.scatter(ele_x[x_ind,:][man_eclogite],ele_z[x_ind,:][man_eclogite],c = 'b')
+        for ele_index in range(len(ele_x[x_ind,:][ind_eclogite])):
+            x1 = ele_x[x_ind,:][ind_eclogite][ele_index]
+            z1 = ele_z[x_ind,:][ind_eclogite][ele_index]
+            torque_length = np.sqrt((x1-moment_point_x)**2+(z1-moment_point_z)**2) *1e3
+            den_eco = density[x_ind,:][ind_eclogite][ele_index]
+            filter_man = (abs(ele_z[x_ind,:]-z1)<20)^(phase[x_ind,:] == phase_eclogite)
+            if not True in filter_man:
+                continue
+            den_mantle = np.average(density[x_ind,:][filter_man])
+            print(den_mantle)
+            # den_mantle = density[x_ind,:][ind_eclogite][ele_index]
+            ax.scatter(ele_x[x_ind,:][filter_man],ele_z[x_ind,:][filter_man],c = 'b',s = 5)
+            volume = area[x_ind,:][ind_eclogite][ele_index]
+            rho_diff[x_ind] = den_eco - den_mantle
+            cos_theta = (x1-moment_point_x)*1e3/torque_length
+            Fsb+= torque_length*rho_diff[x_ind]*g*cos_theta*volume
+    # return Fsb # N (2D)
+
+
+
+
+
+
+###------------------------------------------------------------------------------------------------
+
+
+
+
+
+zslab = w5
+list_subslab =  [[] for i in range(len(zslab))]
+list_topslab =  [[] for i in range(len(zslab))]
+ind_trench = int(trench_index[frame])
+Fsu = 0
+for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
     # Choose the submantle area
     isabove = lambda p,a,b : np.cross(p-a,b-a)<0
     submantle = (ele_z[x_ind,:]< depth2)*(ele_z[x_ind,:]> depth1)*((phase[x_ind,:]==phase_mantle1) + \
             (phase[x_ind,:]==phase_mantle2) +(phase[x_ind,:]==phase_hydratedmantle))
     if True in submantle:
+        # ax.scatter(ele_x[x_ind,:][submantle],ele_z[x_ind,:][submantle],c = 'b')
+        # print(len(ele_x[x_ind,:][submantle]))
         for ele_index in range(len(ele_x[x_ind,:][submantle])):
             maxmax = 9999
             x1 = ele_x[x_ind,:][submantle][ele_index]
             z1 = ele_z[x_ind,:][submantle][ele_index]
+            
+            # print(np.sqrt((xslab-x1)**2+(zslab-z1)**2))
+            # print(<11)
+            if not True in (np.sqrt((xslab-x1)**2+(zslab-z1)**2)<dis_range+1):
+                continue
+            
             for slab_ind in range(len(xslab)):
                 dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
+                # print(slab_ind, dis,ele_index, np.sqrt((xslab-x1)**2+(zslab-z1)**2))
+                # qq = (np.sqrt((xslab-x1)**2+(zslab-z1)**2)<11)
                 if dis<maxmax:
                     maxmax = dis
                     choosex = xslab[slab_ind]
                     choosez = zslab[slab_ind]
                     chooseind = slab_ind
-            if maxmax < 50:
+            if maxmax < dis_range:
                 if chooseind  == len(xslab)-1:
                     kk = len(xslab)-1
                 else:
@@ -177,19 +235,15 @@ for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
                 pointp = np.array([x1,z1])
                 pointa = np.array([choosex,choosez])
                 pointb = np.array([xslab[kk],zslab[kk]])
+                
                 if isabove(pointp,pointa,pointb)==False:
                     z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
                     list_subslab[chooseind].append([x_ind,z_ind])
-                    #plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='b',s = 5)
+                    # plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='b',s = 5)
                 #elif isabove(pointp,pointa,pointb)==True:
                     #z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
                     #plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='r',s = 5) 
     #Choose the top mantle area
-    if slab_z[ii]==0:
-        slab_z[ii]=-410
-    #topmantle = (ele_z[x_ind,:]< depth2)*(ele_z[x_ind,:]> depth1)*\
-    #((phase[x_ind,:]==phase_mantle1) + (phase[x_ind,:]==phase_mantle2) + \
-      #       (phase[x_ind,:]==phase_serpentinite)+(ele_x[x_ind,:]>max(slab_x)))*(ele_z[x_ind,:]>slab_z[ii])
     topmantle = (ele_z[x_ind,:]< depth2)*(ele_z[x_ind,:]> depth1)*\
     ((phase[x_ind,:]==phase_mantle1) + (phase[x_ind,:]==phase_mantle2) + \
             (phase[x_ind,:]==phase_serpentinite))
@@ -198,14 +252,17 @@ for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
             maxmax = 9999
             x1 = ele_x[x_ind,:][topmantle][ele_index]
             z1 = ele_z[x_ind,:][topmantle][ele_index]
+            if not True in (np.sqrt((xslab-x1)**2+(zslab-z1)**2)<dis_range+1):
+                continue
             for slab_ind in range(len(xslab)):
+
                 dis = np.sqrt((xslab[slab_ind]-x1)**2+(zslab[slab_ind]-z1)**2)
                 if dis<maxmax:
                     maxmax = dis
                     choosex = xslab[slab_ind]
                     choosez = zslab[slab_ind]
                     chooseind = slab_ind
-            if maxmax < 50:
+            if maxmax < dis_range:
                 if chooseind  == len(xslab)-1:
                     kk = len(xslab)-1
                 else:
@@ -216,51 +273,45 @@ for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
                 if isabove(pointp,pointa,pointb)==True:
                     z_ind = np.where(ele_z[x_ind,:]==z1)[0][0]
                     list_topslab[chooseind].append([x_ind,z_ind])
-                    #plt.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='r',s = 5) 
-
+                    # ax.scatter(ele_x[x_ind,z_ind],ele_z[x_ind,z_ind],c='r',s = 5) 
 Ptotal = np.zeros(len(xslab))
 dl = np.zeros(len(xslab))
-length = np.zeros(len(xslab))
+torque_length = np.zeros(len(xslab))
+P0 = np.array((trench_x[frame], trench_z[frame]))
 for ss in range(len(xslab)-1):
-#for ss in range(230,233):
     psub = 0
     ptop = 0
+    costheta= 0
     if ss >= 1:
-        x0 = xslab[ss]
-        z0 = zslab[ss]
-        x1 = xslab[ss-1]
-        z1 = zslab[ss-1]
-        dl[ss] = np.sqrt((-(zslab[ss]-zslab[ss-1]))**2+(-(xslab[ss]-xslab[ss-1]))**2)*1e3  # m
-        vec = [x0-x1,z0-z1]
-        ref = [1,0]
-        #print(vec)
-        if np.linalg.norm(vec)==0:
-            print(ss,x1,z1)
-            continue
-        #sinan = np.cross(vec,ref)/np.linalg.norm(vec)
-        cosan = np.dot(vec,ref)/np.linalg.norm(vec)
-        length[ss] = dl[ss]*cosan
+        P1 = np.array((xslab[ss],zslab[ss]))*1e3
+        P2 = np.array((xslab[ss-1],zslab[ss-1]))*1e3
+        dl[ss] = np.linalg.norm(P1-P2)
+        torque_length[ss]= np.linalg.norm(P1-P0)
+        PPP = np.array([P1-P0,P1-P2])
+        costheta = np.dot(PPP[0],PPP[1])/dl[ss]/torque_length[ss]
+    if len(list_subslab[ss])!=0:
+        pres = np.zeros(len(list_subslab[ss]))
+        for rr in range(len(list_subslab[ss])):
+            indx = list_subslab[ss][rr][0]
+            indz = list_subslab[ss][rr][1]
+            xm = ele_x[indx,indz]
+            zm = ele_z[indx,indz]
+            # plt.scatter(xm,zm,c='b',s = 5)
+            pres[rr] = dpre[list_subslab[ss][rr][0],list_subslab[ss][rr][1]] # N/m^2
+            psub = np.average(pres)
         
-    pres = np.zeros(len(list_subslab[ss]))
-    pret = np.zeros(len(list_topslab[ss]))
-    for rr in range(len(list_subslab[ss])):
-        indx = list_subslab[ss][rr][0]
-        indz = list_subslab[ss][rr][1]
-        xm = ele_x[indx,indz]
-        zm = ele_z[indx,indz]
-        plt.scatter(xm,zm,c='b',s = 5)
-        pres[rr] = dpre[list_subslab[ss][rr][0],list_subslab[ss][rr][1]] # N/m^2
-    if len(list_subslab[ss]) !=0:
-        psub = np.average(pres)
-    for rr in range(len(list_topslab[ss])):
-        indx = list_topslab[ss][rr][0]
-        indz = list_topslab[ss][rr][1]
-        xm = ele_x[indx,indz]
-        zm = ele_z[indx,indz]
-        plt.scatter(xm,zm,c='r',s = 5)
-        pret[rr] = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
-    if len(list_topslab[ss]) !=0:
-        ptop = np.average(pret)
+    if len(list_topslab[ss])!=0:
+        pret = np.zeros(len(list_topslab[ss]))
+        for rr in range(len(list_topslab[ss])):
+            indx = list_topslab[ss][rr][0]
+            indz = list_topslab[ss][rr][1]
+            xm = ele_x[indx,indz]
+            zm = ele_z[indx,indz]
+            # plt.scatter(xm,zm,c='r',s = 5)
+            pret[rr] = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
+            ptop = np.average(pret)
     Ptotal[ss] = psub-ptop
-Fz = (Ptotal*length).sum()
-print('Fz=',Fz/1e13)
+    Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
+    # Fz = (Ptotal*length).sum() # N/m
+    # print('Fz=',Fz/1e12)
+    # print('Fsu=',Fsu/1e12)
