@@ -253,7 +253,7 @@ def melting_phase():
                         p9 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==4:
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==10 or phase[xx,zz]==5:
+                    elif phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11:
                         p10 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==3:
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
