@@ -13,6 +13,7 @@ import sys, os
 import matplotlib
 import numpy as np
 from matplotlib import cm
+from heapq import nsmallest
 from scipy import interpolate
 import function_for_flac as fd
 import function_savedata as fs
@@ -21,7 +22,7 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
 # model = sys.argv[1]
-model = 'ch1520'
+model = 'Cocos9'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -72,7 +73,6 @@ def temp_elements(temp):
 ###----------------------- Slab sinking force with time-------------------------------
 #    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
 def slab_sinking_force(frame):
-    frame = 40
     # ------ read data from model -----
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
@@ -114,27 +114,27 @@ def slab_sinking_torque(frame):
     # ----- empty array and data -----
     rho_diff = np.zeros(nex)
     Fsb = 0 
-
     ind_trench = int(trench_index[frame])
-    # P0 = np.array((trench_x[frame], trench_z[frame]))
     moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
         # Choose the eclogite area
-        ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1)
+        ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic)
         if True in ind_eclogite :
             for ele_index in range(len(ele_x[x_ind,:][ind_eclogite])):
                 x1 = ele_x[x_ind,:][ind_eclogite][ele_index]
                 z1 = ele_z[x_ind,:][ind_eclogite][ele_index]
                 torque_length= (x1-moment_point_x) *1e3
                 den_eco = density[x_ind,:][ind_eclogite][ele_index]
-                filter_man = (abs(ele_z[x_ind,:]-z1)<40)^(phase[x_ind,:] == phase_eclogite)
+                filter_man = (abs(ele_z[x_ind,:]-z1)<40)*((phase[x_ind,:] != phase_eclogite)*(phase[x_ind,:] != phase_oceanic)\
+                    *(phase[x_ind,:]!=phase_lowercrust)*(phase[x_ind,:]!=phase_uppercrust))
                 if not True in filter_man:
                     continue
-                den_mantle = np.min(density[x_ind,:][filter_man])
-                volume = area[x_ind,:][ind_eclogite][ele_index]
+                den_mantle = np.average(nsmallest(10,density[x_ind,:][filter_man]))
+                volume = area[x_ind,:][ind_eclogite][ele_index]*10
                 rho_diff[x_ind] = den_eco - den_mantle
                 Fsb+= torque_length*rho_diff[x_ind]*g*volume
     return Fsb # N (2D)
+
 ###---------------------- Mantle flow traction force with time -------------------------------
 #   Ft = sum(shear stress * dx) = \sigma_xz * dx 
 def mantle_traction_force(frame):
@@ -299,15 +299,19 @@ def find_slab_median_index2(i):
 def dynamic_pressure(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
-    pressure = -fl.read_pres(frame) #kbar
-    onepre=pressure.flatten()
-    a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
-    fit=(ele_z.flatten()-b)/a
-    dypre=(onepre-fit).reshape(len(ele_x),len(ele_x[0]))*1e8  # N/m^2
+    pressure = -fl.read_pres(frame) # kbar
+    for zz in range(len(ele_x[0])):
+        hh = ele_z[:,zz]*1e3
+        if True in (hh>-20000):
+            static = 2800 * g * hh    
+        elif True in (hh>-30000):
+            static = 2900 * g * hh
+        else:
+            static = 3200 * g * hh
+        pressure[:,zz] = pressure[:,zz]*1e8+static
+    dypre = pressure
     return dypre # N/m^2
 ###---------------------- Mantle suction force with time -------------------------------
-# frame = 123
-
 def suction_force3(frame):
     depth1 = -350
     depth2 = -10
