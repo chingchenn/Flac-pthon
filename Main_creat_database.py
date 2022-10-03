@@ -54,7 +54,7 @@ flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
-path = '/home/jiching/test_geoflac/geoflac/'
+#path = '/home/jiching/test_geoflac/geoflac/'
 #path = '/home/jiching/geoflac_T/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
@@ -252,12 +252,16 @@ def melting_phase():
                 if mm[xx,zz] != 0:
                     if phase[xx,zz]==9:
                         p9 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==4:
+                    elif phase[xx,zz]==4: 
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11:
-                        p10 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==11 and phase[xx,zz+1]==13:
+                        p3 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==3:
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==11 and phase[xx,zz+1]==3:
+                        p3 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]!=13:
+                        p10 += area[xx,zz]*mm[xx,zz]/1e6
                     c +=1
         pk=c-p4-p9-p10-p3
         melt_num[i]=c
@@ -653,7 +657,7 @@ if melting_plot:
     #ax.bar(time,phase_p9,width=0.17,color='orange',label='serpentinite ')
     ax.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
     ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments')
-    ax.bar(time,phase_p3,bottom=phase_p10+phase_p4+phase_p10,width=0.17,color='#2360fa',label='basalt')
+    ax.bar(time,phase_p3,bottom=phase_p9+phase_p4+phase_p10,width=0.17,color='#2360fa',label='basalt')
     ax.set_xlim(0,time[-1])
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
