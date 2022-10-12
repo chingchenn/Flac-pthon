@@ -25,20 +25,24 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
+path = '/Users/chingchen/Desktop/model/'
 #path = 'F:/model/'
 # path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
+figpath = '/Users/chingchen/Desktop/figure/'
 
-model = sys.argv[1]
+
+model = 'ch1528'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 time=fl.time
 plotting_png = 1
 plotting_vx = 0
 plotting_vz = 0
-mp4 = 1
+mp4 = 0
 labelsize = 26
 if not os.path.isdir(path+model+'/frame_plot'):
     os.mkdir(path+model+'/frame_plot')
@@ -51,9 +55,9 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 if plotting_png:
-    for i in range(1,end,1):
-        fig, (ax,ax2)= plt.subplots(1,2,figsize=(20,16),clear = True,gridspec_kw={'width_ratios':[1,1]})
-        #fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
+    for i in range(1,end+1,1):
+        # fig, (ax,ax2)= plt.subplots(1,2,figsize=(20,16),clear = True,gridspec_kw={'width_ratios':[1,1]})
+        fig, (ax,ax2)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
         x,z,ele_x,ele_z,phase,temp,ztop=Ms.plot_snapshot(i)
         xm, zm, age, ph, idd, a1, a2, ntriag = fl.read_markers(i)
         #ax.scatter(ele_x,-ele_z,c = phase,cmap = phase19,vmax=19,vmin=1,s=150)
@@ -85,11 +89,11 @@ if plotting_png:
         #xmajor_ticks = np.linspace(250,1200,num=6)
         #ax.set_xticks(xmajor_ticks)
         #ax2.set_xticks(xmajor_ticks)
-        ax.set_xlim(1400,2000)
-        ax.set_ylim(750,-30)
+        ax.set_xlim(0,1200)
+        ax.set_ylim(300,-30)
         ax.set_title(str(round(fl.time[i-1],1))+' Myr',fontsize=36)
-        ax2.set_xlim(1400,2000)
-        ax2.set_ylim(750,-30)
+        ax2.set_xlim(0,1200)
+        ax2.set_ylim(300,-30)
         if i < 10:
             qq = '00'+str(i)
         elif i < 100 and i >=10:
@@ -98,7 +102,7 @@ if plotting_png:
             qq=str(i)
         fig.savefig(path+model+'/frame_plot/frame_'+qq+'_phase_vis.png')
         fig.gca()
-        plt.close(fig)
+        # plt.close(fig)
         print('----- finish figure '+qq+' -----')
 if plotting_vx:
     for i in range(1,end):

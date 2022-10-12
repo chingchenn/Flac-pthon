@@ -5,7 +5,7 @@ import sys, os
 import numpy as np
 
 import flac
-import flac_interpolate as fi
+# import flac_interpolate as fi
 import flac_gravity3 as fg
 import matplotlib
 #matplotlib.use('Agg')
@@ -13,10 +13,10 @@ from matplotlib import cm
 import matplotlib.pyplot as plt
 
 #-------------------------------------------------------------------
-model = sys.argv[1]
-frame = int(sys.argv[2])
-#model = 'cH1404'
-#frame = 120
+# model = sys.argv[1]
+# frame = int(sys.argv[2])
+model = 'Nazca_a0614'
+frame = 10
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
@@ -24,24 +24,28 @@ path='/home/jiching/geoflac/'
 #path = 'F:/model/'
 # path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
+path = '/Users/chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
 #savepath='/Volumes/SSD500/data/'
+savepath='/home/jiching/geoflac/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
-#figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
+figpath = '/Users/chingchen/Desktop/figure/'
+
 os.chdir(path+model)
 
 fl = flac.Flac()
 x, z = fl.read_mesh(frame)
 
-phasein     = 1
+phasein     = 0
 tin         = 0
-vis         = 1
+vis         = 0
 gravity     = 0
 cpp         = 0
 figure_plot = 0 # 8 figure
-figure_plot1= 0 # single step viscosity
-figure_plot2= 0 # single step phase 
-figure_plot3= 1 # 30,60,90,150 step viscosity 
+figure_plot1= 1 # single step viscosity
+figure_plot2= 1 # single step phase 
+figure_plot3= 0 # 30,60,90,150 step viscosity 
 figure_plot4= 0 # 30,60,90,150 step phase
 # -------------------------------------------------------------------
 # domain bounds
@@ -49,8 +53,8 @@ left = -300
 right = 800
 up = 10
 down = -200
-dx = 1
-dz = 1
+dx = 1.2
+dz = 1.1
 
 def find_trench_index(z):
     '''Returns the i index of trench location.'''
@@ -140,10 +144,11 @@ if cpp:
     awk '{print $1,$2,$3+0}' %(visfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(visfile)s.txt
     #cp %(tfile)s  %(model)s_%(tfile)s.txt
     #cp %(gfile)s  %(model)s_%(gfile)s.txt
-    mv  %(model)s_%(phasefile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
+    mv  %(model)s_%(phasefile)s.txt %(model)s_%(visfile)s.txt %(savepath)s
     #mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
 ''' % locals()
     os.system(cpcmd)
+    print(cpcmd)
 
 def nodes_to_elements(xmesh,zmesh):
     ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
@@ -194,11 +199,11 @@ if figure_plot:
             ax[qq,uu].set_xlim(450,950)
             if qq != 3:
                 ax[qq,uu].axes.xaxis.set_visible(False)
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis_all.png')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis.pdf')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis_all.png')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase&vis.pdf')
 #--------------------------------------------------------------------------
 if figure_plot1:
-    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
+    fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     cc = plt.cm.get_cmap('jet')
     xt,zt = fl.read_mesh(frame)
     temp = fl.read_temperature(frame)
@@ -228,7 +233,7 @@ if figure_plot1:
     fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis.png')
     fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis.pdf')
 if figure_plot2:
-    fig, (ax)= plt.subplots(1,1,figsize=(12,5))
+    fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     cc = plt.cm.get_cmap('jet')
     xt,zt = fl.read_mesh(frame)
     temp = fl.read_temperature(frame)
@@ -255,8 +260,8 @@ if figure_plot2:
     xmajor_ticks = np.linspace(250,1000,num=7)
     ax.set_xticks(xmajor_ticks)
     ax.set_xlim(250,1000)
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
 if figure_plot3:
     # fig, (ax)= plt.subplots(3,1,figsize=(13,17))
     fig, (ax)= plt.subplots(3,1,figsize=(17,16))
@@ -270,7 +275,7 @@ if figure_plot3:
         filepath = savepath+model+'_intp3-visc.'+str(frame)+'.txt'
         x,z,vis=np.loadtxt(filepath).T
         ax[qq].scatter(x,-z,c=vis,cmap=cc,vmin=20, vmax=27,s=1)
-        ax[qq].scatter(x[vis<=20.3],-z[vis<=20.3],c='w',s=1.5)
+        # ax[qq].scatter(x[vis<=20.3],-z[vis<=20.3],c='w',s=1.5)
     #---------------------- plot setting --------------------------
         ax[qq].set_aspect('equal')
         ax[qq].contour(xt,-zt,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
@@ -292,8 +297,8 @@ if figure_plot3:
         # ax[qq].set_xlim(450,950)
         if qq != 2:
             ax[qq].axes.xaxis.set_visible(False)
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.png')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.pdf')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.png')
+    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_vis_all.pdf')
 if figure_plot4:
     fig, (ax)= plt.subplots(4,1,figsize=(13,16))
     cc = plt.cm.get_cmap('jet')
