@@ -18,7 +18,7 @@ from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
-#import flac_interpolate as fi
+# import flac_interpolate as fi
 
 plt.rcParams["font.family"] = "Times New Roman"
 #---------------------------------- DO WHAT -----------------------------------
@@ -36,7 +36,7 @@ shot            = 0
 shot_interp     = 0
 pressure        = 0
 gravity_plot    = 0
-viscosity       = 1
+viscosity       = 0
 stressII        = 0
 Vx              = 0
 Vz              = 0
@@ -57,8 +57,8 @@ figpath = '/Users/chingchen/Desktop/figure/'
 
 # model = sys.argv[1]
 # frame = int(sys.argv[2])
-model = 'h0824'
-frame = 32
+model = 'Nazca_a0614'
+frame = 1
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -179,7 +179,7 @@ if shot:
     phase15= matplotlib.colors.ListedColormap(colors)
     ax.pcolormesh(x,z,phase,cmap = phase15,vmax=20,vmin=1,shading = 'auto')
     # ax.scatter(ele_x,ele_z,c = phase,cmap = phase15,vmax=20,vmin=1)
-    cx=ax.contour(x,z,temp,cmap = 'rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=1)
+    cx=ax.contour(x,z,temp,cmap = 'rainbow',levels =[200,400,600,800,1000,1200],linewidths=1)
     ax.clabel(cx, inline=True, fontsize=10,colors='white',fmt="%1.0f")
     ax.set_xlim(xmin,xmax)
     ax.set_ylim(zmin,zmax)

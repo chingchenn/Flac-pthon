@@ -111,11 +111,13 @@ def slab_sinking_torque(frame):
     phase = fl.read_phase(frame)
     density = fl.read_density(frame)
     area = fl.read_area(frame)
+    ind_trench = int(trench_index[frame])
+    moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
+    ref_den = density[-4,:]
     # ----- empty array and data -----
     rho_diff = np.zeros(nex)
     Fsb = 0 
-    ind_trench = int(trench_index[frame])
-    moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
+    # ----- Start Calculation ------
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
         # Choose the eclogite area
         ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic)
@@ -124,15 +126,13 @@ def slab_sinking_torque(frame):
                 x1 = ele_x[x_ind,:][ind_eclogite][ele_index]
                 z1 = ele_z[x_ind,:][ind_eclogite][ele_index]
                 torque_length= (x1-moment_point_x) *1e3
-                den_eco = density[x_ind,:][ind_eclogite][ele_index]
-                filter_man = (abs(ele_z[x_ind,:]-z1)<40)*((phase[x_ind,:] != phase_eclogite)*(phase[x_ind,:] != phase_oceanic)\
-                    *(phase[x_ind,:]!=phase_lowercrust)*(phase[x_ind,:]!=phase_uppercrust))
+                # rho_diff[x_ind] = density[x_ind,:]-ref_den
+                filter_man = (abs(ele_z[x_ind,:]-z1)<40)
                 if not True in filter_man:
                     continue
-                den_mantle = np.average(nsmallest(10,density[x_ind,:][filter_man]))
-                volume = area[x_ind,:][ind_eclogite][ele_index]*10
-                rho_diff[x_ind] = den_eco - den_mantle
-                Fsb+= torque_length*rho_diff[x_ind]*g*volume
+                volume = area[x_ind,:][ind_eclogite][ele_index] 
+                rho_diff[x_ind] = np.average(density[x_ind,:][filter_man]-ref_den[filter_man])
+                Fsb+= torque_length*rho_diff[x_ind]*g*volume*10
     return Fsb # N (2D)
 
 ###---------------------- Mantle flow traction force with time -------------------------------
@@ -296,7 +296,7 @@ def find_slab_median_index2(i):
 #         # print(ii,av_oc_ind,oo,x_ind)
 #     return slab_x,slab_z
 
-def dynamic_pressure(frame):
+def dynamic_pressure_bak(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
     pressure = -fl.read_pres(frame) # kbar
@@ -311,6 +311,23 @@ def dynamic_pressure(frame):
         pressure[:,zz] = pressure[:,zz]*1e8+static
     dypre = pressure
     return dypre # N/m^2
+
+def dynamics_pressure(frame):
+    pre = fl.read_pres(frame) *1e8
+    x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
+    phase = fl.read_phase(frame)
+    new_pre = np.zeros((len(x)-1, len(x[0])-1))
+    for xx in range(len(ele_x)):
+        den = fl.read_density(frame)
+        if phase[xx,0]==2:
+            ref_den = den[-4,:]
+            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
+        else:
+            ref_den = den[6,:]
+            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
+    return x,z,new_pre
+
 ###---------------------- Mantle suction force with time -------------------------------
 def suction_force3(frame):
     depth1 = -350
@@ -318,7 +335,7 @@ def suction_force3(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
     phase = fl.read_phase(frame)
-    dpre = dynamic_pressure(frame) # N/m^2
+    x,z,dpre = dynamics_pressure(frame) # N/m^2
     slab_x,slab_z = find_slab_median_index2(frame)
 
     xslab = slab_x[(slab_x>0)*(slab_z>depth1)*(slab_z<depth2)]
@@ -430,7 +447,7 @@ def suction_force3_torque(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
     phase = fl.read_phase(frame)
-    dpre = dynamic_pressure(frame) # N/m^2
+    x,z,dpre = dynamics_pressure(frame) # N/m^2
     slab_x,slab_z = find_slab_median_index2(frame)
     
     xslab = slab_x[(slab_x>0)*(slab_z>depth1)*(slab_z<depth2)]
@@ -596,9 +613,9 @@ if __name__ == '__main__':
         fsu[i] = suction_force3_torque(i)
         # print("--- %s seconds ---" % (time.time() - loop_time))
 
-    fs.save_5txt(model+'_forces',savepath,fl.time,fsb,ft,fsu,ratio)
+    fs.save_3txt(model+'_forces',savepath,fl.time,fsb,fsu)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
-    fl.time,fbb,tt,fsu,ratio = np.loadtxt(savepath+model+'_forces.txt').T
+    fl.time,fbb,fsu = np.loadtxt(savepath+model+'_forces.txt').T
     
     sb = fd.moving_window_smooth(fsb,8)
     tt = fd.moving_window_smooth(fsu,8)

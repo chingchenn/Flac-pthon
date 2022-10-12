@@ -25,11 +25,14 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
+path = '/Users/chingchen/Desktop/model/'
 # path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/home/jiching/geoflac/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
-model_list = ['b0505m','b0506m']
+figpath = '/Users/chingchen/Desktop/figure/'
+model_list = ['Nazca_a0516']
 plotting_png = 1
 gif = 1
 mp4 = 1
@@ -56,12 +59,10 @@ for i in range(1,end+1):
         x,z = fl.read_mesh(i)
         temp = fl.read_temperature(i)
         ax[kk].contour(x,-z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
-        ele_x,ele_z,vis,ztop = Ms.get_vis(i)
+        x,z,ele_x,ele_z,vis,ztop = Ms.get_vis(i)
         cc = plt.cm.get_cmap('jet')
-        cb_plot=ax[kk].scatter(ele_x,-ele_z,c=vis,cmap=cc,vmin=20, vmax=27,s=150)
-        
+        cb_plot=ax[kk].pcolormesh(x,-z,vis,cmap = cc,vmax=27,vmin=20)
         ax[kk].set_aspect('equal')
-     
         bwith = 3
         ax[kk].spines['bottom'].set_linewidth(bwith)
         ax[kk].spines['top'].set_linewidth(bwith)
@@ -81,7 +82,7 @@ for i in range(1,end+1):
             qq = '0'+str(i)
         else:
             qq=str(i)
-        fig.savefig('/home/jiching/geoflac/data/'+'frame_'+qq+'_compare_vis.png')
+        fig.savefig(savepath+'frame_'+qq+'_compare_vis.png')
         fig.gca()
         plt.close(fig)
 
@@ -99,17 +100,17 @@ if gif:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        img='/home/jiching/geoflac/data/'+'frame_'+qq+'_compare_vis.png'
+        img=savepath+'frame_'+qq+'_compare_vis.png'
         new_frame = Image.open(img)
         frames.append(new_frame)
      
     # Save into a GIF file that loops forever
-    frames[0].save('/home/jiching/geoflac/data/'+'frame_'+qq+'png_to_gif.gif', format='GIF', append_images=frames[1:], 
+    frames[0].save(savepath+'frame_'+qq+'png_to_gif.gif', format='GIF', append_images=frames[1:], 
                    save_all=True, duration=75, loop=0)
     
 #-----------------------------creat mp4-----------------------------------------    
 if mp4:
     import moviepy.editor as mp
-    clip = mp.VideoFileClip('/home/jiching/geoflac/data/'+'frame_'+qq+'png_to_gif.gif')
+    clip = mp.VideoFileClip(savepath+'frame_'+qq+'png_to_gif.gif')
     clip.write_videofile(figpath+'vis_'+model+".mp4")
     

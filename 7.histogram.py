@@ -12,7 +12,8 @@ import pandas as pd
 from matplotlib import cm
 import matplotlib.pyplot as plt
 
-model=sys.argv[1]
+# model=sys.argv[1]
+model = 'Nazca_0502'
 #name='melting_'+model
 #fig, (ax) = plt.subplots(1,1,figsize=(18,12))
 #time,phase_p4,phase_p5,phase_p9,phase_p10,others = np.loadtxt('/home/jiching/geoflac/data/'+name+'.txt').T
@@ -37,8 +38,8 @@ figpath = '/home/jiching/geoflac/figure/'
 
 
 #plt.hist([1, 2, 1], bins=[0, 1, 2, 3])
-
-os.chdir('/home/jiching/geoflac/'+model)
+path = '/Users/chingchen/Desktop/model/'
+os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 i=39
 melt_num = np.zeros(end)
@@ -56,17 +57,18 @@ pp=[]
 for xx in range(len(mm)):
     for zz in range(len(mm[0])):
         if mm[xx,zz] != 0:
+            print(mm)
             pp.append(phase[xx,zz]) 
-#            print(phase[xx,zz])
-#            if phase[xx,zz]==9:
-#                p9 += area[xx,zz]*mm[xx,zz]/1e6
-#            elif phase[xx,zz]==4:
-#                p4 +=area[xx,zz]*mm[xx,zz]/1e6
-#            elif phase[xx,zz]==10:
-#                p10 += area[xx,zz]*mm[xx,zz]/1e6
-#            elif phase[xx,zz]==5:
-#                p5 += area[xx,zz]*mm[xx,zz]/1e6
-#            c +=1
+            print(phase[xx,zz])
+            if phase[xx,zz]==9:
+                p9 += area[xx,zz]*mm[xx,zz]/1e6
+            elif phase[xx,zz]==4:
+                p4 +=area[xx,zz]*mm[xx,zz]/1e6
+            elif phase[xx,zz]==10:
+                p10 += area[xx,zz]*mm[xx,zz]/1e6
+            elif phase[xx,zz]==5:
+                p5 += area[xx,zz]*mm[xx,zz]/1e6
+            c +=1
 
 fig, (ax) = plt.subplots(1,1,figsize=(18,12))
 bwith = 3
@@ -76,4 +78,4 @@ ax.spines['right'].set_linewidth(bwith)
 ax.spines['left'].set_linewidth(bwith)
 num_bin=20
 ax.hist(pp,num_bin)
-fig.savefig(figpath+model+str(i)+'_single_bar.png')
+# fig.savefig(figpath+model+str(i)+'_single_bar.png')

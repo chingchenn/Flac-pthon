@@ -34,11 +34,14 @@ savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
 figpath = '/Users/chingchen/Desktop/figure/'
-model_list = ['h0824','Cocos9']
+model_list = ['Nazca_a0516']
 plotting_png = 1
 gif = 1
 mp4 = 1
 end=150
+
+
+# plot_frame=[31,61,91,121]
 #------------------------------------------------------------------------------
 # 
 
@@ -50,6 +53,7 @@ phase19= matplotlib.colors.ListedColormap(colors)
 cc = plt.cm.get_cmap('jet')
 for model in model_list:
     for i in range(1,end+1):
+    # for i in plot_frame:
         if plotting_png ==0:
             break
         fig, (ax)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
@@ -63,7 +67,11 @@ for model in model_list:
         ax[0].contour(x,-z,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=5)
         ax[1].contour(x,-z,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=5)
         x,z,ele_x,ele_z,phase,temp,ztop = Ms.plot_snapshot(i)
-        ax[0].pcolormesh(ele_x,-ele_z,phase,cmap = phase19,vmax=20,vmin=1,shading = 'auto')
+        ax[0].pcolormesh(x,-z,phase,cmap = phase19,vmax=20,vmin=1,shading = 'auto')
+        # xx,zz,ph = Ms.inter_phase(i)
+        print('finish interp frame'+str(i))
+        # ax[0].pcolormesh(xx,-zz,ph,cmap = phase19,vmax=20,vmin=1,shading = 'auto')
+        # ax[0].scatter(xx,-zz,c = ph,cmap = phase19,vmax=19,vmin=1,s=10)
         x,z,ele_x,ele_z,vis,ztop = Ms.get_vis(i)
         cb_plot=ax[1].pcolormesh(x,-z,vis,cmap = cc,vmax=27,vmin=20)
         for kk in range(len(ax)):
@@ -87,7 +95,7 @@ for model in model_list:
                 qq = '0'+str(i)
             else:
                 qq=str(i)
-        fig.savefig(figpath+model+'_'+'frame_'+qq+'_phase+vis.png')
+        fig.savefig(figpath+model+'_'+'frame_'+qq+'_phase+vis_test.png')
         fig.gca()
         plt.close(fig)
 
