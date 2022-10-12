@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 #=========================setting=============================
-model = str(sys.argv[1])
+# model = str(sys.argv[1])
+model = 'Nazca_0502'
 path = '/home/jiching/geoflac/'+model+'/'
-#path = '/Users/ji-chingchen/Desktop/model/'+model+'/'
+path = '/Users/chingchen/Desktop/model/'+model+'/'
 os.chdir(path)
 fl = flac.Flac();end = fl.nrec
 #=========================Time Series=========================
