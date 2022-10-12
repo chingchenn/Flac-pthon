@@ -15,19 +15,22 @@ import function_for_flac as fd
 from numpy import unravel_index
 import matplotlib.pyplot as plt
 
-fig1 = 0 ## single_bar_plot_melting
+fig1 = 1 ## single_bar_plot_melting
 fig2 = 0 ## meltloc distance from trench
 fig3 = 0
-fig4 = 1 
+fig4 = 0 
 
-model=sys.argv[1]
+# model=sys.argv[1]
+model = 'Nazca_0502'
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/04model/'
 #path = 'F:/model/'
+path = '/Users/chingchen/Desktop/model/'
 savepath='/home/jiching/geoflac/data/'
 savepath='/scratch2/jiching/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
 figpath='/scratch2/jiching/figure/'
 os.chdir(path+model)
@@ -77,7 +80,7 @@ def melting_phase():
                         p9 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==4:
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==10 or phase[xx,zz]==5:
+                    elif phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11:
                         p10 += area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==3:
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
@@ -94,7 +97,7 @@ if fig1:
     time,phase_p3,phase_p4,phase_p9,phase_p10=melting_phase()
     fs.save_5txt(name,savepath,time,phase_p3,phase_p4,phase_p9,phase_p10)
     fig, (ax) = plt.subplots(1,1,figsize=(12,4))
-    time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(path+name+'.txt').T
+    time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
     ax.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
     ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments+basalt')
     ax.set_xlim(0,30)
