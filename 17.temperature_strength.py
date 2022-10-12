@@ -165,10 +165,4 @@ ax3.grid()
 # ax3.spines['left'].set_visible(False)
 # ax3.spines['bottom'].set_visible(False)
 # ax3.axvspan(5*1e20,1e21,facecolor='green', alpha=0.3)
-
-
-
 # fig.savefig('/home/jiching/geoflac/figure/'+'strength_profile'+'.png')
-
-# fig.savefig('strength_ocean.pdf')
-# fig.savefig('/home/jiching/geoflac/figure/viscosity_and_strength.png')
