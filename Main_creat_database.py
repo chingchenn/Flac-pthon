@@ -28,8 +28,8 @@ melting_loc             = 1
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 1
-stack_topo              = 1
-stack_gem               = 1
+stack_topo              = 0
+stack_gem               = 0
 wedge                   = 0
 flat_duraton            = 1
 
@@ -47,8 +47,8 @@ melting_location2D      = 1
 force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 1
-stack_topo_plot         = 1
-stack_gem_plot	    	= 1
+stack_topo_plot         = 0
+stack_gem_plot          = 0
 wedge_area_strength     = 0
 flat_slab_plot          = 1
 
@@ -248,7 +248,7 @@ def melting_phase():
         phase=fl.read_phase(i)
         area = fl.read_area(i)
         for xx in range(len(mm)):
-            for zz in range(len(mm[0])):
+            for zz in range(len(mm[0])-1):
                 if mm[xx,zz] != 0:
                     if phase[xx,zz]==9:
                         p9 += area[xx,zz]*mm[xx,zz]/1e6
