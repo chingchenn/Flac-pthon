@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
 # model = sys.argv[1]
-model = 'Cocos9'
+model = 'Nazca_a0614'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -108,6 +108,8 @@ def slab_sinking_torque(frame):
     # ------ read data from model -----
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
+    temp = fl.read_temperature(frame)
+    temp_ele = temp_elements(temp)
     phase = fl.read_phase(frame)
     density = fl.read_density(frame)
     area = fl.read_area(frame)
@@ -126,13 +128,13 @@ def slab_sinking_torque(frame):
                 x1 = ele_x[x_ind,:][ind_eclogite][ele_index]
                 z1 = ele_z[x_ind,:][ind_eclogite][ele_index]
                 torque_length= (x1-moment_point_x) *1e3
-                # rho_diff[x_ind] = density[x_ind,:]-ref_den
                 filter_man = (abs(ele_z[x_ind,:]-z1)<40)
                 if not True in filter_man:
                     continue
-                volume = area[x_ind,:][ind_eclogite][ele_index] 
-                rho_diff[x_ind] = np.average(density[x_ind,:][filter_man]-ref_den[filter_man])
-                Fsb+= torque_length*rho_diff[x_ind]*g*volume*10
+                volume = np.sum(area[x_ind,:][temp_ele[x_ind,:]<800])
+                rho_diff[x_ind] = np.average(density[x_ind,:]-ref_den)
+                # rho_diff[x_ind] = np.average(density[x_ind,:][filter_man]-ref_den[filter_man])
+                Fsb+= torque_length*rho_diff[x_ind]*g*volume
     return Fsb # N (2D)
 
 ###---------------------- Mantle flow traction force with time -------------------------------
@@ -265,68 +267,46 @@ def find_slab_median_index2(i):
     ox=oxx
     return ox,oz
 
-# def find_slab_median_index(frame):
-#     final_ind = int(trench_index[frame])
-#     ind_trench = int(trench_index[frame])
-#     xoceanic = np.zeros(len(ele_z)-ind_trench)
-#     slab_x = np.zeros(len(ele_z)-ind_trench)
-#     slab_z = np.zeros(len(ele_z)-ind_trench)
-#     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
-#     # for ii,x_ind in enumerate(range(140,272)):
-#         ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
-#         subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
-#         if True in (ind_oceanic+subducted_sed):
-#             if (x_ind - final_ind) > 2:
-#                 break
-#             final_ind = x_ind
+def find_slab_median_index(frame):
+    final_ind = int(trench_index[frame])
+    ind_trench = int(trench_index[frame])
+    xoceanic = np.zeros(len(ele_z)-ind_trench)
+    slab_x = np.zeros(len(ele_z)-ind_trench)
+    slab_z = np.zeros(len(ele_z)-ind_trench)
+    for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
+    # for ii,x_ind in enumerate(range(140,272)):
+        ind_oceanic = (phase[x_ind,:] == phase_oceanic) + (phase[x_ind,:] == phase_eclogite)+(phase[x_ind,:] == phase_oceanic_1) + (phase[x_ind,:] == phase_eclogite_1)
+        subducted_sed = (phase[x_ind,:] == phase_sediment) + (phase[x_ind,:] ==phase_sediment_1) + (phase[x_ind,:] == phase_schist)
+        if True in (ind_oceanic+subducted_sed):
+            if (x_ind - final_ind) > 2:
+                break
+            final_ind = x_ind
     
-#             oceanic_plate_index = [ww for ww, x in enumerate(ind_oceanic+subducted_sed) if x]
-#             xoceanic[ii] = int(np.median(oceanic_plate_index))
-#             xstd = np.std(oceanic_plate_index)
-#             oo = oceanic_plate_index
-#             if xstd > 15:
-#                 print(x_ind)
-#                 oo = np.array(oceanic_plate_index)[oceanic_plate_index>=xoceanic[ii-1]]
-#                 if len(oo)==0:
-#                     continue
-#                 xoceanic[ii] = int(np.median(oo))
-#             av_oc_ind = int(np.median(oo))
-#             slab_x[ii] = ele_x[x_ind,av_oc_ind]
-#             slab_z[ii] = ele_z[x_ind,av_oc_ind]
-#         # print(ii,av_oc_ind,oo,x_ind)
-#     return slab_x,slab_z
-
-def dynamic_pressure_bak(frame):
-    x, z = fl.read_mesh(frame)
-    ele_x, ele_z = flac.elem_coord(x, z)
-    pressure = -fl.read_pres(frame) # kbar
-    for zz in range(len(ele_x[0])):
-        hh = ele_z[:,zz]*1e3
-        if True in (hh>-20000):
-            static = 2800 * g * hh    
-        elif True in (hh>-30000):
-            static = 2900 * g * hh
-        else:
-            static = 3200 * g * hh
-        pressure[:,zz] = pressure[:,zz]*1e8+static
-    dypre = pressure
-    return dypre # N/m^2
+            oceanic_plate_index = [ww for ww, x in enumerate(ind_oceanic+subducted_sed) if x]
+            xoceanic[ii] = int(np.median(oceanic_plate_index))
+            xstd = np.std(oceanic_plate_index)
+            oo = oceanic_plate_index
+            if xstd > 15:
+                print(x_ind)
+                oo = np.array(oceanic_plate_index)[oceanic_plate_index>=xoceanic[ii-1]]
+                if len(oo)==0:
+                    continue
+                xoceanic[ii] = int(np.median(oo))
+            av_oc_ind = int(np.median(oo))
+            slab_x[ii] = ele_x[x_ind,av_oc_ind]
+            slab_z[ii] = ele_z[x_ind,av_oc_ind]
+        # print(ii,av_oc_ind,oo,x_ind)
+    return slab_x,slab_z
 
 def dynamics_pressure(frame):
-    pre = fl.read_pres(frame) *1e8
+    pre = -fl.read_pres(frame) *1e8
+    ooone = pre.flatten()
     x,z = fl.read_mesh(frame)
     ele_x,ele_z = flac.elem_coord(x, z)
-    phase = fl.read_phase(frame)
-    new_pre = np.zeros((len(x)-1, len(x[0])-1))
-    for xx in range(len(ele_x)):
-        den = fl.read_density(frame)
-        if phase[xx,0]==2:
-            ref_den = den[-4,:]
-            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
-        else:
-            ref_den = den[6,:]
-            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
-    return x,z,new_pre
+    a,b=np.polyfit(pre[ele_z<-50],ele_z[ele_z<-50].flatten(),deg=1)
+    fit=(ele_z.flatten()-b)/a
+    dypre=(ooone-fit).reshape(len(pre),len(pre[0])) 
+    return x,z,dypre
 
 ###---------------------- Mantle suction force with time -------------------------------
 def suction_force3(frame):

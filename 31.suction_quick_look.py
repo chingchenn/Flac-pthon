@@ -22,7 +22,7 @@ from scipy.interpolate import  UnivariateSpline,Akima1DInterpolator, PchipInterp
 # plt.rcParams["font.family"] = "Times New Roman"
 # plt.rcParams["figure.figsize"] = (10,12)
 #model = sys.argv[1]
-model = 'Cocos9'
+model = 'ch1520'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -63,44 +63,16 @@ phase_eclogite_1 = 18
 def temp_elements(temp):
     ttt = (temp[:fl.nx-1,:fl.nz-1] + temp[1:,:fl.nz-1] + temp[1:,1:] + temp[:fl.nx-1,1:]) / 4.
     return ttt
-def dynamic_pressure_bak(frame):
-    x, z = fl.read_mesh(frame)
-    ele_x, ele_z = flac.elem_coord(x, z)
-    pressure = -fl.read_pres(frame) # kbar
-    for zz in range(len(ele_x[0])):
-        # print(zz)
-        hh = ele_z[:,zz]*1e3
-        if True in (hh>-20000):
-            # print('2800 depth',np.average(hh/1e3))
-            static = 2800 * g * hh    
-            # pressure[:,zz] = pressure[:,zz]*1e8+static
-        elif True in (hh>-30000):
-            # print('2900 depth',np.average(hh/1e3))
-            static = 2900 * g * hh
-        else:
-            static = 3200 * g * hh
-        pressure[:,zz] = pressure[:,zz]*1e8+static
-    # onepre=pressure.flatten()
-    # a,b=np.polyfit(onepre,ele_z.flatten(),deg=1)
-    # fit=(ele_z.flatten()-b)/a
-    # dpre=(onepre-fit).reshape(len(ele_x),len(ele_x[0]))*1e8  # N/m^2
-    dypre = pressure
-    return dypre # N/m^2
+
 def dynamics_pressure(frame):
-    pre = fl.read_pres(frame) *1e8
+    pre = -fl.read_pres(frame) *1e8
+    ooone = pre.flatten()
     x,z = fl.read_mesh(frame)
     ele_x,ele_z = flac.elem_coord(x, z)
-    phase = fl.read_phase(frame)
-    new_pre = np.zeros((len(x)-1, len(x[0])-1))
-    for xx in range(len(ele_x)):
-        den = fl.read_density(frame)
-        if phase[xx,0]==2:
-            ref_den = den[-4,:]
-            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
-        else:
-            ref_den = den[6,:]
-            new_pre[xx,:] = pre[xx,:]-ref_den*g*ele_z[xx,:]*1e3
-    return x,z,new_pre
+    a,b=np.polyfit(pre[ele_z<-50],ele_z[ele_z<-50].flatten(),deg=1)
+    fit=(ele_z.flatten()-b)/a
+    dypre=(ooone-fit).reshape(len(pre),len(pre[0])) 
+    return x,z,dypre
 
 def find_slab_median_index2(i):    
     bet = 1
@@ -144,7 +116,7 @@ depth1 = -150
 depth2 = -10
 
 bwith = 3
-for frame in [120,149]:
+for frame in [120]:
 
 
 
@@ -189,6 +161,7 @@ for frame in [120,149]:
     density = fl.read_density(frame)
     area = fl.read_area(frame)
     temp = fl.read_temperature(frame)
+    temp_ele = temp_elements(temp)
     # ----- empty array and data -----
     rho_diff = np.zeros(nex)
     rho_diff2 = np.zeros(nex)
@@ -197,6 +170,7 @@ for frame in [120,149]:
     ind_trench = int(trench_index[frame])
     moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
+    # for ii,x_ind in enumerate(range(ind_trench,ind_trench+50)):
         # Choose the eclogite area
         ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic)
         ref_den = density[-5,:]
@@ -206,16 +180,13 @@ for frame in [120,149]:
                 x1 = ele_x[x_ind,:][ind_eclogite][ele_index]
                 z1 = ele_z[x_ind,:][ind_eclogite][ele_index]
                 torque_length= (x1-moment_point_x) *1e3        
-                den_eco = density[x_ind,:][ind_eclogite][ele_index]
-                filter_man = (abs(ele_z[x_ind,:]-z1)<40)#*((phase[x_ind,:] != phase_eclogite)*(phase[x_ind,:] != phase_oceanic)\
-                    #*(phase[x_ind,:]!=phase_lowercrust)*(phase[x_ind,:]!=phase_uppercrust))
+                filter_man = (abs(ele_z[x_ind,:]-z1)<40)
                 if not True in filter_man:
                     continue
-                den_mantle = np.average(nsmallest(10,density[x_ind,:][filter_man]))
-                volume = area[x_ind,:][ind_eclogite][ele_index] 
-                rho_diff[x_ind] = den_eco - den_mantle
-                rho_diff2[x_ind] = np.average(density[x_ind,:][filter_man]-ref_den[filter_man])
-                Fsb+= torque_length*rho_diff[x_ind]*g*volume*10
+                volume = np.sum(area[x_ind,:][temp_ele[x_ind,:]<800])
+                # rho_diff[x_ind] = np.average(density[x_ind,:][filter_man]-ref_den[filter_man])
+                rho_diff2[x_ind] = np.average(density[x_ind,:]-ref_den)
+                Fsb+= torque_length*rho_diff2[x_ind]*g*volume
                 Fsbx[x_ind] = Fsb
         # return Fsb # N (2D)
     
