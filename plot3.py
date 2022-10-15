@@ -53,38 +53,38 @@ xtrench = x[itrench,0]
 
 # get interpolated phase either from previous run or from original data
 phasefile = 'intp3-phase.%d' % frame
-if not os.path.exists(phasefile):
-    xx, zz, ph = interpolate_phase(frame, xtrench)
-    f = open(phasefile, 'w')
-    f.write('%d %d\n' % xx.shape)
-    flac.printing(xx, zz, ph, stream=f)
-    f.close()
-else:
-    f = open(phasefile)
-    nx, nz = np.fromfile(f, sep=' ', count=2)
-    tmp = np.fromfile(f, sep=' ')
-    tmp.shape = (nx, nz, 3)
-    xx = tmp[:,:,0]
-    zz = tmp[:,:,1]
-    ph = tmp[:,:,2]
-    f.close()
+#if not os.path.exists(phasefile):
+xx, zz, ph = interpolate_phase(frame, xtrench)
+f = open(phasefile, 'w')
+f.write('%d %d\n' % xx.shape)
+flac.printing(xx, zz, ph, stream=f)
+f.close()
+#else:
+#    f = open(phasefile)
+#    nx, nz = np.fromfile(f, sep=' ', count=2)
+#    tmp = np.fromfile(f, sep=' ')
+#    tmp.shape = (nx, nz, 3)
+#    xx = tmp[:,:,0]
+#    zz = tmp[:,:,1]
+#    ph = tmp[:,:,2]
+#    f.close()
 
 
 # get interpolated T either from previous run or from original data
 tfile = 'intp3-T.%d' % frame
-if not os.path.exists(tfile):
-    T = fl.read_temperature(frame)
-    f = open(tfile, 'w')
-    f.write('%d %d\n' % x.shape)
-    flac.printing(x, z, T, stream=f)
-    f.close()
-else:
-    f = open(tfile)
-    nx, nz = np.fromfile(f, sep=' ', count=2)
-    tmp = np.fromfile(f, sep=' ')
-    tmp.shape = (nx, nz, 3)
-    T = tmp[:,:,2]
-    f.close()
+#if not os.path.exists(tfile):
+T = fl.read_temperature(frame)
+f = open(tfile, 'w')
+f.write('%d %d\n' % x.shape)
+flac.printing(x, z, T, stream=f)
+f.close()
+#else:
+#    f = open(tfile)
+#    nx, nz = np.fromfile(f, sep=' ', count=2)
+#    tmp = np.fromfile(f, sep=' ')
+#    tmp.shape = (nx, nz, 3)
+#    T = tmp[:,:,2]
+#    f.close()
 
 
 # get topography and gravity at uniform spacing
@@ -107,6 +107,7 @@ pngfile = 'result3.%d.png' % frame
 phgrd = 'phase3.%d.grd' % frame
 tgrd = 'temperature3.%d.grd' % frame
 phcpt = '/home/summer-tan2/flac/util/phase15.cpt'
+phcpt = '/scratch2/jiching/python/phase15.cpt'
 
 xmin = xtrench + left
 xmax = xtrench + right
