@@ -21,25 +21,18 @@ import matplotlib.pyplot as plt
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-# model = sys.argv[1]
-model = 'Nazca_a0614'
+model = sys.argv[1]
+# model = 'Ref_Nazca'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
-path = 'D:/model/'
-path = '/Users/chingchen/Desktop/model/'
-#path = 'F:/model/'
-# path = 'D:/model/'
-#path = '/Volumes/SSD500/model/'
-savepath='/home/jiching/geoflac/data/'
+# path = '/Users/chingchen/Desktop/model/'
 savepath='/scratch2/jiching/data/'
-savepath = '/Users/chingchen/Desktop/data/'
-#savepath = 'D:/model/data/'
-figpath='/home/jiching/geoflac/figure/'
+# savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
-figpath = '/Users/chingchen/Desktop/figure/'
+# figpath = '/Users/chingchen/Desktop/figure/'
 
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
@@ -591,7 +584,6 @@ if __name__ == '__main__':
         # fsb[i] = slab_sinking_force(i)
         fsb[i] = slab_sinking_torque(i)
         fsu[i] = suction_force3_torque(i)
-        # print("--- %s seconds ---" % (time.time() - loop_time))
 
     fs.save_3txt(model+'_forces',savepath,fl.time,fsb,fsu)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
@@ -615,7 +607,7 @@ if __name__ == '__main__':
     ax.spines['left'].set_linewidth(bwith)
     #ax.set_yscale('log')
     ax.set_title('Forces of '+model,fontsize=20)
-    # fig.savefig(figpath+model+'_slab_force.png')
+    fig.savefig(figpath+model+'_slab_torque.png')
     # fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
     # ratio_f = fd.moving_window_smooth(ratio[ratio>0],5)
     # ax2.plot(fl.time[ratio>0],ratio_f,c="#355c7d",label='ratio of these forces)',lw=4)
@@ -630,4 +622,4 @@ if __name__ == '__main__':
     # ax2.spines['right'].set_linewidth(bwith)
     # ax2.spines['left'].set_linewidth(bwith)
     # fig2.savefig(figpath+model+'_slab_force_ratio.png')
-print("--- %s seconds ---" % (time.time() - start_time))
+print("--- %s seconds ---" % (time.time() - start_time)/60)
