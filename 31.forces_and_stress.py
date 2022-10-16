@@ -11,6 +11,7 @@ import flac
 import math
 import sys, os
 import matplotlib
+matplotlib.use('Agg')
 import numpy as np
 from matplotlib import cm
 from heapq import nsmallest
@@ -220,7 +221,7 @@ def suction_force(frame):
     return Fsu # N/m(2D)
 
 def find_slab_median_index2(i):    
-    bet = 1
+    bet = 2
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
     ## In this code, we considered the marker phase, not the element phase
