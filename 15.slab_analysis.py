@@ -18,8 +18,8 @@ import matplotlib.pyplot as plt
 
 # ===================================initial set up ======================================
 fig_GMT            = 1
-fig_origin         = 0
-fig_spline         = 0
+fig_origin         = 1
+fig_spline         = 1
 fig_poly           = 0
 fig_Rsquare        = 0
 fig_quartic        = 0
@@ -210,7 +210,7 @@ for anyone in (zz1[(x>cond1[0])* (x<cond1[1])]):
 if len(ff2)>1 and (ff2[1]-ff2[0])>90 :
     print(str(input)+' has the possibility to be a flat slab')
     if len(ff1)>10:
-        print(str(input)+' is flat slab')
+        print(str(input)+' is flat slab and it has length ' +str(ff2[1]-ff2[0]))
 else: print(str(input)+' is not a flat slab')
 print(ff2)
 #-------------------------------------call pyhton to plot---------------------------------------
