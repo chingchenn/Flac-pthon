@@ -28,8 +28,9 @@ melting_loc             = 1
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 1
-stack_topo              = 0
-stack_gem               = 0
+stack_topo              = 1
+stack_gem               = 1
+slab_top_time           = 1
 wedge                   = 0
 flat_duraton            = 1
 
@@ -37,7 +38,7 @@ flat_duraton            = 1
 trench_plot             = 1
 dip_plot                = 1
 magma_plot              = 1
-metloc_plot  	    	= 1
+metloc_plot             = 1
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
@@ -300,6 +301,13 @@ def get_stack_geometry(ictime=20,width=700):
     xx=xmean[within_plot]/ictime
     zz=stslab[within_plot]/ictime
     return xx[xx>0][:-1],zz[xx>0][:-1],finx,finz
+def get_stack_geometry_time(i):
+    crust_x,crust_z = oceanic_slab(i)
+    x, z = fl.read_mesh(i)
+    ele_x, ele_z = nodes_to_elements(x,z)
+    finx = crust_x-trench_x[i]
+    finz = crust_z
+    return i,finx,finz
 def read_wedgevis(trench_index,depth1=80, depth2=130):
     viswedge=np.zeros(end)
     areawedge=np.zeros(end)
@@ -443,6 +451,11 @@ if stack_gem:
     fs.save_2txt(name,savepath,xx,zz)
     fs.save_2txt(model+'_final_slab',savepath,fx,fz)
     print('=========== DONE =============')
+if slab_top_time:
+    print('-----creat geometry in time database-----')
+    for i in [51,101,151,201,250]:
+        kk,fx,fz = get_stack_geometry_time(i)
+        fs.save_2txt(model+'_'+str(round(i/5,0))+'_final_slab',savepath,fx,fz)
 if wedge:
     print('-----creat wedge database-----' )
     name=model+'_wedge_data'
