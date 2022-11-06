@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
-dip_plot                = 0
+dip_plot                = 1
 plate_geometry          = 0
 force_plot_LR           = 0
 force_plot_RF           = 0
@@ -28,23 +28,28 @@ stack_topo_plot         = 0
 flat_slab_plot          = 0
 magma_plot   	    	= 0
 melting_phase       	= 0
-forces     	        	= 1
+forces     	        	= 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
+path = '/Users/chingchen/Desktop/model/'
 
 savepath='/home/jiching/geoflac/data/'
 #savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
+figpath = '/Users/chingchen/Desktop/figure/'
+figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
 model_list=['Ref03','h0401','h0402','h0403']
 model_list=['b0607k','b0608k','b0609k','b0611k','b0614k','b0615k']
-model_list=['ch1501','ch1502']
-model_list=['b0506m','b0701m']
+#model_list=['Cocos_a0646','Cocos_a0807']
+model_list=['Nazca_a0701','Nazca_a0702','Ref_Nazca','Nazca_a0704','Nazca_a0705']
+names=['120km','130km','140km']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 bwith = 3
@@ -66,42 +71,47 @@ if trench_plot:
     print('=========== DONE =============')
 if dip_plot:
     print('--- start plot dip with time ---')
-    fig, (ax2)= plt.subplots(1,1,figsize=(10,7))
+    fig, (ax2)= plt.subplots(1,1,figsize=(12,5))
     for kk,model in enumerate(model_list):
         name = 'plate_dip_of_'+model
-        df = pd.read_csv(savepath+name+'.csv')
-        ax2.plot(df.time[df.angle>0],df.angle[df.angle>0],lw=2,label=model,color=newcolors[kk])
-    #ax2.set_xlim(0,df.time[-1])
-    ax2.set_title('Angle Variation',fontsize=24)
+        time,dip = np.loadtxt(savepath+name+'.txt').T
+        ddd = fd.moving_window_smooth(dip[dip>0], 3)
+        ax2.plot(time[dip>0],ddd,lw=4,label=model,color=newcolors[kk])
+    ax2.set_xlim(0,50)
+    ax2.set_ylim(0,40)
+    ax2.set_title('Slab Angle Variation',fontsize=24)
     ax2.set_xlabel('Time (Myr)',fontsize=20)
     ax2.set_ylabel('Angel ($^\circ$) ',fontsize=20)
     ax2.grid()
-    ax2.legend(fontsize=16)
+    # ax2.legend(fontsize=16)
     bwith = 3
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
     ax2.spines['left'].set_linewidth(bwith)
-    fig.savefig(figpath+'compare_dip_'+model_list[0]+'_'+model_list[-1]+'.png')
+    ax2.tick_params(axis='x', labelsize=26)
+    ax2.tick_params(axis='y', labelsize=26)
+    fig.savefig(figpath+'compare_dip_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     print('=========== DONE =============')
 if plate_geometry:
     print('--- start plot geometry ---')
     fig2, (ax2) = plt.subplots(1,1,figsize=(14,8))
     for kk,model in enumerate(model_list):
         xmean,ztop=np.loadtxt(savepath+str(model)+'_final_slab.txt').T
-        xx= fd.moving_window_smooth(xmean[xmean>0], 6)
-        ztop = fd.moving_window_smooth(ztop[xmean>0], 6)
+        print(savepath+str(model)+'_final_slab.txt')
+        xx= fd.moving_window_smooth(xmean[xmean>0], 5)
+        ztop = fd.moving_window_smooth(ztop[xmean>0], 5)
         xmean=xx
         ax2.plot(xmean,-ztop,c=newcolors[kk],label=model,lw=5)
     #ax2.set_xlim(0,max(xmean)+10)
     # ax2.set_title("slab comparation",fontsize=16)
-    # ax2.set_ylabel("Depth (km)",fontsize=16)
-    # ax2.set_xlabel("Distance relative to trench (km)",fontsize=16)
+    ax2.set_ylabel("Depth (km)",fontsize=28)
+    ax2.set_xlabel("Distance relative to trench (km)",fontsize=28)
     # ax2.legend(fontsize=16)
-    xmajor_ticks = np.linspace(0,150,num=4)
+    xmajor_ticks = np.linspace(0,200,num=5)
     ax2.set_yticks(xmajor_ticks)
-    ax2.set_ylim(200,0)
-    ax2.set_xlim(0,600)
+    ax2.set_ylim(150,0)
+    ax2.set_xlim(0,800)
     ax2.spines['bottom'].set_linewidth(bwith)
     ax2.spines['top'].set_linewidth(bwith)
     ax2.spines['right'].set_linewidth(bwith)
@@ -111,7 +121,7 @@ if plate_geometry:
     ax2.tick_params(axis='y', labelsize=26)
     ax2.grid()
     #fig2.savefig('D:\\OneDrive - 國立台灣大學/master03/Seminar/'+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
-    fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.png')
+    fig2.savefig(figpath+'multi_slab_analysis_'+model_list[0]+'_'+model_list[-1]+'.pdf')
     print('=========== DONE =============')
 if force_plot_LR:
     print('--- start plot left and right force with time ---')
@@ -126,7 +136,7 @@ if force_plot_LR:
         ax[1].plot(time,ffr,lw=3,label=model,color=newcolors[kk])
     ax[1].set_title('continental side force',fontsize=16)
     ax[0].set_title('oceanic side force',fontsize=16)
-    ax[0].set_ylim(6e12,1.5e13)
+    # ax[0].set_ylim(1.5e12,1.5e13)
     for qq in range(len(ax)):
         ax[qq].tick_params(axis='x', labelsize=16)
         ax[qq].tick_params(axis='y', labelsize=16)
@@ -136,8 +146,8 @@ if force_plot_LR:
         ax[qq].spines['top'].set_linewidth(bwith)
         ax[qq].spines['right'].set_linewidth(bwith)
         ax[qq].spines['left'].set_linewidth(bwith)
-    ax[1].legend(fontsize=16)
-    fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_forc.png')
+    # ax[1].legend(fontsize=16)
+    fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_forc.pdf')
     print('=========== DONE =============')
 if force_plot_RF:
     print('--- start plot ringforce with time ---')
@@ -210,22 +220,23 @@ if flat_slab_plot:
        name=model+'_flatslab_time_len.txt'
        time,length,depth=np.loadtxt(savepath+name).T
        ax[0].plot(time,length,lw=3,label=model,color=newcolors[kk])
-       ax[1].plot(time,depth,lw=3,label=model,color=newcolors[kk])
+       ax[1].plot(time,-depth,lw=3,label=names[kk],color=newcolors[kk])
     ax[0].set_ylabel('length (km)',fontsize=16)
     ax[1].set_xlabel('Time (Myr)',fontsize=16)
     ax[1].set_ylabel('depth (km) ',fontsize=16)
     ax[1].legend(fontsize=16)
-    ax[0].set_title('flat slab properties',fontsize=16)
-    for qq in ranhe(len(ax)):
+    ax[1].set_ylim(130,80)
+    # ax[0].set_title('flat slab properties',fontsize=16)
+    for qq in range(len(ax)):
         ax[qq].tick_params(axis='x', labelsize=16)
         ax[qq].tick_params(axis='y', labelsize=16)
         ax[qq].grid()
-        ax[qq].set_xlim(0,time[-1])
+        ax[qq].set_xlim(0,50)
         ax[qq].spines['bottom'].set_linewidth(bwith)
         ax[qq].spines['top'].set_linewidth(bwith)
         ax[qq].spines['right'].set_linewidth(bwith)
         ax[qq].spines['left'].set_linewidth(bwith)
-    fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_flatslab_length.png')
+    fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_flatslab_length.pdf')
     print('=========== DONE =============')
 if magma_plot:
     print('--------plotting magma--------')
