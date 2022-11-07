@@ -49,7 +49,7 @@ for mm,model in enumerate(model_list):
     Torque_G = np.zeros(end)
     Torque_H = np.zeros(end)
     ###===================================find lithisohere========================================
-    for i in range(2,end):
+    for i in range(5,end):
         x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)
         ## In this code, we considered the marker phase, not the element phase
