@@ -23,8 +23,8 @@ import matplotlib.pyplot as plt
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-# model = sys.argv[1]
-model = 'Ref_Cocos'
+model = sys.argv[1]
+#model = 'Ref_Cocos'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -90,6 +90,7 @@ def slab_sinking_torque(frame):
     # ----- empty array and data -----
     rho_diff = np.zeros(nex)
     Fsb = 0 
+    Fsbx = np.zeros(len(ele_x))
     # ----- Start Calculation ------
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
         # Choose the eclogite area
@@ -105,6 +106,14 @@ def slab_sinking_torque(frame):
                 torque_length= (x1-moment_point_x) *1e3        
                 volume = area[x_ind,:][litho800][ele_index]
                 Fsb+= torque_length*rho_diff*g*volume
+                Fsbx[x_ind] = Fsb
+    if frame < 10:
+        qq = '00'+str(frame)
+    elif frame < 100 and frame >=10:
+        qq = '0'+str(frame)
+    else:
+        qq=str(frame)
+    fs.save_2txt(model+'_gravityx_'+str(qq),savepath,ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0])
     return Fsb # N (2D)
 
 ###---------------------- Mantle flow traction force with time -------------------------------
@@ -129,7 +138,6 @@ def mantle_traction_force(frame):
 
     
 def find_slab_median_index2(i):    
-    print('frame===',i,'====')
     bet = 2
     x, z = fl.read_mesh(i)
     mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
@@ -275,6 +283,7 @@ def suction_force3_torque(frame):
     dl = np.zeros(len(midslabx))
     torque_length = np.zeros(len(midslabx))
     P0 = np.array((trench_x[frame], trench_z[frame]))
+    Fsux2 = np.zeros(len(xslab))
     for ss in range(len(midslabx)-1):
         psub = 0
         ptop = 0
@@ -299,9 +308,18 @@ def suction_force3_torque(frame):
                 ptop = np.average(pret)
         Ptotal[ss] = psub-ptop
         Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
+        Fsux2[ss] = Fsu
         # Fz = (Ptotal*length).sum() # N/m
         # print('Fz=',Fz/1e12)
         # print('Fsu=',Fsu/1e12)
+    if frame < 10:
+        qq = '00'+str(frame)
+    elif frame < 100 and frame >=10:
+        qq = '0'+str(frame)
+    else:
+        qq=str(frame)
+    fs.save_2txt(model+'_suctionx_'+str(qq),savepath,xslab[Fsux2!=0],Fsux2[Fsux2!=0])
+    print(savepath+model+'_suctionx_'+str(qq))
     return Fsu
 
 ###---------------------- couple zone -------------------------------
@@ -357,6 +375,7 @@ if __name__ == '__main__':
         # fsb[i] = slab_sinking_force(i)
         fsb[i] = slab_sinking_torque(i)
         fsu[i] = suction_force3_torque(i)
+        # print(savepath+model+'_suctionx_'+str(i))
 
     fs.save_3txt(model+'_forces',savepath,fl.time,fsb,fsu)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
