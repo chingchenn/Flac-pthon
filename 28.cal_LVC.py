@@ -11,7 +11,7 @@ import numpy as np
 import flac
 import flacmarker2vtk
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 import function_for_flac as fd
 import matplotlib.pyplot as plt
 
@@ -22,12 +22,12 @@ path = '/home/jiching/geoflac/'
 path = '/scratch2/jiching/04model/'
 #path ='/Volumes/My Book/model/03model/'
 #path = '/Users/chingchen/Desktop/model/'
-savepath='/home/jiching/geoflac/data/'
+savepath='/scratch2/jiching/data/'
 #savepath='/Users/chingchen/Desktop/data/'
-figpath='/home/jiching/geoflac/figure/'
+figpath='/scratch2/jiching/figure/'
 #figpath='/Users/chingchen/Desktop/figure/'
 
-model = 'Ref_Nazca'
+model = 'Nazca_a0634'
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -38,6 +38,7 @@ bwith=3
 
 #time, trench_index,trench_x,trench_z = np.loadtxt(savepath+'trench_for_'+model+'.txt').T
 fig3,(ax3,ax4)=plt.subplots(2,1,figsize=(20,18))
+fig,(aa)=plt.subplots(1,1,figsize=(10,6))
 ax3.grid()
 ax4.grid()
 color=['#2F4F4F','#4682B4','#CD5C5C','#708090',
@@ -161,27 +162,23 @@ for www,model in enumerate(model_list):
             continue
         temwedge[i-1] = temwedge[i-1]/len(wedge_area[wedge_area>0])
     ccc = fd.moving_window_smooth(channel[channel>0],10)
-    if www >5:
+    if www >3:
         ax3.plot(fl.time[channel>0], ccc,c = color[3],lw=3,label = model)
+        aa.plot(fl.time[channel>0], ccc,c = color[3],lw=3,label = model)
         ax4.plot(fl.time[channel>0], temwedge[channel>0],c = color[3],lw=3,label = model)
     else:
         ax3.plot(fl.time[channel>0], ccc,c = color[2],lw=3,label = model)
+        aa.plot(fl.time[channel>0], ccc,c = color[2],lw=3,label = model)
         ax4.plot(fl.time[channel>0], temwedge[channel>0],c = color[2],lw=3,label = model)
 #ax3.legend(fontsize = 25)
-ax3.set_ylim(0,40)
-ax3.set_xlim(0,20)
-#ax4.set_ylim(0,40)
-ax4.set_xlim(0,20)
-ax3.tick_params(axis='x', labelsize=16)
-ax3.tick_params(axis='y', labelsize=16)
-ax3.spines['bottom'].set_linewidth(bwith)
-ax3.spines['top'].set_linewidth(bwith)
-ax3.spines['right'].set_linewidth(bwith)
-ax3.spines['left'].set_linewidth(bwith)
-ax4.tick_params(axis='x', labelsize=16)
-ax4.tick_params(axis='y', labelsize=16)
-ax4.spines['bottom'].set_linewidth(bwith)
-ax4.spines['top'].set_linewidth(bwith)
-ax4.spines['right'].set_linewidth(bwith)
-ax4.spines['left'].set_linewidth(bwith)
-fig3.savefig(savepath+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+    ax3.set_ylim(0,40)
+for ax in [ax3,ax4,aa]:
+    ax.set_xlim(0,20)
+    ax.tick_params(axis='x', labelsize=16)
+    ax.tick_params(axis='y', labelsize=16)
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+fig3.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_wedgechannel3_21.png')
+fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_wedgechannel.png')
