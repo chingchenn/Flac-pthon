@@ -35,8 +35,8 @@ figpath='/scratch2/jiching/figure/'
 # model_list = ['Nazca_a0702','Nazca_a0706']
 model_list = ['Nazca_a0634','Nazca_a0636']
 plotting_png = 1
-gif = 0
-mp4 = 0
+gif = 1
+mp4 = 1
 end=150
 model = 'MUL'
 chamber_limit = 5e-3
@@ -48,8 +48,8 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
-for i in range(1,end+1,10):
-# for i in range(end,end+1):
+for i in range(1,end+1):
+#for i in range(end,end+1):
     if plotting_png ==0:
         break
     fig, (ax)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
@@ -67,7 +67,7 @@ for i in range(1,end+1,10):
         x,z,ele_x,ele_z,vis,ztop = Ms.get_vis(i)
         cc = plt.cm.get_cmap('jet')
         cb_plot=ax[kk].pcolormesh(x,-z,vis,cmap = cc,vmax=27,vmin=20)
-        ax[kk].scatter(ele_x[magma_chamber > chamber_limit],-ele_z[magma_chamber > chamber_limit],magma_chamber[magma_chamber > chamber_limit]*1e5,c = 'w')
+        ax[kk].scatter(ele_x[magma_chamber > chamber_limit],-ele_z[magma_chamber > chamber_limit],magma_chamber[magma_chamber > chamber_limit]*1e2,c = 'w')
         ax[kk].set_aspect('equal')
         bwith = 3
         ax[kk].spines['bottom'].set_linewidth(bwith)
@@ -88,7 +88,7 @@ for i in range(1,end+1,10):
             qq = '0'+str(i)
         else:
             qq=str(i)
-    fig.savefig(savepath+'frame_'+qq+'_compare_vis.png')
+    fig.savefig(figpath+'frame_'+qq+'_compare_vis.png')
     fig.gca()
     plt.close(fig)
 
@@ -106,17 +106,17 @@ if gif:
             qq = '0'+str(i)
         else:
             qq=str(i)
-        img=savepath+'frame_'+qq+'_compare_vis.png'
+        img=figpath+'frame_'+qq+'_compare_vis.png'
         new_frame = Image.open(img)
         frames.append(new_frame)
      
     # Save into a GIF file that loops forever
-    frames[0].save(savepath+'frame_'+qq+'png_to_gif.gif', format='GIF', append_images=frames[1:], 
+    frames[0].save(figpath+'frame_'+qq+'png_to_gif.gif', format='GIF', append_images=frames[1:], 
                    save_all=True, duration=75, loop=0)
     
 #-----------------------------creat mp4-----------------------------------------    
 if mp4:
     import moviepy.editor as mp
-    clip = mp.VideoFileClip(savepath+'frame_'+qq+'png_to_gif.gif')
+    clip = mp.VideoFileClip(figpath+'frame_'+qq+'png_to_gif.gif')
     clip.write_videofile(figpath+'vis_'+model+".mp4")
     
