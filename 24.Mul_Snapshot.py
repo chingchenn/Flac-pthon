@@ -32,13 +32,14 @@ savepath='/scratch2/jiching/data/'
 #savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
 #figpath = '/Users/chingchen/Desktop/figure/'
-model_list = ['Nazca_a0702','Nazca_a0706']
+# model_list = ['Nazca_a0702','Nazca_a0706']
 model_list = ['Nazca_a0634','Nazca_a0636']
 plotting_png = 1
-gif = 1
-mp4 = 1
+gif = 0
+mp4 = 0
 end=150
 model = 'MUL'
+chamber_limit = 5e-3
 #------------------------------------------------------------------------------
 # x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
 
@@ -47,7 +48,7 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
-for i in range(1,end+1):
+for i in range(1,end+1,10):
 # for i in range(end,end+1):
     if plotting_png ==0:
         break
@@ -60,12 +61,13 @@ for i in range(1,end+1):
         fl = flac.Flac();end = fl.nrec
         x,z = fl.read_mesh(i)
         temp = fl.read_temperature(i)
-        magma_chamber = fl.read_fmagma(i)
+        magma_chamber = fl.read_fmagma(i)*100
+        print(np.max(magma_chamber))
         ax[kk].contour(x,-z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
         x,z,ele_x,ele_z,vis,ztop = Ms.get_vis(i)
         cc = plt.cm.get_cmap('jet')
         cb_plot=ax[kk].pcolormesh(x,-z,vis,cmap = cc,vmax=27,vmin=20)
-        ax[kk].scatter(ele_x[magma_chamber > 0],-ele_z[magma_chamber > 0],magma_chamber[magma_chamber > 0])
+        ax[kk].scatter(ele_x[magma_chamber > chamber_limit],-ele_z[magma_chamber > chamber_limit],magma_chamber[magma_chamber > chamber_limit]*1e5,c = 'w')
         ax[kk].set_aspect('equal')
         bwith = 3
         ax[kk].spines['bottom'].set_linewidth(bwith)
@@ -86,9 +88,9 @@ for i in range(1,end+1):
             qq = '0'+str(i)
         else:
             qq=str(i)
-        fig.savefig(savepath+'frame_'+qq+'_compare_vis.png')
-        fig.gca()
-        plt.close(fig)
+    fig.savefig(savepath+'frame_'+qq+'_compare_vis.png')
+    fig.gca()
+    plt.close(fig)
 
 #-----------------------------creat GIF-----------------------------------------
 if gif: 
