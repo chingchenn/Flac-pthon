@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import gravity as fg
 import matplotlib
-#matplotlib.use('Agg')
+matplotlib.use('Agg')
 from matplotlib import cm
 import function_savedata as fs
 import function_for_flac as fd
@@ -24,15 +24,16 @@ plt.rcParams["font.family"] = "Times New Roman"
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
-#path = 'F:/model/'
+path = '/scratch2/jiching/04model/'
 path = '/Users/chingchen/Desktop/model/'
 # path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
-savepath='/home/jiching/geoflac/data/'
-savepath = '/Users/chingchen/Desktop/data/'
-figpath='/home/jiching/geoflac/figure/'
-figpath = '/Users/chingchen/Desktop/figure/'
-model_list = ['Nazca_a0516']
+savepath='/scratch2/jiching/data/'
+#savepath = '/Users/chingchen/Desktop/data/'
+figpath='/scratch2/jiching/figure/'
+#figpath = '/Users/chingchen/Desktop/figure/'
+model_list = ['Nazca_a0702','Nazca_a0706']
+model_list = ['Nazca_a0634','Nazca_a0636']
 plotting_png = 1
 gif = 1
 mp4 = 1
@@ -47,6 +48,7 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
           "#F67280","#00FF00","#FFFF00","#7158FF"]
 phase19= matplotlib.colors.ListedColormap(colors)
 for i in range(1,end+1):
+# for i in range(end,end+1):
     if plotting_png ==0:
         break
     fig, (ax)= plt.subplots(2,1,figsize=(20,16),clear = True,gridspec_kw={'height_ratios':[1,1]})
