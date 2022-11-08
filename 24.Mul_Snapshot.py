@@ -25,7 +25,7 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 path = '/scratch2/jiching/04model/'
-path = '/Users/chingchen/Desktop/model/'
+#path = '/Users/chingchen/Desktop/model/'
 # path = 'D:/model/'
 #path = '/Volumes/SSD500/model/'
 savepath='/scratch2/jiching/data/'
@@ -60,10 +60,12 @@ for i in range(1,end+1):
         fl = flac.Flac();end = fl.nrec
         x,z = fl.read_mesh(i)
         temp = fl.read_temperature(i)
+        magma_chamber = fl.read_fmagma(i)
         ax[kk].contour(x,-z,temp,cmap='rainbow',levels =[0,200,400,600,800,1000,1200],linewidths=3)
         x,z,ele_x,ele_z,vis,ztop = Ms.get_vis(i)
         cc = plt.cm.get_cmap('jet')
         cb_plot=ax[kk].pcolormesh(x,-z,vis,cmap = cc,vmax=27,vmin=20)
+        ax[kk].scatter(ele_x[magma_chamber > 0],-ele_z[magma_chamber > 0],magma_chamber[magma_chamber > 0])
         ax[kk].set_aspect('equal')
         bwith = 3
         ax[kk].spines['bottom'].set_linewidth(bwith)
