@@ -290,21 +290,23 @@ for frame in [150]:
     Ptotal = np.zeros(len(midslabx))
     dl = np.zeros(len(midslabx))
     torque_length = np.zeros(len(midslabx))
-    P0 = np.array((trench_x[frame], trench_z[frame]))
+    P0 = np.array((trench_x[frame], trench_z[frame]))*1000
     Fsux2 = np.zeros(len(xslab))
+    beta = np.zeros(len(xslab))
     for ss in range(len(midslabx)):
     # for ss in range(263,264):    
         psub = 0
         ptop = 0
         costheta= 0
         if ss >= 1:
-            P3 = np.array((midslabx[ss-1],midslabz[ss-1]))*1e3
-            P2 = np.array((xslab[ss],zslab[ss]))*1e3
+            P3 = np.array((midslabx[ss-1],midslabz[ss-1]))*1e3 # midpoint
+            P2 = np.array((xslab[ss],zslab[ss]))*1e3 # 
             P1 = np.array((xslab[ss-1],zslab[ss-1]))*1e3
             dl[ss] = np.linalg.norm(P2-P1)
             torque_length[ss]= np.linalg.norm(P3-P0)
             PPP = np.array([P3-P0,P3-P1])
-            costheta = np.dot(PPP[0],PPP[1])/dl[ss]/torque_length[ss]
+            costheta = np.dot(PPP[0],PPP[1])/(dl[ss]/2)/torque_length[ss]
+            beta[ss] = np.arccos(costheta)*180/np.pi
         if len(list_subslab[ss])!=0:
             pres = np.zeros(len(list_subslab[ss]))
             for rr in range(len(list_subslab[ss])):
@@ -329,18 +331,20 @@ for frame in [150]:
         Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
         Fsux2[ss] = Fsu
     
-    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6))
+    fig2, (ax2,ax3)= plt.subplots(2,1,figsize=(10,6))
     ax2.plot(ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0],c ='#c06c84',label='slab pull (N)',lw=4) 
     ax2.plot(xslab[Fsux2!=0],Fsux2[Fsux2!=0],c="#DC143C",label='suction force2 (N)',lw=4)
-    ax2.grid()
-    ax2.set_xlim(200,900)
-    ax2.set_title(model+' '+str(round(frame*0.2))+' Myr',fontsize=24)
-    ax2.set_xlabel('Time (Myr)',fontsize=16)
-    ax2.set_ylabel('Torque (N)',fontsize=16)
-    ax2.spines['bottom'].set_linewidth(bwith)
-    ax2.spines['top'].set_linewidth(bwith)
-    ax2.spines['right'].set_linewidth(bwith)
-    ax2.spines['left'].set_linewidth(bwith)
-    
+    ax3.scatter(xslab,beta,c='darkgreen')
+    for axx in [ax2,ax3]:
+        axx.grid()
+        axx.set_xlim(200,900)
+        #axx.set_title(model+' '+str(round(frame*0.2))+' Myr',fontsize=24)
+        
+        axx.set_ylabel('Torque (N)',fontsize=16)
+        axx.spines['bottom'].set_linewidth(bwith)
+        axx.spines['top'].set_linewidth(bwith)
+        axx.spines['right'].set_linewidth(bwith)
+        axx.spines['left'].set_linewidth(bwith)
+        
     ax2.legend(fontsize=16,loc='upper left')
-
+    ax3.set_xlabel('X Distance',fontsize=16)

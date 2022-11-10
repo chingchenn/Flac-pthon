@@ -91,6 +91,7 @@ def slab_sinking_torque(frame):
     rho_diff = np.zeros(nex)
     Fsb = 0 
     Fsbx = np.zeros(len(ele_x))
+    Fsbxs = np.zeros(len(ele_x))
     # ----- Start Calculation ------
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
         # Choose the eclogite area
@@ -107,13 +108,15 @@ def slab_sinking_torque(frame):
                 volume = area[x_ind,:][litho800][ele_index]
                 Fsb+= torque_length*rho_diff*g*volume
                 Fsbx[x_ind] = Fsb
+                Fsbxs[x_ind] = torque_length*rho_diff*g*volume
     if frame < 10:
         qq = '00'+str(frame)
     elif frame < 100 and frame >=10:
         qq = '0'+str(frame)
     else:
         qq=str(frame)
-    fs.save_2txt(model+'_gravityx_'+str(qq),savepath,ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0])
+    fs.save_3txt(model+'_gravityx_'+str(qq),savepath,ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0],Fsbxs[Fsbx!=0])
+    
     return Fsb # N (2D)
 
 ###---------------------- Mantle flow traction force with time -------------------------------
@@ -282,8 +285,10 @@ def suction_force3_torque(frame):
     Ptotal = np.zeros(len(midslabx))
     dl = np.zeros(len(midslabx))
     torque_length = np.zeros(len(midslabx))
-    P0 = np.array((trench_x[frame], trench_z[frame]))
+    P0 = np.array((trench_x[frame], trench_z[frame])) * 1000
     Fsux2 = np.zeros(len(xslab))
+    Fsux2s = np.zeros(len(xslab))
+    beta = np.zeros(len(xslab))
     for ss in range(len(midslabx)-1):
         psub = 0
         ptop = 0
@@ -295,7 +300,8 @@ def suction_force3_torque(frame):
             dl[ss] = np.linalg.norm(P2-P1)
             torque_length[ss]= np.linalg.norm(P3-P0)
             PPP = np.array([P3-P0,P3-P1])
-            costheta = np.dot(PPP[0],PPP[1])/dl[ss]/torque_length[ss]
+            costheta = np.dot(PPP[0],PPP[1])/(0.5*dl[ss])/torque_length[ss]
+            # print(dl[ss]/1000,torque_length[ss]/1000,PPP/1000,costheta)
         if len(list_subslab[ss])!=0:
             pres = np.zeros(len(list_subslab[ss]))
             for rr in range(len(list_subslab[ss])):
@@ -307,8 +313,11 @@ def suction_force3_torque(frame):
                 pret[rr] = dpre[list_topslab[ss][rr][0],list_topslab[ss][rr][1]] # N/m^2
                 ptop = np.average(pret)
         Ptotal[ss] = psub-ptop
+        beta[ss] = np.arccos(costheta)*180/np.pi
+        #beta[ss] = costheta
         Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
         Fsux2[ss] = Fsu
+        Fsux2s[ss] = Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
         # Fz = (Ptotal*length).sum() # N/m
         # print('Fz=',Fz/1e12)
         # print('Fsu=',Fsu/1e12)
@@ -318,7 +327,7 @@ def suction_force3_torque(frame):
         qq = '0'+str(frame)
     else:
         qq=str(frame)
-    fs.save_2txt(model+'_suctionx_'+str(qq),savepath,xslab[Fsux2!=0],Fsux2[Fsux2!=0])
+    fs.save_4txt(model+'_suctionx_'+str(qq),savepath,xslab[Fsux2!=0],Fsux2[Fsux2!=0],Fsux2s[Fsux2!=0],beta[Fsux2!=0])
     print(savepath+model+'_suctionx_'+str(qq))
     return Fsu
 
@@ -371,6 +380,7 @@ if __name__ == '__main__':
     ratio=np.zeros(end)
     
     for i in range(5,end):
+    # for i in range(55,59):
         loop_time = time.time()
         # fsb[i] = slab_sinking_force(i)
         fsb[i] = slab_sinking_torque(i)
