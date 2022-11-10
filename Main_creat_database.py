@@ -32,7 +32,7 @@ stack_topo              = 1
 stack_gem               = 1
 slab_top_time           = 1
 wedge                   = 0
-flat_duraton            = 1
+flat_duraton            = 0
 
 # plot data
 trench_plot             = 1
@@ -48,10 +48,10 @@ melting_location2D      = 1
 force_plot_LR           = 1
 force_plot_RF           = 0
 vel_plot                = 1
-stack_topo_plot         = 0
-stack_gem_plot          = 0
+stack_topo_plot         = 1
+stack_gem_plot          = 1
 wedge_area_strength     = 0
-flat_slab_plot          = 1
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -118,7 +118,7 @@ def oceanic_slab(frame):
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = nodes_to_elements(x,z)
     phase = fl.read_phase(frame)
-    trench_ind = int(trench_index[frame])
+    trench_ind = int(trench_index[frame-1])
     crust_x = np.zeros(nex)
     crust_z = np.zeros(nex)
     for j in range(trench_ind,nex):
@@ -304,8 +304,8 @@ def get_stack_geometry(ictime=20,width=700):
 def get_stack_geometry_time(i):
     crust_x,crust_z = oceanic_slab(i)
     x, z = fl.read_mesh(i)
-    ele_x, ele_z = nodes_to_elements(x,z)
-    finx = crust_x-trench_x[i]
+    ele_x, ele_z = flac.elem_coord(x,z)
+    finx = crust_x-trench_x[i-1]
     finz = crust_z
     return i,finx,finz
 def read_wedgevis(trench_index,depth1=80, depth2=130):
@@ -410,6 +410,11 @@ if dip:
     time,dip = plate_dip(-5,-120)
     fs.save_2txt(name,savepath,time,dip)
     print("============ DONE ============")
+    print('-----creat angle database-----')
+    name='plate_dip(60)_of_'+model
+    time,dip = plate_dip(-5,-60)
+    fs.save_2txt(name,savepath,time,dip)
+    print("============ DONE ============")
 if gravity:
     print('-----creat gravity database----- ')
     name='gravity_all_'+model
@@ -453,7 +458,7 @@ if stack_gem:
     print('=========== DONE =============')
 if slab_top_time:
     print('-----creat geometry in time database-----')
-    for i in [51,101,151,201,250]:
+    for i in [51,101,150,201,250]:
         kk,fx,fz = get_stack_geometry_time(i)
         fs.save_2txt(model+'_'+str(round(i/5,0))+'_final_slab',savepath,fx,fz)
 if wedge:
