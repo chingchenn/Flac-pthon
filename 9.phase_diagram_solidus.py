@@ -16,7 +16,8 @@ labelsize=25
 bwith = 5
 fig1 = 0 # basalt and eclogit 
 fig2 = 0 # perdotite and serpentinite
-fig3 = 1 # sediment to schist
+fig3 = 0 # sediment to schist
+fig4 = 1
 if fig1:
 ###===============================basalt and eclogit ==========================
     fig,ax = plt.subplots(1,1,figsize=(10,10))
@@ -24,7 +25,7 @@ if fig1:
     depth_limit = 200
     depth = np.linspace(0,500e3,1000)
     T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
-    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='15 Ma Oceanic geothermal')
+    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='-',label='15 Ma Oceanic geothermal')
     # T = f2.half_space_cooling_T(depth, 10, 1330, 40)+0.4*depth/1e3
     # axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='OC 40 Ma')
     # T = f2.continental_geothermal_T3(depth,20,6,40)+0.4*depth/1e3
@@ -37,13 +38,13 @@ if fig1:
     tempr = np.linspace(0,513)
     y = -0.0375 * tempr + 20.1
     basalt_change = (50/255, 200/255, 180/255)
-    ax.plot(tempr,y,c=basalt_change,lw=8)
+    ax.plot(tempr,y,c=basalt_change,lw=5)
     
     x = np.linspace(515,1000)
     y = 0.0022 * x - 0.3
-    lab3=ax.plot(x,y,c=basalt_change,lw=8,label='basalt-eclogite')
+    lab3=ax.plot(x,y,c=basalt_change,lw=5,label='basalt-eclogite')
 
-    pressure_limit = 5 # GPa
+    pressure_limit = 2.45 # GPa
     pressure=np.linspace(0,pressure_limit,100)
     sss=np.zeros(len(pressure))
     for q,dd in enumerate(pressure):
@@ -58,7 +59,13 @@ if fig1:
     ax.set_ylim(depth_limit*1000*10*3300/1e9,0)
     ax.set_xlim(200,1600)
     
-    
+    # x = np.linspace(710,1050)
+    # y = -1.25/350*x+5
+    # ax.plot(x,y,c='#FF9900',lw=5) # solidus
+
+    # x = np.linspace(680,1050)
+    # y = 0.65/400*x-0.45625
+    # ax.plot(x,y,c='#FF9900',lw=5) # solidus
     
     lns = lab1+lab2+lab3+lab4#+lab5
     labs = [l.get_label() for l in lns]
@@ -71,8 +78,8 @@ if fig1:
     ax.set_xlabel('Temperature ($^\circ$C)',fontsize=fontsize)
     ax.set_ylabel('Pressure (GPa)',fontsize=fontsize)
     axdep.set_ylabel('Depth (km)',fontsize=fontsize)
-    ax.text(240,2.5,'Basalt',fontsize=26)
-    ax.text(470,3.5,'Eclogite',fontsize=26)
+    # ax.text(240,2.5,'Basalt',fontsize=26)
+    # ax.text(470,3.5,'Eclogite',fontsize=26)
     # ax.text(480,2.5,'Phase boundary from',fontsize=fontsize)
     # ax.text(520,2.1,'Hacker et al. (2003)',fontsize=fontsize)
     ax.spines['bottom'].set_linewidth(bwith)
@@ -82,7 +89,8 @@ if fig1:
     
     
     # ax.set_title('metamorphosed MORB ',fontsize=25)
-    fig.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'basalt_phase_diagram'+'.pdf')
+    # fig.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'basalt_phase_diagram'+'.pdf')
+    # fig.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Method/'+'basalt_phase_diagram.pdf')
     # fig.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/'+'basalt_phase_diagram'+'.pdf')
 ###==================== perdotite and serpentinite =============================
 if fig2:
@@ -91,7 +99,7 @@ if fig2:
     axdep = ax.twinx()
     depth = np.linspace(0,500e3,1000)
     T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
-    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='15 Ma Oceanic geothermal')
+    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='-',label='15 Ma Oceanic geothermal')
     # T = f2.half_space_cooling_T(depth, 10, 1330, 40)+0.4*depth/1e3
     # axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='OC 40 Ma')
     # T = f2.continental_geothermal_T3(depth,20,6,40)+0.4*depth/1e3
@@ -117,20 +125,31 @@ if fig2:
     # fig2,ax = plt.subplots(1,1,figsize=(10,14))
     x = np.linspace(500,730)
     tt1 = 2.1 +(7.5-2.1)* (x - 730)/ (500-730)
-    lab4=ax.plot(x,tt1,c=phase_change,label = 'perdotite-serpentinite',lw=5)
+    lab4=ax.plot(x,tt1,c=phase_change,label = 'serpentinite-perdotite',lw=5)
     x = np.linspace(620,730)
     ttold = 2.1 + (0.2-2.1) * (x-730)/(650-730)
     ax.plot(x,ttold,c=phase_change,lw=5)
     
     
-    solidus = np.zeros(len(depth))
-    for i,kk in enumerate(depth):
-        if kk > 113e3:
-            solidus[i] = 800+(kk-114)/1e3*5e-3
-        else:
-            solidus[i] = 800+3.14e-8*(kk-113e3)**2
-    
-    lab5=axdep.plot(solidus,depth/1e3,c='#FF9900',lw=4,label = 'solidus')
+    depth = np.linspace(0,300000,100)
+    presss = np.linspace(0,9.9,100)
+    sss=np.zeros(len(depth))
+    # for q,dd in enumerate(depth):
+        # ss1 = 620+0.4e-3*(dd-140e3)
+        # ss2 = 930-313*(1-np.exp(-dd/18e3))
+        # ss1 = 980+0.6e-3*(dd-140e3)
+        # ss2 = 1090-178*(1-np.exp(-dd/8e3))
+        # sss[q] = ss1
+        # sss[q] = max(ss1,ss2)
+    # lab5=axdep.plot(sss,depth/1e3,c='#FF9900',lw=5,label='solidus')
+    for q,dd in enumerate(presss):
+        ss1 = 980+0.6e-3*(dd*3.3e4-140e3)
+    #     print(ss1)
+        ss2 = 1090-178*(1-np.exp(-dd*4.125))
+        # sss[q] = ss1
+        sss[q] = max(ss1,ss2)
+    lab5=ax.plot(sss,presss,c='#FF9900',lw=5,label='solidus')
+
     
     
     lns = lab1+lab2+lab3+lab4+lab5
@@ -153,7 +172,8 @@ if fig2:
     # ax.text(80,3.5,'serpentinite',fontsize=36)
     # ax.text(870,6.5,'perdotite',fontsize=36)
     # ax.legend(fontsize = fontsize-7, loc='upper left')
-    fig2.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'serpentinite_phase_diagram'+'.pdf')
+    # fig2.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'serpentinite_phase_diagram'+'.pdf')
+    # fig2.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Method/'+'serpentinite_phase_diagram.pdf')
     
     ###====================sediment to schist =============================
 if fig3:    
@@ -163,14 +183,10 @@ if fig3:
     depth = np.linspace(0,500e3,1000)
     T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
     lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='15 Ma Oceanic geothermal')
-    # T = f2.half_space_cooling_T(depth, 10, 1330, 40)+0.4*depth/1e3
-    # axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='OC 40 Ma')
-    # T = f2.continental_geothermal_T3(depth,20,6,40)+0.4*depth/1e3
-    # lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Conten')
     T = f2.continental_geothermal_T4(depth, 10,1330, 130)+0.4*depth/1e3
     lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Continental geothermal')
 
-    
+    ax.vlines(x=650, ymin=0, ymax=600, colors='green', ls='-', lw=5,)
     
     
     depth = np.linspace(0,300000,100)
@@ -183,15 +199,15 @@ if fig3:
         sss[q] = max(ss1,ss2)
     lab3=axdep.plot(sss,depth/1e3,c='#FF9900',lw=5,label='solidus')
     
-    depth = np.linspace(0,300000,100)
-    ssss=np.zeros(len(depth))
-    for qq,ddd in enumerate(depth):
-        ss1 = 620+0.4e-3*(ddd-140e3)
-        ss2 = 930-313*(1-np.exp(-ddd/18e3))
-        # ss1 = 680+0.6e-3*(ddd-140e3)
-        # ss2 = 930-313*(1-np.exp(-ddd/7e3))
-        ssss[qq] = max(ss1,ss2)
-    lab4=axdep.plot(ssss,depth/1e3,c='green',lw = 5,linestyle = '--',label='sediment-schist')
+    # depth = np.linspace(0,300000,100)
+    # ssss=np.zeros(len(depth))
+    # for qq,ddd in enumerate(depth):
+    #     ss1 = 620+0.4e-3*(ddd-140e3)
+    #     ss2 = 930-313*(1-np.exp(-ddd/18e3))
+    #     # ss1 = 680+0.6e-3*(ddd-140e3)
+    #     # ss2 = 930-313*(1-np.exp(-ddd/7e3))
+    #     ssss[qq] = max(ss1,ss2)
+    # lab3=axdep.plot(ssss,depth/1e3,c='green',lw = 5,linestyle = '--',label='sediment-schist')
     
     lns = lab1+lab2+lab3#+lab4#+lab5
     labs = [l.get_label() for l in lns]
@@ -214,5 +230,42 @@ if fig3:
     ax.spines['left'].set_linewidth(bwith)
     # ax.text(80,3.5,'sediment',fontsize=36)
     ax.text(770,1.5,'schist',fontsize=36)
-    fig3.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'sediment_phase_diagram'+'.pdf')
-    #/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures
+    # fig3.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'sediment_phase_diagram'+'.pdf')
+
+    
+        ###====================phase 16 =============================
+if fig4:    
+    fig4,ax = plt.subplots(1,1,figsize=(10,10))
+    axdep = ax.twinx()
+    depth_limit = 200
+    depth = np.linspace(0,500e3,1000)
+    T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
+    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='-',label='15 Ma Oceanic geothermal')
+    T = f2.continental_geothermal_T4(depth, 10,1330, 130)+0.4*depth/1e3
+    lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Continental geothermal')
+    
+    pres = np.linspace(0,7,100)
+    sss=np.zeros(len(pres))
+    # for q,dd in enumerate(pres):
+    TTT = 800-3.5e-8*(pres*3e4-62)**2
+    lab3=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
+
+    lns = lab1+lab2+lab3
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(1.7, 0.75))
+    
+    ax.set_ylim(depth_limit*1000*10*3300/1e9,0)
+    axdep.set_ylim(depth_limit,0)
+    ax.set_xlim(200,1600)
+    ax.tick_params(axis='x', labelsize=labelsize)
+    ax.tick_params(axis='y', labelsize=labelsize)
+    axdep.tick_params(axis='y', labelsize=labelsize)
+    ax.set_xlabel('Temperature ($^\circ$C)',fontsize=fontsize)
+    ax.set_ylabel('Pressure (GPa)',fontsize=fontsize)
+    axdep.set_ylabel('Depth (km)',fontsize=fontsize)
+    ax.spines['bottom'].set_linewidth(bwith)
+    ax.spines['top'].set_linewidth(bwith)
+    ax.spines['right'].set_linewidth(bwith)
+    ax.spines['left'].set_linewidth(bwith)
+    # fig4.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'chlorite_phase_diagram'+'.pdf')
+    # fig4.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Method/'+'chlorite_phase_diagram.pdf')

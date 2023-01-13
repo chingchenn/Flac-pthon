@@ -69,45 +69,45 @@ if fig1:
     ax.set_ylabel('Pressure (Gpa)',fontsize=20)
     ax.legend(fontsize=20)
 ##=========================plot seeting ==================================
-# fig2,ax2 = plt.subplots(1,1,figsize=(10,10))
-# depth = np.linspace(0,120000,100)
-# pressure=3000*10*depth/1e9  # (GPa)
+fig2,ax2 = plt.subplots(1,1,figsize=(10,10))
+depth = np.linspace(0,120000,100)
+pressure=3000*10*depth/1e9  # (GPa)
 
-# sss=np.zeros(len(depth))
-# for q,dd in enumerate(depth):
-#     ss1 = 680+0.6e-3*(dd-140e3)
-#     ss2=930-313*(1-np.exp(-dd/7e3))
-#     sss[q] = max(ss1,ss2)
-# ax2.plot(sss,depth/1e3,c='#FF9900',lw=5)
-# BB = 24*depth/1e3-190
-# with_plot = (BB>600)*(BB<780)
-# ax2.plot(BB[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
-# AA=-17*depth/1e3+2030
-# with_plot = (depth/1e3<82)*(depth/1e3>70)
-# ax2.plot(AA[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
+sss=np.zeros(len(depth))
+for q,dd in enumerate(depth):
+    ss1 = 680+0.6e-3*(dd-140e3)
+    ss2=930-313*(1-np.exp(-dd/7e3))
+    sss[q] = max(ss1,ss2)
+ax2.plot(sss,depth/1e3,c='#FF9900',lw=5)
+BB = 24*depth/1e3-190
+with_plot = (BB>600)*(BB<780)
+ax2.plot(BB[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
+AA=-17*depth/1e3+2030
+with_plot = (depth/1e3<82)*(depth/1e3>70)
+ax2.plot(AA[with_plot],depth[with_plot]/1e3,c='#FF6699',lw=5)
 
-# #--------------------------------------------------------------------
-# depth = np.linspace(20e3,100000,100)
-# rC = np.zeros(len(depth))
-# for q,dd in enumerate(depth):
-#     rC1=2030/3+7/3*dd/1e3
-#     rC2=880
-#     rC[q] = min(rC1,rC2)
-# # with_plot = (rC>710)*(rC<840)
-# ax2.plot(rC,depth/1e3,c='purple',lw=5)
+#--------------------------------------------------------------------
+depth = np.linspace(20e3,100000,100)
+rC = np.zeros(len(depth))
+for q,dd in enumerate(depth):
+    rC1=2030/3+7/3*dd/1e3
+    rC2=880
+    rC[q] = min(rC1,rC2)
+# with_plot = (rC>710)*(rC<840)
+ax2.plot(rC,depth/1e3,c='purple',lw=5)
 
 
-# ax2.set_xlim(0,1500)
-# ax2.set_ylim(120,0)
-# ax2.set_xlabel('Temperature ($^\circ$C)',fontsize=30)
-# ax2.set_ylabel('Depth (km)',fontsize=30)
-# bwith = 5
-# ax2.spines['bottom'].set_linewidth(bwith)
-# ax2.spines['top'].set_linewidth(bwith)
-# ax2.spines['right'].set_linewidth(bwith)
-# ax2.spines['left'].set_linewidth(bwith)
-# ax2.tick_params(axis='x', labelsize=26)
-# ax2.tick_params(axis='y', labelsize=26)
+ax2.set_xlim(0,1500)
+ax2.set_ylim(120,0)
+ax2.set_xlabel('Temperature ($^\circ$C)',fontsize=30)
+ax2.set_ylabel('Depth (km)',fontsize=30)
+bwith = 5
+ax2.spines['bottom'].set_linewidth(bwith)
+ax2.spines['top'].set_linewidth(bwith)
+ax2.spines['right'].set_linewidth(bwith)
+ax2.spines['left'].set_linewidth(bwith)
+ax2.tick_params(axis='x', labelsize=26)
+ax2.tick_params(axis='y', labelsize=26)
 # fig2.savefig('/Users/ji-chingchen/OneDrive - 國立台灣大學/master03/Seminar/my present/sediment_phase_diagram.pdf')
 
 ##=========================plot seeting ==================================
