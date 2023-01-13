@@ -39,13 +39,13 @@ cmap = mpl.cm.rainbow
 # fig.subplots_adjust(bottom=0.5)
 
 # cmap = mpl.cm.jet
-bounds =[0,200,400,600,800,1000,1200]
+bounds =[200,400,600,800,1000,1200]
 norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 cb2 = mpl.colorbar.ColorbarBase(ax,cmap=cmap,
                                  norm=norm,
                                 orientation='vertical')
 cb2.ax.tick_params(labelsize=40)
-fig.savefig(figpath+'temperature_ver.pdf')
+# fig.savefig(figpath+'temperature_ver.pdf')
 # # cb2.set_label("Discrete intervals with extend='both' keyword")
 # fig.show()
 
