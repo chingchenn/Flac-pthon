@@ -26,8 +26,11 @@ zmax = 30
 model = sys.argv[1]
 frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
+path = '/scratch2/jiching/04model/'
 savepath='/home/jiching/geoflac/data/'
+path = '/scratch2/jiching/data/'
 figpath='/home/jiching/geoflac/figure/'
+path = '/scratch2/jiching/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 #------------------------------------------------------------------------------
