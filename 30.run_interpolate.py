@@ -54,7 +54,7 @@ if run_interpolatation:
         vis = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
         #vis = fd.gaussian_interpolation2d(ele_x, ele_z, values, grid_x, grid_z)
         f = fd.clip_topo(grid_x, grid_z, vis, x, z)
-        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc_linear','/home/jiching/geoflac/data/',
+        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc_linear','/scratch2/jiching/data/',
             grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
         
         mx, mz, mage, mphase, idm, a1, a2, ntriag = fl.read_markers(frame)
@@ -62,7 +62,7 @@ if run_interpolatation:
         f0 = interpolate.griddata(points, mphase.flatten(), (grid_x, grid_z), method='nearest')
         f0 = f0.astype(np.float32)
         f = fd.clip_topo(grid_x, grid_z, f0, x, z)
-        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph','/home/jiching/geoflac/data/',
+        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph','/scratch2/jiching/data/',
             grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f0[~np.isnan(f)])
         
         # points = np.vstack((x.flat, z.flat)).T
