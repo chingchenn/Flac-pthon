@@ -28,9 +28,9 @@ frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 path = '/scratch2/jiching/04model/'
 savepath='/home/jiching/geoflac/data/'
-path = '/scratch2/jiching/data/'
+savepath = '/scratch2/jiching/data/'
 figpath='/home/jiching/geoflac/figure/'
-path = '/scratch2/jiching/figure/'
+figpath = '/scratch2/jiching/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 #------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ if run_interpolatation:
         vis = interpolate.griddata(points, values.flatten(), (grid_x, grid_z), method='linear')
         #vis = fd.gaussian_interpolation2d(ele_x, ele_z, values, grid_x, grid_z)
         f = fd.clip_topo(grid_x, grid_z, vis, x, z)
-        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc_linear','/home/jiching/geoflac/data/',
+        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_visc_linear',savepath,
             grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f[~np.isnan(f)])
         
         mx, mz, mage, mphase, idm, a1, a2, ntriag = fl.read_markers(frame)
@@ -62,7 +62,7 @@ if run_interpolatation:
         f0 = interpolate.griddata(points, mphase.flatten(), (grid_x, grid_z), method='nearest')
         f0 = f0.astype(np.float32)
         f = fd.clip_topo(grid_x, grid_z, f0, x, z)
-        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph','/home/jiching/geoflac/data/',
+        fs.save_3txt(model+'_frame_'+str(frame)+'interpolate_ph',savepath,
             grid_x[~np.isnan(f)],grid_z[~np.isnan(f)],f0[~np.isnan(f)])
         
         # points = np.vstack((x.flat, z.flat)).T
@@ -76,7 +76,7 @@ if run_interpolatation:
 if phasein:
     phase_interpolate_file = savepath+model+'_frame_'+str(frame)+'interpolate_ph.txt'
     cmd = '''
-cp /home/jiching/GMT/phase19.cpt .
+cp /scratch2/jiching/GMT/phase19.cpt .
 tail -n +2 %(phase_interpolate_file)s | xyz2grd -Gphase_vis/%(model)s_frame%(frame)s_phase.grd -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f
 
 gmt set FONT_ANNOT_PRIMARY          8p,4,#0D057A \
@@ -87,7 +87,7 @@ gmt grdimage -JX9c/3c -R0/1200/-300/0 phase_vis/%(model)s_frame%(frame)s_phase.g
 #gmt grdcontour temp.grd -Cjet.cpt -A200 -W1p -R0/1200/-300/0
 gmt end
 
-rm phase_vis/%(model)s_frame%(frame)s_phase.grd
+mv phase_vis/%(model)s_frame%(frame)s_phase.grd %(savepath)s/%(model)s_frame%(frame)s_phase.grd
 ''' %locals()
     #print(cmd)
     os.system(cmd)
