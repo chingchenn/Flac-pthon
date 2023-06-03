@@ -32,11 +32,11 @@ path='/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/04model/'
-path = '/Users/chingchen/Desktop/model/'
+#path = '/Users/chingchen/Desktop/model/'
 savepath='/scratch2/jiching/data/'
-savepath = '/Users/chingchen/Desktop/data/'
+#savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
-figpath = '/Users/chingchen/Desktop/figure/'
+#figpath = '/Users/chingchen/Desktop/figure/'
 
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
@@ -89,14 +89,13 @@ def slab_sinking_torque(frame):
     moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
     ref_den = density[-4,:]
     # ----- empty array and data -----
-    rho_diff = np.zeros(nex)
     Fsb = 0 
     Fsbx = np.zeros(len(ele_x))
     Fsbxs = np.zeros(len(ele_x))
     # ----- Start Calculation ------
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
         # Choose the eclogite area
-        ind_eclogite = (phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic)
+        ind_eclogite = (ele_z[x_ind,:]<-20)*((phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic))
         if not True in ind_eclogite:
             continue
         top_slab_index = np.where(ind_eclogite)[0][0]
@@ -315,13 +314,9 @@ def suction_force3_torque(frame):
                 ptop = np.average(pret)
         Ptotal[ss] = psub-ptop
         beta[ss] = np.arccos(costheta)*180/np.pi
-        #beta[ss] = costheta
         Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
         Fsux2[ss] = Fsu
         Fsux2s[ss] = Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
-        # Fz = (Ptotal*length).sum() # N/m
-        # print('Fz=',Fz/1e12)
-        # print('Fsu=',Fsu/1e12)
     if frame < 10:
         qq = '00'+str(frame)
     elif frame < 100 and frame >=10:

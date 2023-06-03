@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt
 # ===================================initial set up ======================================
 fig_GMT            = 1
 fig_origin         = 1
-fig_spline         = 1
+fig_spline         = 0
 fig_poly           = 0
 fig_Rsquare        = 0
 fig_quartic        = 0
 fig_cubic          = 0
 fig_residual       = 0
 fig_spline_quartic = 0
-path = '/home/jiching/geoflac/figure/'
+path = '/scratch2/jiching/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
 DIR='/home/jiching/GMT/slab'

@@ -20,36 +20,39 @@ import matplotlib.pyplot as plt
 #---------------------------------- DO WHAT -----------------------------------
 trench_plot             = 0
 dip_plot                = 1
-plate_geometry          = 0
+plate_geometry          = 1
 force_plot_LR           = 0
 force_plot_RF           = 0
 vel_plot                = 0
 stack_topo_plot         = 0
 flat_slab_plot          = 0
-magma_plot   	    	= 0
+magma_plot   	    	= 1
 melting_phase       	= 0
-forces     	        	= 0
+forces     	       	= 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/22winter/'
 #path = '/scratch2/jiching/03model/'
 #path = 'F:/model/'
-path = '/Users/chingchen/Desktop/model/'
+#path = '/Users/chingchen/Desktop/model/'
 
 savepath='/home/jiching/geoflac/data/'
 #savepath = '/Users/ji-chingchen/Desktop/data/'
 #savepath = 'D:\\OneDrive - 國立台灣大學/resarch/data/'
 #savepath='D:/model/data/'
-savepath = '/Users/chingchen/Desktop/data/'
+savepath='/scratch2/jiching/data/'
+#savepath = '/Users/chingchen/Desktop/data/'
 figpath='/home/jiching/geoflac/figure/'
-figpath = '/Users/chingchen/Desktop/figure/'
-figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
+figpath='/scratch2/jiching/figure/'
+#figpath = '/Users/chingchen/Desktop/figure/'
+#figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
 model_list=['Ref03','h0401','h0402','h0403']
 model_list=['b0607k','b0608k','b0609k','b0611k','b0614k','b0615k']
 #model_list=['Cocos_a0646','Cocos_a0807']
 model_list=['Nazca_a0701','Nazca_a0702','Ref_Nazca','Nazca_a0704','Nazca_a0705']
-names=['120km','130km','140km']
+model_list=['Ref_Cocos','test_trench_Cocos01','test_trench_Cocos02']
+names=['610 km','660 km','710 km']
 newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090','#AE6378','#282130','#7E9680','#24788F','#849DAB','#EA5E51','#35838D','#4198B9','#414F67','#97795D','#6B0D47','#A80359','#52254F']
 plt.rcParams["font.family"] = "Times New Roman"
 bwith = 3
@@ -245,8 +248,7 @@ if magma_plot:
         name='melting_'+model
         time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
         name = 'magma_for_'+model+'.txt'
-        filepath = '/home/jiching/geoflac/data/'
-        temp1 = np.loadtxt(filepath+name)
+        temp1 = np.loadtxt(savepath+name)
         melt,chamber,yymelt,yychamber,rrr = temp1.T
         ax[0].plot(yymelt,color=newcolors[kk],label=model,lw=3)
         ax[1].plot(yychamber,color=newcolors[kk],label=model,lw=3)
@@ -305,27 +307,27 @@ if melting_phase:
 if forces:
     fig, (ax)= plt.subplots(1,1,figsize=(10,6)) # slab pull force
     fig3, (ax3)= plt.subplots(1,1,figsize=(10,6)) # suction force
-    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6)) # ratio 
+#    fig2, (ax2)= plt.subplots(1,1,figsize=(10,6)) # ratio 
     fig4, (ax4) = plt.subplots(1,1,figsize=(10,6)) # plot both suction and pull
     for kk,model in enumerate(model_list):
         name = model+'_forces.txt'
-        time,fsb,ft,fsu,ratio = np.loadtxt(savepath+name).T
+        time,fsb,fsu = np.loadtxt(savepath+name).T
         sb = fd.moving_window_smooth(fsb[fsb>0],8)
         tt = fd.moving_window_smooth(fsu[fsu>0],8)
         ax.plot(time[fsb>0],sb,c=newcolors[kk],label=model,lw=4)
         ax3.plot(time[fsu>0],tt,c=newcolors[kk],label=model,lw=4)
-        ratio_f = fd.moving_window_smooth(ratio[ratio>0],5)
-        ax2.plot(time[ratio>0],ratio_f,c=newcolors[kk],label=model,lw=4)
+#        ratio_f = fd.moving_window_smooth(ratio[ratio>0],5)
+#        ax2.plot(time[ratio>0],ratio_f,c=newcolors[kk],label=model,lw=4)
         ax4.plot(time[fsb>0],sb,c=newcolors[kk+3],lw=4,linestyle='-.')
         ax4.plot(time[fsu>0],tt,c=newcolors[kk+3],lw=4)
     #================================figure setting================================
     ax.set_ylabel('Force (N/m)',fontsize=16)
     ax.set_title('slab pull (N/m)',fontsize=16)
-    ax2.set_title('ratio of $F_{sb}$ and suction force',fontsize=16)
+#    ax2.set_title('ratio of $F_{sb}$ and suction force',fontsize=16)
     ax3.set_title('suction force (N/m)',fontsize=16)
     ax4.set_title('Forces',fontsize=16)
     ax4.set_ylabel('Force (N/m)',fontsize=16)
-    for qq in (ax, ax2, ax3, ax4):
+    for qq in (ax, ax3, ax4):
         qq.legend(fontsize=16,loc='upper left')
         qq.set_xlim(0, time[-1])
         qq.tick_params(axis='x', labelsize=16)
@@ -337,7 +339,7 @@ if forces:
         qq.spines['left'].set_linewidth(bwith)
         qq.set_xlabel('Time (Myr)',fontsize=16)
     #ax.set_yscale('log')
-    fig.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_slab_pull.png')
-    fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_suction_force.png')
-    fig2.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_slab_force_ratio.png')
-    fig4.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_forces.png')
+    fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_slab_pull.png')
+#    fig3.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_suction_force.png')
+    fig2.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_slab_force_ratio.png')
+    fig4.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_forces.png')
