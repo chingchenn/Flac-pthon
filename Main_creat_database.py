@@ -24,7 +24,7 @@ vtp                     = 0
 trench_location         = 1
 dip                     = 1
 magma                   = 1
-melting_loc             = 1
+melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
 melting                 = 1
@@ -32,26 +32,26 @@ stack_topo              = 1
 stack_gem               = 1
 slab_top_time           = 1
 wedge                   = 0
-flat_duraton            = 0
+flat_duraton            = 1
 
 # plot data
 trench_plot             = 1
 dip_plot                = 1
 magma_plot              = 1
-metloc_plot             = 1
+metloc_plot             = 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
 melting_plot            = 1
-melting_location2D      = 1
+melting_location2D      = 0
 force_plot_LR           = 1
-force_plot_RF           = 0
+force_plot_RF           = 1
 vel_plot                = 1
 stack_topo_plot         = 1
 stack_gem_plot          = 1
 wedge_area_strength     = 0
-flat_slab_plot          = 0
+flat_slab_plot          = 1
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -239,38 +239,40 @@ def count_marker(phase,start=1,end_frame=end):
     return mr
 def melting_phase():
     melt_num = np.zeros(end)
-    phase_p3=np.zeros(end)
-    phase_p4=np.zeros(end)
-    phase_p9=np.zeros(end)
-    phase_p10=np.zeros(end)
+    phase_p3=np.zeros(end)  # basalt
+    phase_p4=np.zeros(end)  # perditote
+    phase_p13=np.zeros(end)  # eclogite 
+    phase_p10=np.zeros(end) # sediment
     for i in range(1,end):
-        c=0;p9=0;p4=0;p10=0;p3=0
+        c=0;p13=0;p4=0;p10=0;p3=0
         mm=fl.read_fmelt(i)
         phase=fl.read_phase(i)
         area = fl.read_area(i)
         for xx in range(len(mm)):
             for zz in range(len(mm[0])-1):
                 if mm[xx,zz] != 0:
-                    if phase[xx,zz]==9:
-                        p9 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==4: 
+                    if phase[xx,zz]==13: # eclogite
+                        p13 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==4: #perditote
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==11 and phase[xx,zz+1]==13:
+                    elif phase[xx,zz]==3: # basalt
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==3:
-                        p3 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif phase[xx,zz]==11 and phase[xx,zz+1]==3:
+                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==13: # eclogite
+                        p13 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==3: # basalt
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
                     elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]!=13:
                         p10 += area[xx,zz]*mm[xx,zz]/1e6
+                    else:
+                        print(i,phase[xx,zz],phase[xx,zz+1])
                     c +=1
-        pk=c-p4-p9-p10-p3
+        pk=c-p4-p13-p10-p3
         melt_num[i]=c
         phase_p3[i]=p3
         phase_p4[i]=p4
-        phase_p9[i]=p9
+        phase_p13[i]=p13
         phase_p10[i]=p10
-    return fl.time,phase_p3,phase_p4,phase_p9,phase_p10
+    return fl.time,phase_p3,phase_p4,phase_p13,phase_p10
 def get_stack_topo(width=600,ictime=20):
     topo1 = 0;xmean = 0
     for i in range(end-ictime,end):
@@ -437,10 +439,10 @@ if melting_loc:
 if melting:
     print('-----creat melting database-----')
     name='melting_'+model
-    time,phase_p3,phase_p4,phase_p9,phase_p10=melting_phase()
+    time,phase_p3,phase_p4,phase_p13,phase_p10=melting_phase()
 #    fs.save_5array(name,savepath,time,phase_p4,phase_p9,phase_p10,po,
 #                'time','phase_4','phase_9','phase_10','others')
-    fs.save_5txt(name,savepath,time,phase_p3,phase_p4,phase_p9,phase_p10)
+    fs.save_5txt(name,savepath,time,phase_p3,phase_p4,phase_p13,phase_p10)
     print('=========== DONE =============')
 if stack_topo:
     print('-----creat topo database-----')
@@ -670,12 +672,13 @@ if melting_plot:
     print('---plotting melting location---')
     name='melting_'+model
     #df=pd.read_csv(savepath+name+'.csv')
-    time,phase_p3,phase_p4,phase_p9,phase_p10 = np.loadtxt(savepath+name+'.txt').T
+    time,phase_p3,phase_p4,phase_p13,phase_p10 = np.loadtxt(savepath+name+'.txt').T
     fig, (ax) = plt.subplots(1,1,figsize=(18,12))
     #ax.bar(time,phase_p9,width=0.17,color='orange',label='serpentinite ')
-    ax.bar(time,phase_p4+phase_p9,width=0.17,color='seagreen',label='olivine')
-    ax.bar(time,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediments')
-    ax.bar(time,phase_p3,bottom=phase_p9+phase_p4+phase_p10,width=0.17,color='#2360fa',label='basalt')
+    ax.bar(time,phase_p4,width=0.17,color='seagreen',label='olivine')
+    ax.bar(time,phase_p10,bottom=phase_p4,width=0.17,color='tomato',label='sediments')
+    ax.bar(time,phase_p3,bottom=phase_p4+phase_p10,width=0.17,color='#2360fa',label='basalt')
+    ax.bar(time,phase_p13,bottom=phase_p4+phase_p10+phase_p3,width=0.17,color='#2360fa',label='eclogite')
     ax.set_xlim(0,time[-1])
     ax.grid()
     ax.tick_params(axis='x', labelsize=16 )
