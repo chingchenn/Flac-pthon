@@ -23,8 +23,9 @@ import matplotlib.pyplot as plt
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-model = sys.argv[1]
-#model = 'Ref_Cocos'
+# model = sys.argv[1]
+model = 'Ref_Cocos'
+model = 'Nazca_a0702'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -99,7 +100,7 @@ def slab_sinking_torque(frame):
         if not True in ind_eclogite:
             continue
         top_slab_index = np.where(ind_eclogite)[0][0]
-        litho800 = (temp_ele[x_ind,:]<700)*(ele_z[x_ind,:]<ele_z[x_ind,top_slab_index])
+        litho800 = (temp_ele[x_ind,:]<750)*(ele_z[x_ind,:]<ele_z[x_ind,top_slab_index])
         if True in litho800 :
             for ele_index in range(len(ele_x[x_ind,:][litho800])):
                 x1 = ele_x[x_ind,:][litho800][ele_index]
@@ -380,16 +381,15 @@ if __name__ == '__main__':
     ratio=np.zeros(end)
     
     for i in range(5,end):
-    # for i in range(55,59):
         loop_time = time.time()
-        # fsb[i] = slab_sinking_force(i)
         fsb[i] = slab_sinking_torque(i)
         fsu[i] = suction_force3_torque(i)
-        # print(savepath+model+'_suctionx_'+str(i))
+       
 
     fs.save_3txt(model+'_forces',savepath,fl.time,fsb,fsu)
     fig, (ax)= plt.subplots(1,1,figsize=(10,6))
     time,fbb,fsu = np.loadtxt(savepath+model+'_forces.txt').T
+
     
     fbb = fd.moving_window_smooth(fbb,8)
     fsu = fd.moving_window_smooth(fsu,8)
@@ -399,7 +399,7 @@ if __name__ == '__main__':
     #================================figure setting================================
     ax.set_xlabel('Time (Myr)',fontsize=16)
     ax.set_ylabel('Force (N/m)',fontsize=16)
-    ax.set_xlim(0, fl.time[-1])
+    ax.set_xlim(0, 40)
     ax.tick_params(axis='x', labelsize=16)
     ax.tick_params(axis='y', labelsize=16)
     ax.grid()
