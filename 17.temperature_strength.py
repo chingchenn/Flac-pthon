@@ -24,10 +24,10 @@ s1517 geology 			             =   8
 oceanic litho, MEX                   =   9
 '''
 
-geo = 2
+geo = 3
 withregion = 0
 strength_fill = 0
-max_depth = -300
+max_depth = -100
 # -------------------------------- geology zone ------------------------------- 
 if geo == 1:
     layerz = (0, 1.5e3, 7.5e3, 10e3)   # 1st elem must be 0
@@ -68,7 +68,7 @@ elif geo == 9:
 #---------------------- define strain rate & Temperature ----------------------
 edot = 1e-14  # high strain rate
 edot = 1e-15  # low strain rate
-deepz = layerz[-1] * 20
+deepz = layerz[-1] * 10
 z = np.linspace(0, deepz, num=50000)
 if tem == 1:
     T = f2.half_space_cooling_T(z, 10, 1330, 40)
@@ -140,6 +140,7 @@ if strength_fill:
 qq=0
 for yy in range(1,len(applied_strength)):
     if z[yy]/1e3 > 30:
+        print(z[yy]/1e3)
         qq +=(applied_strength[yy])*(z[yy]-z[yy-1])
 print(qq/1e13)
 print(qq/1e13/0.3931863060287225)

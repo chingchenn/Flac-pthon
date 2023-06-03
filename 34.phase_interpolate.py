@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 model = sys.argv[1]
 # frame = int(sys.argv[2])
-# model = 'Nazca_a0624'
+# model = 'Cocos_a0646'
 # frame = 10
 
 def make_phase_interploate(model,frame):
@@ -129,6 +129,8 @@ def make_phase_interploate(model,frame):
 
 
 frame_list=[26,51,76,101,126,150]
-for frame in frame_list:
+# end = fl.nrec
+for frame in range(2,221):
+# for frame in frame_list:
     make_phase_interploate(model,frame)
     print('---------------end of '+str(frame)+'---------------')

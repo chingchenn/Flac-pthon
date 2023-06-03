@@ -14,12 +14,12 @@ import function_for_flac as fd
 import matplotlib.pyplot as plt
 
 #model = sys.argv[1]
-model = 'b0702k'
+model = 'Nazca_a0701'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
-#path='/Users/ji-chingchen/Desktop/model/'
+path='/Users/chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
-path = 'D:/model/'
+# path = 'D:/model/'
 savepath='/home/jiching/geoflac/data/'
 #savepath='/Users/ji-chingchen/Desktop/data/'
 savepath = 'D:/model/data/'
@@ -130,10 +130,10 @@ for yy,model in enumerate(model_list):
         cx=aa.contour(ele_x,ele_z,vis,cmap = 'rainbow_r',levels =[23,24]) 
         aa.contour(x,z,temp,cmap = 'magma',levels =[700])
         aa.set_aspect('equal')
-        aa.set_xlim(200,900)
-        aa.set_ylim(-200,0)
+        # aa.set_xlim(200,900)
+        # aa.set_ylim(-200,0)
         aa.set_title(model+'_vis_'+str(i),fontsize=30)
-        fig2.savefig(figpath+model+'_wedge_snapshot.png')
+        # fig2.savefig(figpath+model+'_wedge_snapshot.png')
     
     ax[0].scatter(fl.time[areawedge>0],areawedge[areawedge>0],c=color[yy],label=model)
     ax[1].scatter(fl.time[areawedge>0],viswedge[areawedge>0],c=color[yy],label=model)
@@ -153,4 +153,4 @@ for yy,model in enumerate(model_list):
         ax[qq].spines['right'].set_linewidth(bwith)
         ax[qq].spines['left'].set_linewidth(bwith)
         ax[qq].legend()
-fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_wedge_compare.png')
+# fig.savefig(figpath+model_list[0]+'_'+model_list[-1]+'_wedge_compare.png')
