@@ -32,7 +32,7 @@ vis         = 0
 gravity     = 0
 #-------------------------------------------------------------------
 if phasein:
-    phase_interpolate_file = savvedata+model+'_frame_'+str(frame)+'interpolate_ph.txt'
+    phase_interpolate_file = savepath+model+'_frame_'+str(frame)+'interpolate_ph.txt'
     cmd = 'tail -n +2 %(phase_interpolate_file)s | xyz2grd -G%(phgrd)s -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f' % locals()
     print(cmd)
     #os.system(cmd)
