@@ -22,7 +22,7 @@ from scipy.interpolate import  UnivariateSpline,Akima1DInterpolator, PchipInterp
 # plt.rcParams["font.family"] = "Times New Roman"
 # plt.rcParams["figure.figsize"] = (10,12)
 #model = sys.argv[1]
-model = 'Ref_Nazca'
+model = 'Nazca_a0702'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
@@ -43,6 +43,7 @@ figpath = '/Users/chingchen/Desktop/figure/'
 os.chdir(path+model)
 fl = flac.Flac();end = fl.nrec
 nex = fl.nx-1; nez=fl.nz-1
+x_limit = 1000
 time,trench_index, trench_x, trench_z = np.loadtxt(savepath+'trench_for_'+str(model)+'.txt').T
 
 phase_uppercrust = 2
@@ -58,6 +59,9 @@ phase_lowercrust = 14
 phase_hydratedmantle = 16
 phase_oceanic_1 = 17
 phase_eclogite_1 = 18
+
+fig2 = 0
+fig3 = 1
 
 
 def temp_elements(temp):
@@ -120,15 +124,14 @@ def find_slab_median_index2(i):
     return ox,oz
 
 g = 10
-frame = 140
-dis_range = 25
-depth1 = -200
+frame = 180
+dis_range = 20
+depth1 = -150
 depth2 = -10
 
 bwith = 3
-# for frame in [30,60,90,120,150,180]:
-for frame in [150]:
-
+for frame in [30,90,150]:
+# for frame in [180]:
 
     ###---------------------------------------------------------------------------------------------------------
     x, z = fl.read_mesh(frame)
@@ -152,19 +155,18 @@ for frame in [150]:
               "#F67280","#00FF00","#FFFF00","#7158FF"]
     phase15= matplotlib.colors.ListedColormap(colors)
     cm = plt.cm.get_cmap('RdYlBu_r')
-    fig, (ax)= plt.subplots(1,1,figsize=(10,6))
-    # ax.pcolormesh(ele_x,-ele_z,-dpre/1e6,cmap=cm,vmin=-200, vmax=200)
-    # ax.pcolormesh(x,-z,density,cmap=cm,vmin=2900,vmax=3500)
-    ax.pcolormesh(ele_x,-ele_z,phase,cmap=phase15,vmin=1, vmax=20)
-    ax.set_ylim(300,-0)
-    ax.set_xlim(200,900)
-    # ax.set_xlim(trench_x[frame]-200,min(trench_x[frame]+800,1200))
-    ax.set_aspect('equal')
-    # xt,zt = fl.read_mesh(frame)
-    temp = fl.read_temperature(frame)
-    ax.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+    # fig, (ax)= plt.subplots(1,1,figsize=(10,6))
+    # # ax.pcolormesh(ele_x,-ele_z,dpre/1e6,cmap=cm,vmin=-200, vmax=200)
+    # # ax.pcolormesh(x,-z,density,cmap=cm,vmin=2900,vmax=3500)
+    # ax.pcolormesh(ele_x,-ele_z,phase,cmap=phase15,vmin=1, vmax=20)
+    # ax.set_ylim(300,-0)
+    # ax.set_xlim(200,x_limit)
+    # # ax.set_xlim(trench_x[frame]-200,min(trench_x[frame]+800,1200))
+    # ax.set_aspect('equal')
+    # # xt,zt = fl.read_mesh(frame)
+    # temp = fl.read_temperature(frame)
+    # ax.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
 
-    
     ###----------------------- Slab sinking force with time-------------------------------
     #    Fsb = (rho_mantle-rho_slab)(z) * g * area_of_slab 
     # def slab_sinking_torque(frame):
@@ -178,11 +180,12 @@ for frame in [150]:
     temp_ele = temp_elements(temp)
     ind_trench = int(trench_index[frame])
     moment_point_x,moment_point_z  = trench_x[frame], trench_z[frame]
-    ax.scatter(moment_point_x,-moment_point_z,c = 'green')
+    # ax.scatter(moment_point_x,-moment_point_z,c = 'green')
     ref_den = density[-4,:]
     # ----- empty array and data -----
     Fsb = 0 
     Fsbx = np.zeros(len(ele_x))
+    force_sb = np.zeros(len(ele_x))
     
     for ii,x_ind in enumerate(range(ind_trench,len(ele_z))):
     # for ii,x_ind in enumerate(range(166,182)):
@@ -197,18 +200,19 @@ for frame in [150]:
             # ax.scatter(ele_x[x_ind,:][litho800],-ele_z[x_ind,:][litho800],c = 'yellow',s=4)
             for ele_index in range(len(ele_x[x_ind,:][litho800])):
                 x1 = ele_x[x_ind,:][litho800][ele_index]
-                z1 = ele_z[x_ind,:][litho800][ele_index]
+                # z1 = ele_z[x_ind,:][litho800][ele_index]
                 rho_diff = density[x_ind,:][litho800][ele_index]-ref_den[ele_index]
                 torque_length= (x1-moment_point_x) *1e3        
                 volume = area[x_ind,:][litho800][ele_index]
                 Fsb+= torque_length*rho_diff*g*volume
                 Fsbx[x_ind] = Fsb
+                force_sb[x_ind] = rho_diff*g*volume
         # return Fsb # N (2D)
     #---------------------------------------------------------------------------
     trx = trench_x[frame]
     zslab = w5[xslab>trx]
     xslab = xslab[xslab>trx]
-    ax.scatter(xslab,-zslab,c = 'k',s = 30)
+    # ax.scatter(xslab,-zslab,c = 'k',s = 30)
     midslabx,midslabz = find_mid_point(xslab,zslab)
     list_subslab =  [[] for i in range(len(midslabz))]
     list_topslab =  [[] for i in range(len(midslabz))]
@@ -293,6 +297,7 @@ for frame in [150]:
     P0 = np.array((trench_x[frame], trench_z[frame]))*1000
     Fsux2 = np.zeros(len(xslab))
     beta = np.zeros(len(xslab))
+    force_su = np.zeros(len(xslab))
     for ss in range(len(midslabx)):
     # for ss in range(263,264):    
         psub = 0
@@ -330,21 +335,64 @@ for frame in [150]:
         Ptotal[ss] = psub-ptop
         Fsu += Ptotal[ss]*dl[ss]*torque_length[ss]*costheta
         Fsux2[ss] = Fsu
-    
-    fig2, (ax2,ax3)= plt.subplots(2,1,figsize=(10,6))
-    ax2.plot(ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0],c ='#c06c84',label='slab pull (N)',lw=4) 
-    ax2.plot(xslab[Fsux2!=0],Fsux2[Fsux2!=0],c="#DC143C",label='suction force2 (N)',lw=4)
-    ax3.scatter(xslab,beta,c='darkgreen')
-    for axx in [ax2,ax3]:
-        axx.grid()
-        axx.set_xlim(200,900)
-        #axx.set_title(model+' '+str(round(frame*0.2))+' Myr',fontsize=24)
-        
-        axx.set_ylabel('Torque (N)',fontsize=16)
-        axx.spines['bottom'].set_linewidth(bwith)
-        axx.spines['top'].set_linewidth(bwith)
-        axx.spines['right'].set_linewidth(bwith)
-        axx.spines['left'].set_linewidth(bwith)
-        
-    ax2.legend(fontsize=16,loc='upper left')
-    ax3.set_xlabel('X Distance',fontsize=16)
+        force_su[ss] = Ptotal[ss]*dl[ss]
+    if fig2:
+        fig2, (ax2,ax3,ax4)= plt.subplots(3,1,figsize=(15,10))
+        ax2.plot(ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0],c ='#524B52',label='slab pull (N)',lw=4) 
+        ax2.plot(xslab[Fsux2!=0],Fsux2[Fsux2!=0],c="#DC143C",label='suction torque (N)',lw=4)
+        ax3.scatter(xslab,beta,c='darkgreen')
+        ax4.scatter(ele_x[:,0][force_sb!=0],force_sb[force_sb!=0],c ='#524B52',label='slab pull force')
+        ax4.scatter(xslab[force_su!=0],force_su[force_su!=0],c="#DC143C",label = 'suction force')
+        for axx in [ax2,ax3,ax4]:
+            axx.grid()
+            axx.set_xlim(200,x_limit)
+            #axx.set_title(model+' '+str(round(frame*0.2))+' Myr',fontsize=24)
+            axx.spines['bottom'].set_linewidth(bwith)
+            axx.spines['top'].set_linewidth(bwith)
+            axx.spines['right'].set_linewidth(bwith)
+            axx.spines['left'].set_linewidth(bwith)
+            axx.tick_params(axis='x', labelsize=12)
+            axx.tick_params(axis='y', labelsize=12)
+            
+        ax2.legend(fontsize=16,loc='upper left')
+        ax4.legend(fontsize=16,loc='upper left')
+        ax2.set_ylabel('Torque (N)',fontsize=16)
+        ax3.set_ylabel('Angle (degree)',fontsize=16)
+        ax4.set_ylabel('force (N/m)',fontsize=16)
+        ax4.set_xlabel('X Distance',fontsize=16)
+
+
+    if fig3:
+        fig3, (ax,aa,ax2,ax4)= plt.subplots(4,1,figsize=(8,15))
+        ax.pcolormesh(ele_x,-ele_z,phase,cmap=phase15,vmin=1, vmax=20)
+        ax.set_ylim(300,-0)
+        ax.set_aspect('equal')
+        temp = fl.read_temperature(frame)
+        ax.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        aa.pcolormesh(ele_x,-ele_z,dpre/1e6,cmap=cm,vmin=-200, vmax=200)
+        aa.set_ylim(300,-0)
+        aa.set_aspect('equal')
+        temp = fl.read_temperature(frame)
+        aa.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+
+        ax2.plot(ele_x[:,0][Fsbx!=0],Fsbx[Fsbx!=0],c ='#524B52',label='slab pull (N)',lw=4) 
+        ax2.plot(xslab[Fsux2!=0],Fsux2[Fsux2!=0],c="#DC143C",label='suction torque (N)',lw=4)
+        ax4.scatter(ele_x[:,0][force_sb!=0],force_sb[force_sb!=0],c ='#524B52',label='slab pull force')
+        ax4.scatter(xslab[force_su!=0],force_su[force_su!=0],c="#DC143C",label = 'suction force')
+        for axx in [ax,aa,ax2,ax4]:
+            axx.set_xlim(200,x_limit)
+            #axx.set_title(model+' '+str(round(frame*0.2))+' Myr',fontsize=24)
+            axx.spines['bottom'].set_linewidth(bwith)
+            axx.spines['top'].set_linewidth(bwith)
+            axx.spines['right'].set_linewidth(bwith)
+            axx.spines['left'].set_linewidth(bwith)
+            axx.tick_params(axis='x', labelsize=12)
+            axx.tick_params(axis='y', labelsize=12)
+        for aaa in [ax2,ax4]:
+            aaa.grid()
+            
+        ax2.legend(fontsize=16,loc='upper left')
+        ax4.legend(fontsize=16,loc='lower left')
+        ax2.set_ylabel('Torque (N)',fontsize=16)
+        ax4.set_ylabel('force (N/m)',fontsize=16)
+        ax4.set_xlabel('X Distance',fontsize=16)

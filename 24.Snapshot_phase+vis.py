@@ -36,8 +36,8 @@ figpath='/home/jiching/geoflac/figure/'
 figpath = '/Users/chingchen/Desktop/figure/'
 model_list = ['Nazca_a0516']
 plotting_png = 1
-gif = 1
-mp4 = 1
+gif = 0
+mp4 = 0
 end=150
 
 
@@ -52,7 +52,7 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
 phase19= matplotlib.colors.ListedColormap(colors)
 cc = plt.cm.get_cmap('jet')
 for model in model_list:
-    for i in range(1,end+1):
+    for i in range(1,end+1,20):
     # for i in plot_frame:
         if plotting_png ==0:
             break
@@ -95,9 +95,9 @@ for model in model_list:
                 qq = '0'+str(i)
             else:
                 qq=str(i)
-        fig.savefig(figpath+model+'_'+'frame_'+qq+'_phase+vis_test.png')
+        # fig.savefig(figpath+model+'_'+'frame_'+qq+'_phase+vis_test.png')
         fig.gca()
-        plt.close(fig)
+        # plt.close(fig)
 
 #-----------------------------creat GIF-----------------------------------------
     if gif: 

@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 #-------------------------------------------------------------------
 # model = sys.argv[1]
 # frame = int(sys.argv[2])
-model = 'Nazca_a0614'
+model = 'Cocos_a0626'
 frame = 10
 plt.rcParams["font.family"] = "Times New Roman"
 path='/home/jiching/geoflac/'
@@ -37,14 +37,14 @@ os.chdir(path+model)
 fl = flac.Flac()
 x, z = fl.read_mesh(frame)
 
-phasein     = 0
+phasein     = 1
 tin         = 0
 vis         = 0
 gravity     = 0
-cpp         = 0
+cpp         = 1
 figure_plot = 0 # 8 figure
-figure_plot1= 1 # single step viscosity
-figure_plot2= 1 # single step phase 
+figure_plot1= 0 # single step viscosity
+figure_plot2= 0 # single step phase 
 figure_plot3= 0 # 30,60,90,150 step viscosity 
 figure_plot4= 0 # 30,60,90,150 step phase
 # -------------------------------------------------------------------
@@ -141,10 +141,11 @@ if cpp:
     cpcmd = ''' awk '{print $1,$2,$3+0}' %(phasefile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(phasefile)s.txt
     #awk '{print $1,$2,$3+0}' %(tfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(tfile)s.txt
     #awk '{print $1,$2,$3+0}' %(gfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(gfile)s.txt
-    awk '{print $1,$2,$3+0}' %(visfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(visfile)s.txt
+    #awk '{print $1,$2,$3+0}' %(visfile)s | awk '{if ($3>0) print $1,$2,$3}' > %(model)s_%(visfile)s.txt
     #cp %(tfile)s  %(model)s_%(tfile)s.txt
     #cp %(gfile)s  %(model)s_%(gfile)s.txt
-    mv  %(model)s_%(phasefile)s.txt %(model)s_%(visfile)s.txt %(savepath)s
+    mv  %(model)s_%(phasefile)s.txt %(savepath)s
+    #mv  %(model)s_%(phasefile)s.txt %(model)s_%(visfile)s.txt %(savepath)s
     #mv  %(model)s_%(phasefile)s.txt %(model)s_%(gfile)s.txt  %(model)s_%(tfile)s.txt %(model)s_%(visfile)s.txt /home/jiching/geoflac/data/.
 ''' % locals()
     os.system(cpcmd)
