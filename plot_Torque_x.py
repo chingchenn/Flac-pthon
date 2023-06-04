@@ -26,13 +26,13 @@ figpath='/Users/chingchen/OneDrive - 國立台灣大學/青年論壇/'
 gif = 0
 mp4 = 0
 end=150
-model = 'Cocos_a0807'
+model = 'Nazca_a0706'
 # model = 'Nazca_a0706'
 if model=='Nazca_a0706':
-    xmin,xmax=0,200
+    xmin,xmax=0,300
     ymin,ymax=-5e18,5e18
     ymin3,ymax3=-1e17,1e17
-    ymin4,ymax4=55,85
+    ymin4,ymax4=0,85
 if model=='Nazca_a0702':
     xmin,xmax=0,800
     ymin,ymax=-5e18,3e19
@@ -77,8 +77,10 @@ for i in  range(10,120):
     ax3.set_ylim(ymin3,ymax3)
     ax4.set_ylim(ymin4,ymax4)
     ax2.set_title(model+' '+str(round(i*0.2,1))+' Myr',fontsize=24)
-    ax3.set_xlabel('Time (Myr)',fontsize=26)
+    ax4.set_xlabel('Distance (km)',fontsize=26)
     ax2.set_ylabel('Torque (N)',fontsize=26)
+    ax3.set_ylabel('Torque (N)',fontsize=26)
+    ax4.set_ylabel('Beta ($\circ$)',fontsize=26)
     for axx in [ax2,ax3,ax4]:
         axx.set_xlim(xmin,xmax)
         axx.tick_params(axis='x', labelsize=26)

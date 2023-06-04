@@ -31,7 +31,7 @@ if Nazca:
     max_dis = 515
     xmin = 300
     xmax = 1000
-    model = 'Ref_Nazca'
+    model = 'Nazca_a0702'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 path = '/Users/chingchen/Desktop/model/'
@@ -100,12 +100,12 @@ ax.set_ylim(200,0)
 ax.set_aspect('equal')
 # ----- Start Calculation ------
 for ii,x_ind in enumerate(range(ind_trench-10,len(ele_z))):
-    ind_slab = (ele_z[x_ind,:]> -150)*(ele_z[x_ind,:]< -5)*((phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic))
+    ind_slab = (ele_z[x_ind,:]> -300)*(ele_z[x_ind,:]< -10)*((phase[x_ind,:] == phase_eclogite) + (phase[x_ind,:] == phase_eclogite_1) + (phase[x_ind,:] == phase_oceanic))
     if not True in ind_slab:
         continue
     if ele_x[x_ind,0]<max_dis:
         top_slab_index = np.where(ind_slab)[0][-1]
-    elif ele_x[x_ind,0]<max_dis+110:
+    elif ele_x[x_ind,0]<max_dis+300:
         top_slab_index = np.where(ind_slab)[0][-1]
     else:
         continue
@@ -113,6 +113,23 @@ for ii,x_ind in enumerate(range(ind_trench-10,len(ele_z))):
     slab_z[x_ind] = -ele_z[x_ind,top_slab_index]
     slab_P[x_ind] = pressure[x_ind,top_slab_index] # GPa
     ax.scatter(ele_x[x_ind,top_slab_index],-ele_z[x_ind,top_slab_index],c='r')
+slab_P2 = np.zeros(len(ele_z))
+slab_T2 = np.zeros(len(ele_z))
+slab_z2 = np.zeros(len(ele_z))
+for ii,z_ind in enumerate(range(0,len(ele_z[0]))):
+    ind_slab = (ele_z[:,z_ind]> -300)*(ele_z[:,z_ind]< -10)*((phase[:,z_ind] == phase_eclogite) + (phase[:,z_ind] == phase_eclogite_1) + (phase[:,z_ind] == phase_oceanic)+(phase[:,z_ind] == phase_sediment))
+    if not True in ind_slab:
+        continue
+    # if ele_x[:,z_ind]<max_dis:
+    top_slab_index = np.where(ind_slab)[0][-1]
+    # elif ele_x[x_ind,0]<max_dis+300:
+        # top_slab_index = np.where(ind_slab)[0][-1]
+    # else:
+        # continue
+    slab_T2[z_ind] = temp_ele[top_slab_index,z_ind]
+    slab_z2[z_ind] = -ele_z[top_slab_index,z_ind]
+    slab_P2[z_ind] = pressure[top_slab_index,z_ind] # GPa
+    ax.scatter(ele_x[top_slab_index,z_ind],-ele_z[top_slab_index,z_ind],c='r')
 
            
 fig2,ax2 = plt.subplots(1,1,figsize=(10,10))
@@ -124,8 +141,12 @@ ax2.plot(x,y,c=basalt_change,lw=8)
 x = np.linspace(515,1300)
 y = 0.0022 * x - 0.3
 ax2.plot(x,y,c=basalt_change,lw=8,label='basalt-eclogite')
-pressure_limit = 4 # GPa
+pressure_limit = 6 # GPa
 pressure=np.linspace(0,pressure_limit,100)
+
+
+pressure_limit2 = 2.45
+pressure=np.linspace(0,pressure_limit2,100)
 sss=np.zeros(len(pressure))
 for q,dd in enumerate(pressure):
     if dd<1:
@@ -135,12 +156,33 @@ for q,dd in enumerate(pressure):
     else:
         ss=630+26*((-dd)**2)/2 
     sss[q] = ss
-ax2.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
+lab4=ax2.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
+# ax.set_ylim(depth_limit*1000*10*3300/1e9,0)
+# ax.set_xlim(200,1600)
+
+
+# sss=np.zeros(len(pressure))
+# for q,dd in enumerate(pressure):
+#     if dd<1:
+#         ss=1050-420*(1-np.exp(-dd*3.3))
+#     elif dd>2.38:
+#         ss=(dd+14)*43
+#     else:
+#         ss=630+26*((-dd)**2)/2 
+#     sss[q] = ss
+# ax2.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
+# x = np.linspace(710,1050)
+# y = -1.25/350*x+5
+# ax2.plot(x,y,c='#FF9900',lw=5) # solidus
+
+# x = np.linspace(680,1050)
+# y = 0.65/400*x-0.45625
+# ax2.plot(x,y,c='#FF9900',lw=5) # solidus
 ax2.set_ylim(0,pressure_limit)
 ax2.set_xlim(0,1200)
 axdep = ax2.twinx()
 axdep.set_ylim(0,pressure_limit*1e9/3300/10/1e3)
-ax2.legend(fontsize=labelsize)
+# ax2.legend(fontsize=labelsize,loc='upper left')
 axdep.tick_params(axis='y', labelsize=labelsize)
 ax2.tick_params(axis='x', labelsize=labelsize)
 ax2.tick_params(axis='y', labelsize=labelsize)
@@ -152,7 +194,8 @@ ax2.spines['top'].set_linewidth(bwith)
 ax2.spines['right'].set_linewidth(bwith)
 ax2.spines['left'].set_linewidth(bwith)
 
-axdep.scatter(slab_T,slab_z,c='green')
+# axdep.scatter(slab_T+80,slab_z,c='green')
+axdep.scatter(slab_T2+80,slab_z2,c='purple')
 # ax2.scatter(slab_T,slab_P,c='#455E45')
 
-
+# fig2.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Discussion/'+'Mexico_slab_PT.pdf')

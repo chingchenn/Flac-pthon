@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Oct 14 21:10:11 2022
+
+@author: chingchen
+"""
+
+import numpy as np
+import function_for_flac as f2
+import matplotlib.pyplot as plt
+
+plt.rcParams["font.family"] = "Times New Roman"
+# ----------------------------- initial setup ---------------------------------
+'''
+normal continental litho, therm 3    =   2
+depleted continental litho, therm 3  =   3
+normal continental litho, therm 4    =   4
+depleted continental litho, therm 4  =   5
+strong lower crust  therm 3          =   6
+'''
+change=0
+geo = 2
+withregion = 0
+strength_fill = 0
+max_depth = -100
+# -------------------------------- geology zone ------------------------------- 
+if geo==2:
+    layerz = (0, 18e3, 30e3)
+    phase=[2,6,4]
+    tem=3
+elif geo==3:
+    layerz = (0, 18e3, 26e3, 40e3)
+    phase=[2,6,19,4]
+    tem=3
+elif geo==4:
+    layerz = (0, 18e3, 30e3)
+    phase=[2,14,4]
+    tem=3
+elif geo==5:
+    layerz = (0, 18e3, 30e3)
+    phase=[2,6,4]
+    tem=3
+elif geo==6:
+    layerz = (0, 16e3, 26e3)
+    phase=[2,1,4]
+    tem=3
+#---------------------- define strain rate & Temperature ----------------------
+edot = 1e-14  # high strain rate
+# edot = 1e-15  # low strain rate
+deepz = layerz[-1] * 10
+z = np.linspace(0, deepz, num=50000)
+if tem == 1:
+    T = f2.half_space_cooling_T(z, 10, 1330, 40)
+elif tem == 3:
+    T = f2.continental_geothermal_T3(z,20,6,40)
+elif tem == 4:
+    T = f2.continental_geothermal_T4(z, 10,1330, 140)
+elif tem == 2:
+    T = f2.half_space_cooling_T(z, 10, 1330, 15)
+
+#---------------------------- read phase from csv -----------------------------
+pu=[]
+for yy in range(20):
+    pu.append(f2.phase_pro(yy))
+#----------------------------- creat Dfc array --------------------------------
+pp=[]
+dfc=[0,10,12]
+for qqq in phase:
+    for nnn in dfc:    
+        pp.append(pu[qqq][nnn])
+Dfc=np.array(pp).reshape(len(phase),3)
+#----------------------------- creat nAE array --------------------------------
+pp=[]
+nae=[3,4,5]
+for qqq in phase:
+    for nnn in nae:    
+        pp.append(pu[qqq][nnn])
+nAEs=np.array(pp).reshape(len(phase),3)
+#------------------------------------------------------------------------------
+if change:
+    lower_crust_E = 2.76e5
+    nAEs[1,2] = lower_crust_E
+
+#------------------------------------------------------------------------------
+# equation soluiton of plastic stress and viscosity
+frico_strength = f2.plastic_stress(z,layerz,Dfc)
+visc = f2.visc_profile(z, T, edot, layerz, nAEs)
+visco_strength = visc* edot *2 #Pa
+#------------------------------------------------------------------------------
+fig, (ax) = plt.subplots(1,1,figsize=(7,12))
+applied_strength = np.amin((visco_strength,frico_strength),axis=0)
+bwith = 3
+ax.spines['bottom'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
+ax.spines['left'].set_linewidth(bwith)
+mm1,=ax.plot(visco_strength/1e6,z/1000,color='r',linestyle='dashed',alpha=0.8,label = 'elasto-viscous',lw=4)
+mm2,=ax.plot(frico_strength/1e6,z/1000,color='b',linestyle='dashed',alpha=0.8,label = 'elasto-plastic',lw=4)
+mm3,=ax.plot(applied_strength/1e6,z/1000,color='k',lw=6,label = 'final stress')
+mm=[mm3,mm2,mm1]
+ax.legend(mm, [curve.get_label() for curve in mm],fontsize=25,loc = 'lower left')
+ax.tick_params(axis='x', labelsize=26)
+ax.tick_params(axis='y', labelsize=26)
+ax.set_title('Rock Strength',fontsize=30)
+ax.set_xlabel('Strength (MPa)',fontsize=26)
+ax.set_ylabel('Depth (km)',fontsize=26)
+ax.set_ylim(-max_depth,0)                                     
+ax.set_xlim(0,1500)
+ax.grid()
+# fig.savefig('/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Method/strength_v3.pdf')
+
+## ------------------------------  Elastic Plot  ------------------------------
+if withregion:
+    elastic =-z[applied_strength==frico_strength]/1000
+    for rr in range(1,len(elastic)):
+        if elastic[rr] > -100 and abs(elastic[rr-1]-elastic[rr]) <1 :
+            ax.axhspan(elastic[rr-1],elastic[rr],facecolor='royalblue', alpha=0.45)
+if strength_fill:
+    ax.fill_between(applied_strength/1e6, -z/1000, facecolor='tab:cyan', interpolate=True,alpha=0.6)
+
+## ----------------------------  calculated force  ----------------------------
+qq=0
+for yy in range(1,len(applied_strength)):
+    # if z[yy]/1e3 > 30:
+        # print(z[yy]/1e3)
+    qq +=(applied_strength[yy])*(z[yy]-z[yy-1])
+print(qq/1e13)
+# print(qq/1e13/0.3931863060287225)
+# print(qq/1e13/0.7907327461243084)

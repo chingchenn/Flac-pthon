@@ -13,9 +13,9 @@ import flac
 
 
 # domain bounds (in km)
-xmin = 300
-xmax = 700
-zmin = -150
+xmin = 250
+xmax = 1200
+zmin = -300
 zmax = 10
 
 # grid resolution (in km)

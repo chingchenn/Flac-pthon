@@ -35,9 +35,9 @@ savepath='/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
 figpath='/Users/chingchen/Desktop/figure/'
 # model = sys.argv[1]
-fig1=0
-fig2=1
-fig3=0
+fig1=1 # Nazca 
+fig2=0 # Cocos
+fig3=0 # Cocos without basalt-to-eclogite
 
 
 plt.rcParams["font.family"] = "Times New Roman"
@@ -57,16 +57,17 @@ phase_hydratedmantle = 16
 phase_oceanic_1 = 17
 phase_eclogite_1 = 18
 
-model='Ref_Nazca'
+model='Nazca_a0702'
 os.chdir(path+model)
 fl = flac.Flac()
 end = fl.nrec
 nex = fl.nx - 1
 nez = fl.nz - 1
 time = fl.time
+# end = 250
 time,ele_trench,x_trench,z_trench=np.loadtxt(savepath+'trench_for_'+model+'.txt').T
 rainbow = cm.get_cmap('gray_r',end)
-meltcolor = cm.get_cmap('rainbow',end)
+meltcolor = cm.get_cmap('turbo',end)
 newcolors = rainbow(np.linspace(0, 1, end))
 time_color = meltcolor(np.linspace(0,1,end))
 if fig1:
@@ -77,7 +78,7 @@ if fig1:
         ele_x, ele_z = flac.elem_coord(x,z)
         magma_chamber = fl.read_fmagma(i) * 100
         melt = fl.read_fmelt(i) * 100
-        ax2.scatter(ele_x[magma_chamber>1e-3],-ele_z[magma_chamber>1e-3],color=time_color[i],zorder=1,s=10)
+        ax2.scatter(ele_x[magma_chamber>1.5e-3],-ele_z[magma_chamber>1.5e-3],color=time_color[i],zorder=1,s=10)
         # time = fl.time[i]
         qqq=ax1.scatter(ele_x[melt>0.1],-ele_z[melt>0.1],color=time_color[i],s = 10)
     def x2dis(x):
@@ -90,7 +91,7 @@ if fig1:
     
     for ax in [ax1,ax2,ax5]:
         ax.grid()
-        ax.set_xlim(300,900)
+        ax.set_xlim(300,1000)
         ax.set_ylim(150,0)
         ax.set_ylabel('Depth (km)',fontsize=26)
         ax.tick_params(axis='x', labelsize=26 )
@@ -118,10 +119,12 @@ if fig1:
         
     x_change = np.zeros(end)
     z_change = np.zeros(end)
-    for i in range(1,end):
+    time = np.ones(end)
+    for i in range(2,end):
         x, z = fl.read_mesh(i)
         ele_x, ele_z = flac.elem_coord(x,z)
         phase = fl.read_phase(i)
+        time[i] = i * 0.2
         for xx in range(len(ele_x)):
             if True in (phase[xx,:]==phase_eclogite):
                 for zz in range(len(ele_x[0])):
@@ -130,20 +133,19 @@ if fig1:
                         z_change[i]=-ele_z[xx,zz]
                         break
                 break
-    cbtime=ax5.scatter(x_change[x_change>0],z_change[x_change>0],c=time[x_change>0],cmap = 'rainbow',vmin=0,vmax=40)
+    cbtime=ax5.scatter(x_change[x_change>0],z_change[x_change>0],c=time[x_change>0],cmap = 'turbo',vmin=0,vmax=40)
     ax5.set_ylim(100,0)
     ax5.set_title('Location of basalt to eclogite phase change',fontsize=28)
     ax5.set_xlabel('Distance (km)',fontsize=28)
     ax1.set_title('Location of partial melting',fontsize=28)
     ax2.set_title('Location of magma chamber',fontsize=28)
-    cax = plt.axes([0.945, 0.082, 0.03, 0.850])
+    cax = plt.axes([0.99, 0.082, 0.03, 0.850])
     cc1=fig.colorbar(cbtime, ax=ax,cax=cax)
     cc1.set_label(label='Time (Myr)', size=23)
     cc1.ax.tick_params(labelsize=20)
-    cc1.ax.yaxis.set_label_position('left')
+    cc1.ax.yaxis.set_label_position('right')
     fig.tight_layout()
-    # fig.savefig(figpath+model+'_2Dtime_series.pdf')
-
+    # fig.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Ref_Nazca/'+'Nazca_a0702_2Dtime_series_7.pdf')
 
 
 
@@ -241,7 +243,7 @@ if fig2:
     cc1.ax.tick_params(labelsize=20)
     cc1.ax.yaxis.set_label_position('left')
     fig2.tight_layout()
-    fig2.savefig(figpath+model+'_2Dtime_series.pdf')
+    # fig2.savefig(figpath+model+'_2Dtime_series.pdf')
 if fig3:
     fig3, (ax1,ax2)= plt.subplots(2,1,figsize=(13,12))
     xxx_trench = np.average(x_trench)
