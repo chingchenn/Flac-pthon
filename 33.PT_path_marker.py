@@ -19,15 +19,15 @@ import function_savedata as fs
 import matplotlib.pyplot as plt
 
 plt.rcParams["font.family"] = "Times New Roman"
-Cocos = 1
-Nazca = 0
+Cocos = 0
+Nazca = 1
 if Cocos:
     model = 'Cocos_a0906'
     marker_list = [186769,186775,704604]#,928985,960783,973829,992876,928808,928935,889439,882174,886460,864250,861514,859346]
     xmin,xmax=500,950
 if Nazca: # 52238,51380,501242, 48622, 60366, 61268, 63076, 62169, 62169, 58564, 59471, 57672, 54078, 52240, 52225, 422137, 732540
     model = 'Ref_Nazca'
-    marker_list = [52238,51380,501242,]# 48622, 60366, 61268, 63076, 62169, 62169, 58564, 59471, 57672, 54078, 52240, 52225, 422137, ]
+    marker_list = [52238,51380,501242, 48622, 60366, 61268, 63076, 62169, 62169, 58564, 59471, 57672, 54078, 52240, 52225, 422137, ]
     xmin,xmax=300,500
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
@@ -79,6 +79,13 @@ for q,dd in enumerate(pressure):
         ss=630+26*((-dd)**2)/2 
     sss[q] = ss
 ax2.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
+x = np.linspace(710,1050)
+y = -1.25/350*x+5
+ax2.plot(x,y,c='#FF9900',lw=5) # solidus
+
+x = np.linspace(680,1050)
+y = 0.65/400*x-0.45625
+ax2.plot(x,y,c='#FF9900',lw=5) # solidus
 ax2.set_ylim(0,pressure_limit)
 ax2.set_xlim(0,1200)
 axdep = ax2.twinx()
