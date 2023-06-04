@@ -34,13 +34,15 @@ png             = 0
 pdf             = 0
 
 ### plot
-plot_sxx        = 0
+plot_sxx        = 1
 plot_sxz        = 0
 plot_pressure   = 0
 plot_phase      = 0
 
-plot_Nazca      = 1
+plot_Nazca      = 0
 plot_Cocos      = 0
+plot_Nazca_h    = 0
+plot_Cocos_h    = 0
 
 
 #---------------------------------- SETTING -----------------------------------
@@ -57,6 +59,8 @@ savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
 figpath = '/Users/chingchen/Desktop/figure/'
 figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
+figpath='/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/AGU/POSTER/Poster_figure/'
+
 colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
       "#2E8B57","#524B52","#D14309","#DC143C","#FF8C00",
       "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
@@ -64,8 +68,8 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
 phase15= matplotlib.colors.ListedColormap(colors)
     
 g=10
-fig, (ax)= plt.subplots(2,1,figsize=(16,14),gridspec_kw={'height_ratios':[1,1]})
-frame = 150
+fig, (ax)= plt.subplots(2,1,figsize=(16,14),gridspec_kw={'height_ratios':[3,2]})
+frame = 151
 bwith = 3
 
 def dynamics_pressure(frame):
@@ -80,15 +84,16 @@ def dynamics_pressure(frame):
 
 if plot_sxx:
     #--------------------- plotting -------------------------
-    model = 'Ref_Nazca'
+    model = 'Nazca_a0702'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
     temp = fl.read_temperature(frame)
     x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
     sxx = fl.read_sxx(frame)*100
     cbsxx = plt.cm.get_cmap('seismic')
-    cbsxx=ax[0].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-300,vmax=300)
+    cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-200,vmax=200,shading='gouraud')
     ax[0].set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
@@ -97,15 +102,16 @@ if plot_sxx:
     cc1.ax.yaxis.set_label_position('left')
     ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     #--------------------- plotting -------------------------
-    model = 'Cocos_a0646'
+    model = 'Ref_Cocos'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
     temp = fl.read_temperature(frame)
     x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
     sxx = fl.read_sxx(frame)*100
     cbsxx = plt.cm.get_cmap('seismic')
-    cbsxx=ax[1].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-300,vmax=300)
+    cbsxx=ax[1].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-200,vmax=200,shading='gouraud')
     ax[1].set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
@@ -125,28 +131,28 @@ if plot_sxx:
         qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
     xmajor_ticks = np.linspace(300,900,num=13)
     ax[0].set_xticks(xmajor_ticks)
-    ax[0].set_ylim(200,-10)
+    ax[0].set_ylim(150,-10)
     ax[0].set_xlim(300,900)
     ax[1].set_ylim(100,-10)
     ax[1].set_xlim(500,850)
     ax[-1].set_xlabel('Distance (km)',fontsize=30)
     ax[0].set_title('Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
     ax[1].set_title('Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    # fig.savefig(figpath+'Sxx_compare_of_'+str(frame)+'.pdf')
+    fig.savefig(figpath+'Sxx_compare_of_'+str(frame)+'.pdf')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
 
 if plot_sxz:
     #--------------------- plotting -------------------------
-    model = 'Ref_Nazca'
+    model = 'Nazca_a0702'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
     temp = fl.read_temperature(frame)
     x,z = fl.read_mesh(frame)
-    sxx = fl.read_sxz(frame)
-    cbsxx = plt.cm.get_cmap('afmhot')
-    cbsxx=ax[0].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-4,vmax=2)
+    sxx = fl.read_sxz(frame)*100
+    cbsxx = plt.cm.get_cmap('seismic')
+    cbsxx=ax[0].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-200,vmax=200)
     ax[0].set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
@@ -155,15 +161,15 @@ if plot_sxz:
     cc1.ax.yaxis.set_label_position('left')
     ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     #--------------------- plotting -------------------------
-    model = 'Cocos_a0646'
+    model = 'Ref_Cocos'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
     temp = fl.read_temperature(frame)
     x,z = fl.read_mesh(frame)
-    sxx = fl.read_sxz(frame)
-    cbsxx = plt.cm.get_cmap('afmhot')
-    cbsxx=ax[1].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-4,vmax=2)
+    sxx = fl.read_sxz(frame)*100
+    cbsxx = plt.cm.get_cmap('seismic')
+    cbsxx=ax[1].pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-200,vmax=200)
     ax[1].set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
@@ -190,7 +196,7 @@ if plot_sxz:
     ax[-1].set_xlabel('Distance (km)',fontsize=30)
     ax[0].set_title('Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
     ax[1].set_title('Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    fig.savefig(figpath+'Sxz_compare_of_'+str(frame)+'.pdf')
+    # fig.savefig(figpath+'Sxz_compare_of_'+str(frame)+'.pdf')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
     
@@ -296,107 +302,235 @@ if plot_phase:
     ax[-1].set_xlabel('Distance (km)',fontsize=30)
     ax[0].set_title('Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
     ax[1].set_title('Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    fig.savefig(figpath+'Phase_compare_of_'+str(frame)+'.pdf')
+    # fig.savefig(figpath+'Phase_compare_of_'+str(frame)+'.pdf')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
 if plot_Nazca:
-    model = 'Ref_Nazca'
+    model = 'Nazca_a0702'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
-    temp = fl.read_temperature(frame)
-    x,z = fl.read_mesh(frame)
-    ele_x,ele_z = flac.elem_coord(x, z)
-    sxx = fl.read_sxx(frame)*100
-    cbsxx = plt.cm.get_cmap('seismic')
-    cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-400,vmax=400,shading='gouraud')
-    ax[0].set_title('sxx',fontsize=25)
-    cax = plt.axes([0.945, 0.565, 0.01, 0.271])
-    cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
-    cc1.ax.yaxis.set_label_position('left')
-    ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+    for frame in [101,126,151,176,201]:
+        fig, (ax)= plt.subplots(2,1,figsize=(16,14),gridspec_kw={'height_ratios':[1,1]})
+        temp = fl.read_temperature(frame)
+        x,z = fl.read_mesh(frame)
+        ele_x,ele_z = flac.elem_coord(x, z)
+        sxx = fl.read_sxx(frame)*100
+        cbsxx = plt.cm.get_cmap('seismic')
+        cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
+        ax[0].set_title('sxx',fontsize=25)
+        cax = plt.axes([0.945, 0.565, 0.01, 0.271])
+        cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        x,z,new_pre = dynamics_pressure(frame)
+        ck = plt.cm.get_cmap('RdYlBu_r')
+        cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
+        cax = plt.axes([0.945, 0.155, 0.01, 0.271])
+        cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='Pressure (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        # ---------------------- plot setting --------------------------
+        xmajor_ticks = np.linspace(300,1000,num=8)
+        for qq in ax:
+            qq.set_aspect('equal')
+            qq.spines['bottom'].set_linewidth(bwith)
+            qq.spines['top'].set_linewidth(bwith)
+            qq.spines['right'].set_linewidth(bwith)
+            qq.spines['left'].set_linewidth(bwith)
+            qq.tick_params(axis='x', labelsize=23)
+            qq.tick_params(axis='y', labelsize=23)
+            qq.set_ylabel('Depth (km)',fontsize=28)
+            qq.set_ylim(200,-10)
+            qq.set_xlim(300,900)
+            qq.set_xticks(xmajor_ticks)
+            qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
+        
     
-    x,z,new_pre = dynamics_pressure(frame)
-    ck = plt.cm.get_cmap('RdYlBu_r')
-    cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
-    cax = plt.axes([0.945, 0.155, 0.01, 0.271])
-    cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    cc1.set_label(label='Pressure (MPa)', size=25)
-    cc1.ax.yaxis.set_label_position('left')
-    ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
-    
-    # ---------------------- plot setting --------------------------
-    xmajor_ticks = np.linspace(300,900,num=13)
-    for qq in ax:
-        qq.set_aspect('equal')
-        qq.spines['bottom'].set_linewidth(bwith)
-        qq.spines['top'].set_linewidth(bwith)
-        qq.spines['right'].set_linewidth(bwith)
-        qq.spines['left'].set_linewidth(bwith)
-        qq.tick_params(axis='x', labelsize=23)
-        qq.tick_params(axis='y', labelsize=23)
-        qq.set_ylabel('Depth (km)',fontsize=28)
-        qq.set_ylim(200,-10)
-        qq.set_xlim(300,900)
-        qq.set_xticks(xmajor_ticks)
-        qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
-    
-
-    ax[-1].set_xlabel('Distance (km)',fontsize=30)
-    ax[0].set_title('$\sigma_{xx}$ of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    ax[1].set_title('Dynamics pressure of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    # fig.savefig(figpath+'Sxx_and_Pressure_Chile_of_'+str(frame)+'.pdf')
+        ax[-1].set_xlabel('Distance (km)',fontsize=30)
+        ax[0].set_title('$\sigma_{xx}$ of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        ax[1].set_title('Dynamics pressure of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        # fig.savefig(figpath+'Sxx_and_Pressure_Chile_of_'+str(frame)+'.pdf')
     
 if plot_Cocos:
     model = 'Ref_Cocos'
     os.chdir(path+model)
     fl = flac.Flac()
     time=fl.time
-    temp = fl.read_temperature(frame)
-    x,z = fl.read_mesh(frame)
-    ele_x,ele_z = flac.elem_coord(x, z)
-    sxx = fl.read_sxx(frame)*100
-    cbsxx = plt.cm.get_cmap('seismic')
-    cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-400,vmax=400,shading='gouraud')
-    ax[0].set_title('sxx',fontsize=25)
-    cax = plt.axes([0.945, 0.565, 0.01, 0.271])
-    cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
-    cc1.ax.yaxis.set_label_position('left')
-    ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+    for frame in [101,126,151,176,201]:
+        fig, (ax)= plt.subplots(3,1,figsize=(16,21),gridspec_kw={'height_ratios':[1,1,1]})
+        temp = fl.read_temperature(frame)
+        x,z = fl.read_mesh(frame)
+        ele_x,ele_z = flac.elem_coord(x, z)
+        sxx = fl.read_sxx(frame)*100
+        cbsxx = plt.cm.get_cmap('seismic')
+        cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
+        ax[0].set_title('sxx',fontsize=25)
+        cax = plt.axes([0.945, 0.675, 0.01, 0.191])
+        cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        x,z,new_pre = dynamics_pressure(frame)
+        ck = plt.cm.get_cmap('RdYlBu_r')
+        cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
+        cax = plt.axes([0.945, 0.409, 0.01, 0.191])
+        cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='Pressure (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        
+        
+        # model = 'Cocos_a0646'
+        # os.chdir(path+model)
+        # fl = flac.Flac()
+        xt,zt = fl.read_mesh(frame)
+        temp = fl.read_temperature(frame)
+        file=model+'_phase_'+str(frame)+'.grd'
+        data = Dataset(savepath+file, mode='r')
+        x = data.variables['x'][:]
+        z = data.variables['y'][:]
+        ph = data.variables['z'][:]
+        phh=ph.data[ph.data>0]
+        ax[2].pcolormesh(x,-z,ph,cmap=phase15,vmin=1, vmax=20)
+        ax[2].contour(xt,-zt,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=3)
+                # ---------------------- plot setting --------------------------
+        # xmajor_ticks = np.linspace(500,0,num=13)
+        for qq in ax:
+            qq.set_aspect('equal')
+            qq.spines['bottom'].set_linewidth(bwith)
+            qq.spines['top'].set_linewidth(bwith)
+            qq.spines['right'].set_linewidth(bwith)
+            qq.spines['left'].set_linewidth(bwith)
+            qq.tick_params(axis='x', labelsize=23)
+            qq.tick_params(axis='y', labelsize=23)
+            qq.set_ylabel('Depth (km)',fontsize=28)
+            qq.set_ylim(100,-10)
+            qq.set_xlim(500,850)
+            # qq.set_xticks(xmajor_ticks)
+            qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
+        
     
-    x,z,new_pre = dynamics_pressure(frame)
-    ck = plt.cm.get_cmap('RdYlBu_r')
-    cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
-    cax = plt.axes([0.945, 0.155, 0.01, 0.271])
-    cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    cc1.set_label(label='Pressure (MPa)', size=25)
-    cc1.ax.yaxis.set_label_position('left')
-    ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
-    
-    # ---------------------- plot setting --------------------------
-    # xmajor_ticks = np.linspace(500,0,num=13)
-    for qq in ax:
-        qq.set_aspect('equal')
-        qq.spines['bottom'].set_linewidth(bwith)
-        qq.spines['top'].set_linewidth(bwith)
-        qq.spines['right'].set_linewidth(bwith)
-        qq.spines['left'].set_linewidth(bwith)
-        qq.tick_params(axis='x', labelsize=23)
-        qq.tick_params(axis='y', labelsize=23)
-        qq.set_ylabel('Depth (km)',fontsize=28)
-        qq.set_ylim(100,-10)
-        qq.set_xlim(500,850)
-        # qq.set_xticks(xmajor_ticks)
-        qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
-    
+        ax[-1].set_xlabel('Distance (km)',fontsize=30)
+        ax[0].set_title('$\sigma_{xx}$ of Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        ax[1].set_title('Dynamics pressure at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        ax[2].set_title('Phase profile at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
 
-    ax[-1].set_xlabel('Distance (km)',fontsize=30)
-    ax[0].set_title('$\sigma_{xx}$ of Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    ax[1].set_title('Dynamics pressure of Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
-    # fig.savefig(figpath+'Sxx_and_Pressure_Mexico_of_'+str(frame)+'.pdf')
+        # fig.savefig(figpath+'Sxx_and_Pressure_Phase_Mexico_of_'+str(frame)+'.pdf')
+        # 
+if plot_Nazca_h:
+    model = 'Nazca_a0702'
+    os.chdir(path+model)
+    fl = flac.Flac()
+    time=fl.time
+    for frame in [76,101,126,151,176,201]:
+        fig, (ax)= plt.subplots(1,2,figsize=(32,7))
+        temp = fl.read_temperature(frame)
+        x,z = fl.read_mesh(frame)
+        ele_x,ele_z = flac.elem_coord(x, z)
+        sxx = fl.read_sxx(frame)*100
+        cbsxx = plt.cm.get_cmap('seismic')
+        cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
+        ax[0].set_title('sxx',fontsize=25)
+        cax = plt.axes([0.499, 0.23, 0.01, 0.55])
+        cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        x,z,new_pre = dynamics_pressure(frame)
+        ck = plt.cm.get_cmap('RdYlBu_r')
+        cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
+        cax = plt.axes([0.925, 0.23, 0.01, 0.55])
+        cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='Pressure (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        # ---------------------- plot setting --------------------------
+        xmajor_ticks = np.linspace(300,1000,num=8)
+        for qq in ax:
+            qq.set_aspect('equal')
+            qq.spines['bottom'].set_linewidth(bwith)
+            qq.spines['top'].set_linewidth(bwith)
+            qq.spines['right'].set_linewidth(bwith)
+            qq.spines['left'].set_linewidth(bwith)
+            qq.tick_params(axis='x', labelsize=23)
+            qq.tick_params(axis='y', labelsize=23)
+            
+            qq.set_xlabel('Distance (km)',fontsize=30)
+            qq.set_ylim(200,-10)
+            qq.set_xlim(300,900)
+            qq.set_xticks(xmajor_ticks)
+            qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
+        
+    
+        ax[0].set_ylabel('Depth (km)',fontsize=28)
+        ax[0].set_title('$\sigma_{xx}$ of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        ax[1].set_title('Dynamics pressure of Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        # fig.savefig(figpath+'Sxx_and_Pressure_Chile_of_'+str(frame)+'.pdf')
+    
+if plot_Cocos_h:
+    model = 'Ref_Cocos'
+    os.chdir(path+model)
+    fl = flac.Flac()
+    time=fl.time
+    for frame in [101,126,151,176,201]:
+        fig, (ax)= plt.subplots(1,2,figsize=(32,7))
+        temp = fl.read_temperature(frame)
+        x,z = fl.read_mesh(frame)
+        ele_x,ele_z = flac.elem_coord(x, z)
+        sxx = fl.read_sxx(frame)*100
+        cbsxx = plt.cm.get_cmap('seismic')
+        cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
+        ax[0].set_title('sxx',fontsize=25)
+        cax = plt.axes([0.499, 0.23, 0.01, 0.55])
+        cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        x,z,new_pre = dynamics_pressure(frame)
+        ck = plt.cm.get_cmap('RdYlBu_r')
+        cbpre=ax[1].pcolormesh(ele_x,-ele_z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200,shading='gouraud')
+        cax = plt.axes([0.925, 0.23, 0.01, 0.55])
+        cc1=fig.colorbar(cbpre, ax=ax[1],cax=cax)
+        cc1.ax.tick_params(labelsize=20)
+        cc1.set_label(label='Pressure (MPa)', size=25)
+        cc1.ax.yaxis.set_label_position('left')
+        ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+        
+        # ---------------------- plot setting --------------------------
+        # xmajor_ticks = np.linspace(500,0,num=13)
+        for qq in ax:
+            qq.set_aspect('equal')
+            qq.spines['bottom'].set_linewidth(bwith)
+            qq.spines['top'].set_linewidth(bwith)
+            qq.spines['right'].set_linewidth(bwith)
+            qq.spines['left'].set_linewidth(bwith)
+            qq.tick_params(axis='x', labelsize=23)
+            qq.tick_params(axis='y', labelsize=23)
+            qq.set_xlabel('Distance (km)',fontsize=30)
+            
+            qq.set_ylim(100,-10)
+            qq.set_xlim(500,850)
+            # qq.set_xticks(xmajor_ticks)
+            qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
+        
+        ax[0].set_ylabel('Depth (km)',fontsize=28)
+        ax[0].set_title('$\sigma_{xx}$ of Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        ax[1].set_title('Dynamics pressure of Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+        # fig.savefig(figpath+'Sxx_and_Pressure_Mexico_of_'+str(frame)+'.pdf')

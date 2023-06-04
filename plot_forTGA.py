@@ -15,35 +15,36 @@ import matplotlib.pyplot as plt
 import function_for_flac as fd
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-fig1=0
+fig1=1
 fig2=0
 fig3=0    # Three figure which plot angle, topography and geometry
 fig4=0    # Only melting phase vs time
 fig5=0    # metloc vs time & melting phase
 fig6=0    # Only metloc vs time
-fig7=1
+fig7=0    # Geometry of different serpentinite model 
 plt.rcParams["font.family"] = "Times New Roman"
 model_list=['h0924','ch0913']
 model_list=['Ref03','h0401','h0402','h0403']
 model_list=['h1502','h1504']
 model_list=['ch1514','ch1510','ch1509','ch1505','ch1506']
-model_list=['ch0913','ch0918','ch0919','ch0920']
+# model_list=['ch0913','ch0918','ch0919','ch0920']
 bwith = 3
 fontsize=25
 newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
              '#35838D','#97795D','#7E9680','#4682B4',
              '#708090','#282130','#24788F','#849DAB',
              '#EA5E51','#414F67','#6B0D47','#52254F'] 
-# newcolors = ['#2F4F4F','#4682B4','#CD5C5C','#708090',
-#              '#AE6378','#282130','#7E9680','#24788F',
-#              '#849DAB','#EA5E51','#35838D','#4198B9',
-#              '#414F67','#97795D','#6B0D47','#A80359',
-#              '#52254F']
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/ji-chingchen/Desktop/data/'
 savepath = '/Volumes/SSD500/data/'
 #savepath='D:/model/data/'
+savepath = '/Users/chingchen/Desktop/data/'
 figpath='/Users/ji-chingchen/OneDrive - 國立台灣大學/年會/2022/POSTER/'
+figpath='/home/jiching/geoflac/figure/'
+figpath = '/Users/chingchen/Desktop/figure/'
+
+
+
 label_list = ['3$^\circ$','5$^\circ$','7$^\circ$','9$^\circ$']
 label_list = ['Flat slab model','Normal slab model']
 

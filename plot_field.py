@@ -26,16 +26,17 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Times New Roman"
 #---------------------------------- DO WHAT -----------------------------------
 # Model
-Cocos           = 0
-Nazca           = 1
+Cocos           = 1
+Nazca           = 0
 ### pdf or png
-png             = 1
+png             = 0
 pdf             = 0
 
 ### plot
 shot_12         = 0
 shot_5          = 0  ### phase, viscosity, density, dynamic pressure, srII
 plot_phase      = 0
+plot_viscosity  = 0
 plot_density    = 0
 plot_pressure   = 1
 plot_sxx        = 0
@@ -57,12 +58,17 @@ savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
 figpath = '/Users/chingchen/Desktop/figure/'
 # figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Ref_Nazca/'
-figpath='/Users/chingchen/OneDrive - 國立台灣大學/青年論壇/'
+# figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
+# figpath='/Users/chingchen/OneDrive - 國立台灣大學/青年論壇/'
+# figpath='/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/AGU/POSTER/Poster_figure/'
 
 if Cocos:
-    xmin,xmax=450,1000
+    xmin,xmax=500,900
     zmin,zmax=-150,10
     model = 'Ref_Cocos'
+    # model = 'Cocos11'
+    # xmin,xmax=400,900
+    # zmin,zmax=-150,10
 # elif Nazca:
 #     xmin,xmax=250,1000
 #     zmin,zmax=-200,10
@@ -71,7 +77,12 @@ elif Nazca:
     xmin,xmax=250,1000
     zmin,zmax=-200,10
     model = 'Nazca_a0702'
-frame = 55
+    # model = 'Ref_Nazca'
+frame = 51
+frame = 11
+frame = 100
+# frame = 126
+# frame = 151
 os.chdir(path+model)
 fl = flac.Flac()
 time=fl.time
@@ -79,20 +90,16 @@ time=fl.time
     
 g=10
 #------------------------------------------------------------------------------
-def nodes_to_elements(xmesh,zmesh):
-    ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
-    ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
-    return ele_x, ele_z
 def plot_snapshot(frame):
     x,z = fl.read_mesh(frame)
     xtop,ztop = fd.get_topo(x,z)
     phase = fl.read_phase(frame)
-    ele_x,ele_z = nodes_to_elements(x, z)
+    ele_x,ele_z = flac.elem_coord(x, z)
     temp = fl.read_temperature(frame)
     return x, z, ele_x, ele_z, phase, temp, ztop
 def get_vis(frame):
     x,z = fl.read_mesh(frame)
-    ele_x,ele_z = nodes_to_elements(x, z)
+    ele_x,ele_z = flac.elem_coord(x, z)
     vis = fl.read_visc(frame)
     xtop,ztop = fd.get_topo(x,z)
     return x,z,ele_x,ele_z,vis,ztop
@@ -101,11 +108,18 @@ colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
       "#FF8C00","#455E45","#F9DB24","#c98f49","#525252",
       "#CD5C5C","#00FF00","#FFFF00","#7158FF"]
 phase15= matplotlib.colors.ListedColormap(colors)
+colors2=[
+ '#C98F49', '#92C0DF', '#2553C7', '#FFFFFF', '#6495ED',
+ '#2E8B57', '#524B52', '#9A32CD', '#6B8E23','#D4DBF4',
+ '#D8BFD8','#999999','#F2C85B','#92C0DF','#999999',
+ '#4CC552','#999999','#999999','#999999','#999999']
+phase8= matplotlib.colors.ListedColormap(colors2)
+
 def dynamics_pressure(frame):
     pre = -fl.read_pres(frame) *1e8
     ooone = pre.flatten()
     x,z = fl.read_mesh(frame)
-    ele_x,ele_z = nodes_to_elements(x, z)
+    ele_x,ele_z = flac.elem_coord(x, z)
     a,b=np.polyfit(pre[ele_z<-50],ele_z[ele_z<-50].flatten(),deg=1)
     fit=(ele_z.flatten()-b)/a
     dypre=(ooone-fit).reshape(len(pre),len(pre[0])) 
@@ -124,10 +138,10 @@ if shot_12:
     cx=ax[0,0].contour(x,z,temp,cmap = 'rainbow',levels =[200,400,600,800,1000,1200],linewidths=1)
     ax[0,0].contour(x,z,temp,levels =[1300],linewidths=2,colors = '#F08080',linestyles='dashed')
     ax[0,0].clabel(cx, inline=True, fontsize=10,colors='white',fmt="%1.0f")
-    
-    
+
+
     x,z,ele_x,ele_z,vis,ztop = get_vis(frame)
-    
+
     cc = plt.cm.get_cmap('jet')
     cbvis=ax[1,0].pcolormesh(x,z,vis,cmap=cc,vmin=20, vmax=27)
     ax[1,0].set_title('viscosity',fontsize=25)
@@ -135,7 +149,6 @@ if shot_12:
     cc1=fig.colorbar(cbvis, ax=ax[1],cax=cax)
     cc1.ax.tick_params(labelsize=20)
    
-    
     den = fl.read_density(frame)
     cc = plt.cm.get_cmap('RdBu_r')
     cbden=ax[2,0].pcolormesh(x,z,den,cmap=cc,vmin=2800,vmax=3400)
@@ -143,7 +156,6 @@ if shot_12:
     cax = plt.axes([0.36, 0.32, 0.008, 0.165])
     cc1=fig.colorbar(cbden, ax=ax[1],cax=cax)
     cc1.ax.tick_params(labelsize=20)
-    
     
     srii = fl.read_srII(frame)
     cbsrii = plt.cm.get_cmap('afmhot')
@@ -259,6 +271,7 @@ if shot_5:
     fig, (ax)= plt.subplots(5,1,figsize=(15,22))
 
     file=model+'_phase_'+str(frame)+'.grd'
+    # file=model+'_frame'+str(frame)+'_phase.grd'
     data = Dataset(savepath+file, mode='r')
     x = data.variables['x'][:]
     z = data.variables['y'][:]
@@ -340,51 +353,106 @@ if shot_5:
     # fig.gca()
     # plt.close(fig)
    
+   
     
-    
-# for frame in range(2,end+1):
+
 if plot_phase:
     fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     xt,zt = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(xt, zt)
     temp = fl.read_temperature(frame)
     bwith = 3
     #--------------------- phase plotting -------------------------
     from netCDF4 import Dataset
-    # data = Dataset(savepath+model+'_phase3.'+str(frame)+'.grd', mode='r')
-    # data = Dataset(savepath+model+'.grd', mode='r')
-    file=model+'_phase_'+str(frame)+'.grd'
+    file=model+'_frame'+str(frame)+'_phase.grd'
+    # file=model+'_phase_'+str(frame)+'.grd'
     data = Dataset(savepath+file, mode='r')
     x = data.variables['x'][:]
     z = data.variables['y'][:]
     ph = data.variables['z'][:]
     phh=ph.data[ph.data>0]
-    ax.pcolormesh(x,-z,ph,cmap=phase15,vmin=1, vmax=20)
+    ax.pcolormesh(x,-z,ph,cmap=phase8,vmin=1, vmax=20)
     ax.contour(xt,-zt,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=3)
+    #--------------------- melting plotting -------------------------
+    melt=fl.read_fmelt(frame)
+    ax.scatter(ele_x[melt>1e-3],-ele_z[melt>1e-3],melt[melt>1e-3]*1e4*3,c='w')
+    # ---------------------- plot setting --------------------------
+    ax.set_aspect('equal')
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
+    ax.tick_params(axis='x', labelsize=23)
+    ax.tick_params(axis='y', labelsize=23)
+    ymajor_ticks = np.linspace(200,0,num=5)
+    ax.set_yticks(ymajor_ticks)
+    ax.set_ylabel('Depth (km)',fontsize=26)
+    # ax.set_xlabel('Distance (km)',fontsize=30)
+    if Nazca:
+        xmajor_ticks = np.linspace(250,1000,num=7)
+    if Cocos:
+        xmajor_ticks = np.linspace(500,900,num=5)
+    ax.set_xticks(xmajor_ticks)
+    ax.set_xlim(xmin,xmax)
+    ax.set_ylim(-zmin,-zmax)
+    ax.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+    if png:
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
+    if pdf:
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    # print("--- %s seconds ---" % (time.time() - start_time))
+    # fig.gca()
+    # plt.close(fig)
+    
+if plot_viscosity:
+# frame_list=[26,51,76,101,126,150]
+# frame_list=[150]
+# for frame in range(1,end+1,5):
+# for frame in frame_list:
+    fig, (ax)= plt.subplots(1,1,figsize=(17,16))
+    xt,zt = fl.read_mesh(frame)
+    temp = fl.read_temperature(frame)
+    bwith = 3
+    #--------------------- phase plotting -------------------------
+    
+    x,z,ele_x,ele_z,vis,ztop = get_vis(frame)
+    cc = plt.cm.get_cmap('jet')
+    cbvis=ax.pcolormesh(ele_x,-ele_z,vis,cmap=cc,vmin=20, vmax=25,shading='gouraud')
+    cax = plt.axes([0.945, 0.382, 0.01, 0.251])
+    cc1=fig.colorbar(cbvis, ax=ax,cax=cax)
+    cc1.set_label(label='Log$_{10}$ Viscosity (Pa $\cdot$ s)', size=23)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.ax.yaxis.set_label_position('left')
+    
+    # cc2=fig.colorbar(cbden, ax=ax,cax=cax)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.ax.yaxis.set_label_position('left')
+    ax.contour(xt,-zt,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     # ---------------------- plot setting --------------------------
     ax.set_aspect('equal')
     ax.spines['bottom'].set_linewidth(bwith)
     ax.spines['top'].set_linewidth(bwith)
     ax.spines['right'].set_linewidth(bwith)
     ax.spines['left'].set_linewidth(bwith)
+    ax.set_ylabel('Depth (km)',fontsize=26)
+    # ax.set_xlabel('Distance (km)',fontsize=26)
     ax.tick_params(axis='x', labelsize=23)
     ax.tick_params(axis='y', labelsize=23)
-    ymajor_ticks = np.linspace(200,0,num=5)
+    ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
-    ax.set_ylabel('Depth (km)',fontsize=30)
-    ax.set_xlabel('Distance (km)',fontsize=30)
     #xmajor_ticks = np.linspace(250,1000,num=6)
     #ax.set_xticks(xmajor_ticks)
-    #ax.set_xlim(250,1000)
-    xmajor_ticks = np.linspace(250,1000,num=7)
+    if Nazca:
+        xmajor_ticks = np.linspace(250,1000,num=7)
+    if Cocos:
+        xmajor_ticks = np.linspace(500,900,num=5)
     ax.set_xticks(xmajor_ticks)
     ax.set_xlim(xmin,xmax)
     ax.set_ylim(-zmin,-zmax)
-    ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=30)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.png')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    if png:
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_viscosity.png')
+    if pdf:    
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_viscosity.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
-    # fig.gca()
-    # plt.close(fig)
+    
 if plot_density:
     fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     xt,zt = fl.read_mesh(frame)
@@ -406,17 +474,18 @@ if plot_density:
     ax.contour(xt,-zt,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     # ---------------------- plot setting --------------------------
     ax.set_aspect('equal')
-    ax.spines['bottom'].set_linewidth(bwith)
-    ax.spines['top'].set_linewidth(bwith)
-    ax.spines['right'].set_linewidth(bwith)
-    ax.spines['left'].set_linewidth(bwith)
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
     ax.tick_params(axis='x', labelsize=23)
     ax.tick_params(axis='y', labelsize=23)
     ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
     #xmajor_ticks = np.linspace(250,1000,num=6)
     #ax.set_xticks(xmajor_ticks)
-    xmajor_ticks = np.linspace(250,1000,num=7)
+    if Nazca:
+        xmajor_ticks = np.linspace(250,1000,num=7)
+    if Cocos:
+        xmajor_ticks = np.linspace(500,900,num=5)
     ax.set_xticks(xmajor_ticks)
     ax.set_xlim(xmin,xmax)
     ax.set_ylim(-zmin,-zmax)
@@ -424,9 +493,10 @@ if plot_density:
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
     
-frame =  10*5+1   
-#if plot_pressure:
-for frame in range(1,250+1):
+#frame =  10*5+1   
+if plot_pressure:
+# for frame in [11,51,76,101,126,151]:
+# for frame in range(1,250+1):
     fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     temp = fl.read_temperature(frame)
     bwith = 3
@@ -442,10 +512,9 @@ for frame in range(1,250+1):
     ax.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     # ---------------------- plot setting --------------------------
     ax.set_aspect('equal')
-    ax.spines['bottom'].set_linewidth(bwith)
-    ax.spines['top'].set_linewidth(bwith)
-    ax.spines['right'].set_linewidth(bwith)
-    ax.spines['left'].set_linewidth(bwith)
+    ax.set_ylabel('Depth (km)',fontsize=26)
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
     ax.tick_params(axis='x', labelsize=25)
     ax.tick_params(axis='y', labelsize=25)
     ymajor_ticks = np.linspace(300,0,num=7)
@@ -454,13 +523,18 @@ for frame in range(1,250+1):
     #ax.set_xticks(xmajor_ticks)
     #ax.set_xlim(250,1000)
     ax.set_ylim(-zmin,-zmax)
-    xmajor_ticks = np.linspace(250,1000,num=7)
+    if Nazca:
+        xmajor_ticks = np.linspace(250,1000,num=7)
+    if Cocos:
+        xmajor_ticks = np.linspace(500,900,num=5)
     ax.set_xticks(xmajor_ticks)
     ax.set_xlim(xmin,xmax)
     # ax.set_xlim(xmin,750)
     ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=30)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_pressure.png')
-    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    if png:
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_pressure.png')
+    if pdf:
+        fig.savefig(figpath+model+'frame_'+str(frame)+'_pressure.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
     
 if plot_sxx:
@@ -469,7 +543,7 @@ if plot_sxx:
     bwith = 3
     #--------------------- plotting -------------------------
     x,z = fl.read_mesh(frame)
-    ele_x,ele_z = nodes_to_elements(x, z)
+    ele_x,ele_z = flac.elem_coord(x, z)
     sxx = fl.read_sxx(frame)*100
     cbsxx = plt.cm.get_cmap('seismic')
     cbsxx=ax.pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
@@ -485,10 +559,8 @@ if plot_sxx:
     ax.contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
     # ---------------------- plot setting --------------------------
     ax.set_aspect('equal')
-    ax.spines['bottom'].set_linewidth(bwith)
-    ax.spines['top'].set_linewidth(bwith)
-    ax.spines['right'].set_linewidth(bwith)
-    ax.spines['left'].set_linewidth(bwith)
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
     ax.tick_params(axis='x', labelsize=23)
     ax.tick_params(axis='y', labelsize=23)
     ymajor_ticks = np.linspace(300,0,num=7)
@@ -525,20 +597,18 @@ if plot_phase_topo:
     ax1.contour(xt,-zt,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=3)
     # ---------------------- plot setting --------------------------
     for ax in (ax0,ax1):
-        ax.spines['bottom'].set_linewidth(bwith)
-        ax.spines['top'].set_linewidth(bwith)
-        ax.spines['right'].set_linewidth(bwith)
-        ax.spines['left'].set_linewidth(bwith)
         ax.tick_params(axis='x', labelsize=23)
         ax.tick_params(axis='y', labelsize=23)
         ax.set_xlim(250,1000)
         ax.set_xlim(xmin,xmax)
         xmajor_ticks = np.linspace(250,1000,num=7)
         ax.set_xticks(xmajor_ticks)
+        for axis in ['top','bottom','left','right']:
+            ax.spines[axis].set_linewidth(bwith)
     ax0.set_ylim(-10,3)
     ymajor_ticks = np.linspace(200,0,num=5)
     ax1.set_yticks(ymajor_ticks)
-    ax1.set_ylabel('Depth (km)',fontsize=30)
+    ax1.set_ylabel('Depth (km)',fontsize=26)
     ax1.set_xlabel('Distance (km)',fontsize=30)
     ax1.set_ylim(200,-30)
     ax1.set_ylim(-zmin,-zmax)
@@ -552,7 +622,7 @@ if plot_phase_topo:
     # fig.gca()
     # plt.close(fig)
 if shot_3:
-#for frame in range(200,250+1):
+# for frame in range(2,250+1):
     fig, (ax)= plt.subplots(3,1,figsize=(15,12))
     
     file=model+'_phase_'+str(frame)+'.grd'
@@ -597,17 +667,14 @@ if shot_3:
     for yy in range(len(ax)):
         ax[yy].set_xlim(xmin,xmax)
         ax[yy].set_ylim(-zmin,-zmax)
-        ax[yy].set_ylabel('Depth (km)',fontsize=25)
-        
+        ax[yy].set_ylabel('Depth (km)',fontsize=26)
         ax[yy].set_aspect('equal')
         bwith = 3
-        ax[yy].spines['bottom'].set_linewidth(bwith)
-        ax[yy].spines['top'].set_linewidth(bwith)
-        ax[yy].spines['right'].set_linewidth(bwith)
-        ax[yy].spines['left'].set_linewidth(bwith)
         # ax[yy,0].spines['top'].set_visible(False)
         ax[yy].tick_params(axis='x', labelsize=22)
         ax[yy].tick_params(axis='y', labelsize=22)
+        for axis in ['top','bottom','left','right']:
+            ax[yy].spines[axis].set_linewidth(bwith)
     
     if png:
         fig.savefig(figpath+model+'frame_'+str(frame)+'_snapshot_3field_'+str(-zmin)+'.png')

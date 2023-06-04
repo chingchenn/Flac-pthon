@@ -10,7 +10,7 @@ import flac_gravity3 as fg
 
 # domain bounds
 left = -200
-right = 250
+right = 1000
 up = 10
 down = -200
 dx = 1.5
@@ -43,7 +43,28 @@ def interpolate_phase(frame, xtrench):
 
 ###############################################
 
-frame = int(sys.argv[1])
+model = sys.argv[1]
+frame = int(sys.argv[2])
+# model = 'Nazca_a0624'
+# frame = 10
+# plt.rcParams["font.family"] = "Times New Roman"
+path='/home/jiching/geoflac/'
+#path = '/scratch2/jiching/22winter/'
+#path = '/scratch2/jiching/03model/'
+#path = 'F:/model/'
+# path = 'D:/model/'
+#path = '/Volumes/SSD500/model/'
+path = '/Users/chingchen/Desktop/model/'
+savepath='/scratch2/jiching/data/'
+#savepath='/Volumes/SSD500/data/'
+# savepath='/home/jiching/geoflac/data/'
+savepath = '/Users/chingchen/Desktop/data/'
+figpath='/scratch2/jiching/figure/'
+figpath = '/Users/chingchen/Desktop/figure/'
+
+os.chdir(path+model)
+# fl = flac.Flac()
+# end = fl.nrec
 
 fl = flac.Flac()
 x, z = fl.read_mesh(frame)
@@ -135,12 +156,12 @@ topoann = max(abs(tpmin), abs(tpmax))
 cint = 200
 
 if not os.path.exists(phgrd):
-    cmd = 'tail -n +2 %(phasefile)s | xyz2grd -G%(phgrd)s -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f' % locals()
+    cmd = 'tail -n +2 %(phasefile)s | gmt xyz2grd -G%(phgrd)s -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f' % locals()
     #print cmd
     os.system(cmd)
 
 if not os.path.exists(tgrd):
-    cmd = 'tail -n +2 %(tfile)s | surface -G%(tgrd)s -Ll0 -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f' % locals()
+    cmd = 'tail -n +2 %(tfile)s | gmt surface -G%(tgrd)s -Ll0 -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f' % locals()
     #print cmd
     os.system(cmd)
 
@@ -180,7 +201,7 @@ psxy -J -R -A -Wthin,$color,-- -P -K -O >> %(psfile)s
 echo %(xmin)f %(topogridsize)d 14 0 1 LB "Model=%(model)s   Frame=%(frame)d   Trench location=%(xtrench).3f km" | \
 pstext -D0/1 -N -J -R -P -O >> %(psfile)s
 
-convert -density 150 %(psfile)s %(pngfile)s
+#convert -density 150 %(psfile)s %(pngfile)s
 ''' % locals()
 #print cmd
-os.system(cmd)
+# os.system(cmd)
