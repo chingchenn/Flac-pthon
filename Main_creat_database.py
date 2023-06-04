@@ -21,37 +21,37 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 1
-dip                     = 1
-magma                   = 1
+trench_location         = 0
+dip                     = 0
+magma                   = 0
 melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 1
-stack_topo              = 1
-stack_gem               = 1
-slab_top_time           = 1
+melting                 = 0
+stack_topo              = 0
+stack_gem               = 0
+slab_top_time           = 0
 wedge                   = 0
 flat_duraton            = 1
 
 # plot data
-trench_plot             = 1
-dip_plot                = 1
-magma_plot              = 1
+trench_plot             = 0
+dip_plot                = 0
+magma_plot              = 0
 metloc_plot             = 0
 marker_number           = 0
 gravity_plot            = 0
 phase_plot              = 0
 phase_accre             = 0
-melting_plot            = 1
+melting_plot            = 0
 melting_location2D      = 0
-force_plot_LR           = 1
-force_plot_RF           = 1
-vel_plot                = 1
-stack_topo_plot         = 1
-stack_gem_plot          = 1
+force_plot_LR           = 0
+force_plot_RF           = 0
+vel_plot                = 0
+stack_topo_plot         = 0
+stack_gem_plot          = 0
 wedge_area_strength     = 0
-flat_slab_plot          = 1
+flat_slab_plot          = 0
 
 #---------------------------------- SETTING -----------------------------------
 path = '/home/jiching/geoflac/'
@@ -336,8 +336,8 @@ def read_wedgevis(trench_index,depth1=80, depth2=130):
 
 def flat_slab_duration():
     phase_oceanic = 3;phase_ecolgite = 13
-    bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[]
-    for i in range(1,end):
+    bet = 2;find_flat_dz1=[];find_flat_dz2=[];flat_slab_length=[];flat_slab_depth=[];flat_time=[];flat_length=[]; flat_depth=[]
+    for i in range(1,end): # 1. find oceanic crust element in each time step 
         x, z = fl.read_mesh(i)
         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(i)  
         x_ocean = mx[((phase==phase_ecolgite)+(phase==phase_oceanic))*(mz>-300)]
@@ -365,20 +365,25 @@ def flat_slab_duration():
         oz=oz[ox>start]
         ox=oxx
     ### =========================== polynomial ===========================
-        z1=np.polyfit(ox,oz,4)
+    # # 2. find the fitting of 4th order polynimial of oceanic crust in each time step 
+        z1=np.polyfit(ox,oz,5) # 4th order
         p4=np.poly1d(z1)
         w1=p4(ox)
-        p3=np.polyder(p4,1)
-        p2=np.polyder(p4,2)
+        p3=np.polyder(p4,1) # find f'(x)
+        p2=np.polyder(p4,2) # find f"(x)
         w2=p3(ox)
         w3=p2(ox)
         cc=-1;ff1=[]
-        for rr,oo in enumerate(w2):
+        for rr,oo in enumerate(w2): # find slope < 0.2 
             if cc*(oo+0.2)<0:
                 ff1.append(ox[rr])
             cc = oo+0.2
+        if len(ff1)>=2 and (ff1[-1]-ff1[-2])>10 and ff1[-2]>400:
+            flat_time.append(fl.time[i])
+            flat_length.append(ff1[-1]-ff1[-2])
+            flat_depth.append(np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])]))
         mm=-1;ff2=[]
-        for pp,uu in enumerate(w3):
+        for pp,uu in enumerate(w3): # find inflection points
             if mm*uu<0:
                 ff2.append(ox[pp])
             mm = uu  
@@ -389,7 +394,7 @@ def flat_slab_duration():
                 flat_slab_length.append(ff1[-1]-ff1[-2])
                 depth=np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])])
                 flat_slab_depth.append(depth)
-    return find_flat_dz2,find_flat_dz1,flat_slab_length,flat_slab_depth
+    return find_flat_dz2,find_flat_dz1,flat_slab_length,flat_slab_depth,flat_time,flat_length,flat_depth
 #------------------------------------------------------------------------------
 if vtp:
    file=path+model
@@ -472,10 +477,12 @@ if wedge:
 if flat_duraton:
     print('-----creat flattime database-----')
     name=model+'_flatslab_duration2'
-    f2,f1,length,dep=flat_slab_duration()
+    f2,f1,length,dep,flat_time,flat_length,flat_depth=flat_slab_duration()
     fs.save_1txt(name,savepath,f2)
     name=model+'_flatslab_time_len'
     fs.save_3txt(name,savepath,f1,length,dep)
+    name=model+'_flat_time_len'
+    fs.save_3txt(name,savepath,flat_time,flat_length,flat_depth)
     print('=========== DONE =============')
 ##------------------------------------ plot -----------------------------------
 if trench_plot:
