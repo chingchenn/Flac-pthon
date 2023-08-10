@@ -18,9 +18,9 @@ import matplotlib.pyplot as plt
 
 ###############################################
 
-model = sys.argv[1]
+#model = sys.argv[1]
 # frame = int(sys.argv[2])
-# model = 'Cocos_a0646'
+model = 'Nazca_aa06'
 # frame = 10
 
 def make_phase_interploate(model,frame):
@@ -124,13 +124,13 @@ def make_phase_interploate(model,frame):
         cmd = '''tail -n +2 %(phasefile)s | gmt xyz2grd -G%(phgrd)s -I%(dx)f/%(dz)f -R%(xmin)f/%(xmax)f/%(zmin)f/%(zmax)f
         mv  %(phgrd)s %(savepath)s
         ''' % locals()
-        #print cmd
+        print(cmd)
         os.system(cmd)
 
 
-frame_list=[26,51,76,101,126,150]
+frame_list=[30,60,120,140]
 # end = fl.nrec
-for frame in range(2,221):
-# for frame in frame_list:
+#for frame in range(2,221):
+for frame in frame_list:
     make_phase_interploate(model,frame)
     print('---------------end of '+str(frame)+'---------------')
