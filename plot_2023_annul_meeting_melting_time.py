@@ -30,8 +30,8 @@ newcolors = ['#2F4F4F','#A80359','#4198B9','#AE6378',
 savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/chingchen/Desktop/data/'
 
-fig6 = 0 ## Cocos melting phase and melting location v.s. trench
-fig7 = 0 ## Cocos melting pahase enlarge
+fig6 = 1 ## Cocos melting phase and melting location v.s. trench
+fig7 = 1 ## Cocos melting pahase enlarge
 fig8 = 1 ## Nazca 2D magma
 fig6_save = 0
 fig7_save = 0
