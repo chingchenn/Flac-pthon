@@ -57,7 +57,7 @@ phase_hydratedmantle = 16
 phase_oceanic_1 = 17
 phase_eclogite_1 = 18
 
-model='Nazca_a0702'
+model='Nazca_aa06'
 os.chdir(path+model)
 fl = flac.Flac()
 end = fl.nrec
@@ -78,7 +78,7 @@ if fig1:
         ele_x, ele_z = flac.elem_coord(x,z)
         magma_chamber = fl.read_fmagma(i) * 100
         melt = fl.read_fmelt(i) * 100
-        ax2.scatter(ele_x[magma_chamber>1.5e-3],-ele_z[magma_chamber>1.5e-3],color=time_color[i],zorder=1,s=10)
+        ax2.scatter(ele_x[magma_chamber>1.5e-2],-ele_z[magma_chamber>1.5e-2],color=time_color[i],zorder=1,s=10)
         # time = fl.time[i]
         qqq=ax1.scatter(ele_x[melt>0.1],-ele_z[melt>0.1],color=time_color[i],s = 10)
     def x2dis(x):
