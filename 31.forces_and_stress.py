@@ -23,15 +23,17 @@ import matplotlib.pyplot as plt
 #------------------------------------------------------------------------------
 plt.rcParams["font.family"] = "Times New Roman"
 plt.rcParams["figure.figsize"] = (10,12)
-# model = sys.argv[1]
-model = 'Ref_Cocos'
-model = 'Nazca_a0702'
+model = sys.argv[1]
+#model = 'Ref_Cocos'
+#model = 'Nazca_aa06'
 #frame = int(sys.argv[2])
 path='/home/jiching/geoflac/'
 #path='/Users/ji-chingchen/Desktop/model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/04model/'
+path = '/scratch2/jiching/23spring/'
+path = '/scratch2/jiching/23summer/'
 #path = '/Users/chingchen/Desktop/model/'
 savepath='/scratch2/jiching/data/'
 #savepath = '/Users/chingchen/Desktop/data/'
