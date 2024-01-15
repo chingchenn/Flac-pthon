@@ -21,13 +21,13 @@ import function_savedata as fs
 import function_for_flac as fd
 import matplotlib.pyplot as plt
 #import flac_interpolate as fi
+### make phase.grd file in 34.phase_interpolate.py
 
-
-plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.family"] = "Arial"
 #---------------------------------- DO WHAT -----------------------------------
 # Model
-Cocos           = 1
-Nazca           = 0
+Cocos           = 0
+Nazca           = 1
 ### pdf or png
 png             = 0
 pdf             = 0
@@ -38,8 +38,10 @@ shot_5          = 0  ### phase, viscosity, density, dynamic pressure, srII
 plot_phase      = 0
 plot_viscosity  = 0
 plot_density    = 0
-plot_pressure   = 1
-plot_sxx        = 0
+plot_pressure   = 0
+plot_sxx        = 1
+plot_sII        = 0
+plot_srII       = 0
 plot_phase_topo = 0
 shot_3          = 0 ### phase, viscosity, dynamic pressure
 
@@ -64,8 +66,9 @@ figpath = '/Users/chingchen/Desktop/figure/'
 
 if Cocos:
     xmin,xmax=500,900
-    zmin,zmax=-150,10
+    zmin,zmax=-120,10
     model = 'Ref_Cocos'
+    shift = 550
     # model = 'Cocos11'
     # xmin,xmax=400,900
     # zmin,zmax=-150,10
@@ -76,12 +79,13 @@ if Cocos:
 elif Nazca:
     xmin,xmax=250,1000
     zmin,zmax=-200,10
-    model = 'Nazca_a0702'
-    # model = 'Ref_Nazca'
+    model = 'Nazca_aa06'
+    shift = 320
+    #model = 'Ref_Nazca'
 frame = 51
 frame = 11
-frame = 100
-# frame = 126
+frame = 190
+#frame = 200
 # frame = 151
 os.chdir(path+model)
 fl = flac.Flac()
@@ -124,144 +128,23 @@ def dynamics_pressure(frame):
     fit=(ele_z.flatten()-b)/a
     dypre=(ooone-fit).reshape(len(pre),len(pre[0])) 
     return x,z,dypre
+
+def compute_s1(sxx, szz, sxz):
+    mag = np.sqrt(0.25*(sxx - szz)**2 + sxz**2)
+    theta = 0.5 * np.arctan2(2*sxz,  sxx-szz)
+
+    # VTK requires vector field (velocity, coordinate) has 3 components.
+    # Allocating a 3-vector tmp array for VTK data output.
+    nx, nz = sxx.shape
+    tmp = np.zeros((nx, nz, 3), dtype=sxx.dtype)
+    tmp[:,:,0] = mag * np.sin(theta)
+    tmp[:,:,1] = mag * np.cos(theta)
+    return tmp
 #------------------------------------------------------------------------------
 end=250
 # listmin=np.zeros(end)
 # listmax=np.zeros(end)
 # for frame in range(1,150+1):
-if shot_12:
-    fig, (ax)= plt.subplots(4,3,figsize=(39,18))
-    filepath = savepath+model+'_intp3-phase.'+str(frame)+'.txt'
-    x,z,ph=np.loadtxt(filepath).T
-    ax[0,0].pcolormesh(x,z,ph,cmap = phase15,vmax=20,vmin=1,shading = 'auto')
-    x,z,ele_x,ele_z,phase,temp,ztop = plot_snapshot(frame)
-    cx=ax[0,0].contour(x,z,temp,cmap = 'rainbow',levels =[200,400,600,800,1000,1200],linewidths=1)
-    ax[0,0].contour(x,z,temp,levels =[1300],linewidths=2,colors = '#F08080',linestyles='dashed')
-    ax[0,0].clabel(cx, inline=True, fontsize=10,colors='white',fmt="%1.0f")
-
-
-    x,z,ele_x,ele_z,vis,ztop = get_vis(frame)
-
-    cc = plt.cm.get_cmap('jet')
-    cbvis=ax[1,0].pcolormesh(x,z,vis,cmap=cc,vmin=20, vmax=27)
-    ax[1,0].set_title('viscosity',fontsize=25)
-    cax = plt.axes([0.36, 0.518, 0.008, 0.165])
-    cc1=fig.colorbar(cbvis, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-   
-    den = fl.read_density(frame)
-    cc = plt.cm.get_cmap('RdBu_r')
-    cbden=ax[2,0].pcolormesh(x,z,den,cmap=cc,vmin=2800,vmax=3400)
-    ax[2,0].set_title('density',fontsize=25)
-    cax = plt.axes([0.36, 0.32, 0.008, 0.165])
-    cc1=fig.colorbar(cbden, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    srii = fl.read_srII(frame)
-    cbsrii = plt.cm.get_cmap('afmhot')
-    cbsrii=ax[3,0].pcolormesh(x,z,srii,cmap=cbsrii,vmin=-15,vmax=-12)
-    ax[3,0].set_title('srII',fontsize=25)
-    cax = plt.axes([0.36, 0.126, 0.008, 0.165])
-    cc1=fig.colorbar(cbsrii, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    x,z,new_pre = dynamics_pressure(frame)
-    ck = plt.cm.get_cmap('RdYlBu_r')
-    ck=ax[0,1].pcolormesh(x,z,new_pre/1e6,cmap=ck,vmin=-200, vmax=200)
-    ax[0,1].set_title('pressure',fontsize=25)
-    cax = plt.axes([0.635, 0.708, 0.008, 0.165])
-    cc1=fig.colorbar(ck, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    fmelt=fl.read_fmelt(frame)
-    ck = plt.cm.get_cmap('RdYlBu_r')
-    ck=ax[1,1].pcolormesh(x,z,fmelt*100,cmap=ck,vmin=0,vmax=3)
-    ax[1,1].set_title('fmelt',fontsize=25)
-    cax = plt.axes([0.635, 0.518, 0.008, 0.165])
-    cc1=fig.colorbar(ck, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    fmagma = fl.read_fmagma(frame)
-    ck = plt.cm.get_cmap('RdYlBu_r')
-    ck=ax[2,1].pcolormesh(x,z,fmagma*100,cmap=ck,vmin=0,vmax=0.03)
-    ax[2,1].set_title('fmagma',fontsize=25)
-    cax = plt.axes([0.635, 0.32, 0.008, 0.165])
-    cc1=fig.colorbar(ck, ax=ax[3],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-
-
-    sxx = fl.read_sxx(frame)
-    cbsxx = plt.cm.get_cmap('afmhot')
-    cbsxx=ax[3,1].pcolormesh(x,z,sxx,cmap=cbsxx,vmin=-5,vmax=5)
-    ax[3,1].set_title('sxx',fontsize=25)
-    cax = plt.axes([0.635, 0.126, 0.008, 0.165])
-    cc1=fig.colorbar(cbsxx, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    sii = fl.read_sII(frame)
-    cbsii = plt.cm.get_cmap('afmhot_r')
-    cbsii=ax[0,2].pcolormesh(x,z,sii,cmap=cbsii,vmin=0,vmax=9)
-    ax[0,2].set_title('sII',fontsize=25)
-    cax = plt.axes([0.91, 0.708, 0.008, 0.165])
-    cc1=fig.colorbar(cbsii, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    sxz = fl.read_sxz(frame)
-    cbsxz = plt.cm.get_cmap('afmhot')
-    cbsxz=ax[1,2].pcolormesh(x,z,sxz,cmap=cbsxz,vmin=-4,vmax=4)
-    ax[1,2].set_title('sxz',fontsize=25)
-    cax = plt.axes([0.91, 0.518, 0.008, 0.165])
-    cc1=fig.colorbar(cbsxz, ax=ax[1],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    szz=fl.read_szz(frame)
-    cbszz = plt.cm.get_cmap('afmhot')
-    cbszz=ax[2,2].pcolormesh(x,z,szz,cmap=cbszz,vmin=-4,vmax=4)
-    ax[2,2].set_title('szz',fontsize=25)
-    cax = plt.axes([0.91, 0.32, 0.008, 0.165])
-    cc1=fig.colorbar(cbszz, ax=ax[3],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-    
-    
-    strain=fl.read_strain(frame)
-    cbszz = plt.cm.get_cmap('afmhot')
-    cbszz=ax[3,2].pcolormesh(x,z,strain[0],cmap=cbszz,vmin=-2,vmax=2)
-    ax[3,2].set_title('strain',fontsize=25)
-    cax = plt.axes([0.91, 0.126, 0.008, 0.165])
-    cc1=fig.colorbar(cbszz, ax=ax[3],cax=cax)
-    cc1.ax.tick_params(labelsize=20)
-   
-    
-    for yy in range(len(ax)):
-        for qq in range(len(ax[0])):
-            ax[yy,qq].set_xlim(xmin,xmax)
-            ax[yy,qq].set_ylim(zmin,zmax)
-            # ax[0,0].set_title(str(model)+' at '+str(round(fl.time[frame-1],1))+' Myr',fontsize=24)
-            ax[yy,0].set_ylabel('Depth (km)',fontsize=20)
-            ax[3,qq].set_xlabel('Distance (km)',fontsize=20)
-            ax[yy,qq].set_aspect('equal')
-            bwith = 3
-            ax[yy,qq].spines['bottom'].set_linewidth(bwith)
-            ax[yy,qq].spines['top'].set_linewidth(bwith)
-            ax[yy,qq].spines['right'].set_linewidth(bwith)
-            ax[yy,qq].spines['left'].set_linewidth(bwith)
-            # ax[yy,0].spines['top'].set_visible(False)
-            ax[yy,qq].tick_params(axis='x', labelsize=16 )
-            ax[yy,qq].tick_params(axis='y', labelsize=16 )
-    if png:
-        fig.savefig(figpath+model+'frame_'+str(frame)+'_snapshot_allfield_150.png')
-    # if pdf:
-    #     if Cocos:
-    #         fig.savefig(figpath+'Ref_Cocos/'+model+'frame_'+str(frame)+'_snapshot.pdf')
-    #     if Nazca:
-    #         fig.savefig(figpath+'Ref_Nazca/'+model+'frame_'+str(frame)+'_snapshot.pdf')
-
 if shot_5:
 # import time
 # frame_list=[26,51,76,101,126,150]
@@ -364,15 +247,15 @@ if plot_phase:
     bwith = 3
     #--------------------- phase plotting -------------------------
     from netCDF4 import Dataset
-    file=model+'_frame'+str(frame)+'_phase.grd'
-    # file=model+'_phase_'+str(frame)+'.grd'
+    #file=model+'_frame'+str(frame)+'_phase.grd'
+    file=model+'_phase_'+str(frame)+'.grd'
     data = Dataset(savepath+file, mode='r')
     x = data.variables['x'][:]
     z = data.variables['y'][:]
     ph = data.variables['z'][:]
     phh=ph.data[ph.data>0]
     ax.pcolormesh(x,-z,ph,cmap=phase8,vmin=1, vmax=20)
-    ax.contour(xt,-zt,temp,cmap='rainbow',levels =[200,400,600,800,1000,1200],linewidths=3)
+    ax.contour(xt,-zt,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=2)
     #--------------------- melting plotting -------------------------
     melt=fl.read_fmelt(frame)
     ax.scatter(ele_x[melt>1e-3],-ele_z[melt>1e-3],melt[melt>1e-3]*1e4*3,c='w')
@@ -434,8 +317,7 @@ if plot_viscosity:
     ax.spines['left'].set_linewidth(bwith)
     ax.set_ylabel('Depth (km)',fontsize=26)
     # ax.set_xlabel('Distance (km)',fontsize=26)
-    ax.tick_params(axis='x', labelsize=23)
-    ax.tick_params(axis='y', labelsize=23)
+    ax.tick_params(labelsize=23)
     ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
     #xmajor_ticks = np.linspace(250,1000,num=6)
@@ -476,8 +358,7 @@ if plot_density:
     ax.set_aspect('equal')
     for axis in ['top','bottom','left','right']:
         ax.spines[axis].set_linewidth(bwith)
-    ax.tick_params(axis='x', labelsize=23)
-    ax.tick_params(axis='y', labelsize=23)
+    ax.tick_params(labelsize=23)
     ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
     #xmajor_ticks = np.linspace(250,1000,num=6)
@@ -515,8 +396,7 @@ if plot_pressure:
     ax.set_ylabel('Depth (km)',fontsize=26)
     for axis in ['top','bottom','left','right']:
         ax.spines[axis].set_linewidth(bwith)
-    ax.tick_params(axis='x', labelsize=25)
-    ax.tick_params(axis='y', labelsize=25)
+    ax.tick_params(labelsize=25)
     ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
     #xmajor_ticks = np.linspace(250,1000,num=6)
@@ -538,17 +418,23 @@ if plot_pressure:
     # print("--- %s seconds ---" % (time.time() - start_time))
     
 if plot_sxx:
+    skip = (slice(None, None, 5), slice(None, None, 3))
     fig, (ax)= plt.subplots(1,1,figsize=(17,16))
     temp = fl.read_temperature(frame)
     bwith = 3
     #--------------------- plotting -------------------------
     x,z = fl.read_mesh(frame)
     ele_x,ele_z = flac.elem_coord(x, z)
-    sxx = fl.read_sxx(frame)*100
+    ax.plot(ele_x[:,0],-ele_z[:,0],c = 'k',lw=3,linestyle='dashed')
+    sxx = fl.read_sxx(frame)
+    sxz = fl.read_sxz(frame)
+    szz = fl.read_szz(frame)
+    s1,s3,s2 = compute_s1(sxx, szz, sxz).T
     cbsxx = plt.cm.get_cmap('seismic')
-    cbsxx=ax.pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='gouraud')
-    # cbsxx=ax.pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='flat')
-    # cbsxx=ax.pcolormesh(x,-z,sxx,cmap=cbsxx,vmin=-300,vmax=300,shading='auto')
+    cbsxx=ax.pcolormesh(ele_x,-ele_z,sxx*100,cmap=cbsxx,vmin=-2000,vmax=2000,shading='gouraud')
+    
+    ax.quiver(ele_x[skip],-ele_z[skip],s1.T[skip],s3.T[skip])#,
+             #angles='xy', scale_units='xy', scale=0.1,headwidth=3)
     ax.set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax,cax=cax)
@@ -566,12 +452,117 @@ if plot_sxx:
     ymajor_ticks = np.linspace(300,0,num=7)
     ax.set_yticks(ymajor_ticks)
     ax.set_ylim(-zmin,-zmax)
+    ax.set_ylim(230,-10)
     ax.set_xlim(xmin,xmax)
-    xmajor_ticks = np.linspace(250,1000,num=7)
-    ax.set_xticks(xmajor_ticks)
+    ax.set_xlim(300,950)
+    #xmajor_ticks = np.linspace(250,1000,num=7)
+    #ax.set_xticks(xmajor_ticks)
     
     ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=20)
-    fig.savefig(figpath+model+'frame_'+str(frame)+'_sxx_gourand.pdf')
+    xx,zz = np.loadtxt(savepath+model+'_final_slab.txt').T
+    xx,zz,xt = np.loadtxt(savepath+'Nazca_aa06_40.0_final_slab.txt').T 
+    xx=xx[zz<0]
+    zz=zz[zz<0]
+    zz = fd.moving_window_smooth(zz,3)
+    ax.plot(xx+shift,-zz,color='k',lw=5)
+       
+    xxm,zzm,xtm = np.loadtxt(savepath+'Nazca_aa06_40_final_moho_slab.txt').T
+    xxm=xxm[zzm<0]
+    zzm=zzm[zzm<0]
+    zzm = fd.moving_window_smooth(zzm,3)
+    ax.plot(xxm+shift-5,-zzm+2,color='k',lw=5)
+    
+    ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=20)
+    #fig.savefig(figpath+model+'frame_'+str(frame)+'_sxx_gourand.pdf')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    # print("--- %s seconds ---" % (time.time() - start_time))
+if plot_sII:
+    fig, (ax)= plt.subplots(1,1,figsize=(17,16))
+    temp = fl.read_temperature(frame)
+    bwith = 3
+    #--------------------- plotting -------------------------
+    x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
+    ax.plot(ele_x[:,0],-ele_z[:,0],c = 'k',lw=3,linestyle='dashed')
+    sII = fl.read_sII(frame)*100
+    cbsxx = plt.cm.get_cmap('Greens')
+    cbsxx=ax.pcolormesh(ele_x,-ele_z,sII,cmap=cbsxx,vmin=0,vmax=600,shading='gouraud')
+    ax.set_title('sII',fontsize=25)
+    cax = plt.axes([0.945, 0.365, 0.01, 0.271])
+    cc1=fig.colorbar(cbsxx, ax=ax,cax=cax)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.set_label(label='sII (MPa)', size=25)
+    cc1.ax.yaxis.set_label_position('left')
+    ax.contour(x,-z,temp,colors='#A52A2A',levels =[200,400,600,800,1000,1200],linewidths=2)
+    # ---------------------- plot setting --------------------------
+    ax.set_aspect('equal')
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
+    ax.tick_params(axis='x', labelsize=23)
+    ax.tick_params(axis='y', labelsize=23)
+    ymajor_ticks = np.linspace(300,0,num=7)
+    ax.set_yticks(ymajor_ticks)
+    ax.set_ylim(-zmin,-zmax)
+    ax.set_xlim(xmin,xmax)
+    # xmajor_ticks = np.linspace(250,1000,num=7)
+    # ax.set_xticks(xmajor_ticks)
+    
+    ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=20)
+    xx,zz = np.loadtxt(savepath+model+'_final_slab.txt').T
+    xx,zz,xt = np.loadtxt(savepath+'Nazca_aa06_40.0_final_slab.txt').T 
+    xx=xx[zz<0]
+    zz=zz[zz<0]
+    zz = fd.moving_window_smooth(zz,3)
+    ax.plot(xx+shift,-zz,color='k',lw=5)
+    
+    #fig.savefig(figpath+model+'frame_'+str(frame)+'_sII_gourand.pdf')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    # print("--- %s seconds ---" % (time.time() - start_time))
+
+if plot_srII:
+    fig, (ax)= plt.subplots(1,1,figsize=(17,16))
+    temp = fl.read_temperature(frame)
+    bwith = 3
+    #--------------------- plotting -------------------------
+    x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
+    ax.plot(ele_x[:,0],-ele_z[:,0],c = 'k',lw=3,linestyle='dashed')
+    srII = fl.read_srII(frame)
+    cbsxx = plt.cm.get_cmap('Blues')
+    cbsxx=ax.pcolormesh(ele_x,-ele_z,srII,cmap=cbsxx,vmin=-14,vmax=-12.5,shading='gouraud')
+    #ax.scatter(ele_x[srII>-13.2],-ele_z[srII>-13.2],color='b')
+    sII=fl.read_sII(frame)*100
+    print(np.average(sII[srII>-13.2]))
+    ax.set_title('srII',fontsize=25)
+    cax = plt.axes([0.945, 0.365, 0.01, 0.271])
+    cc1=fig.colorbar(cbsxx, ax=ax,cax=cax)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.set_label(label='srII', size=25)
+    cc1.ax.yaxis.set_label_position('left')
+    ax.contour(x,-z,temp,colors='#A52A2A',levels =[200,400,600,800,1000,1200],linewidths=2)
+    # ---------------------- plot setting --------------------------
+    ax.set_aspect('equal')
+    for axis in ['top','bottom','left','right']:
+        ax.spines[axis].set_linewidth(bwith)
+    ax.tick_params(axis='x', labelsize=23)
+    ax.tick_params(axis='y', labelsize=23)
+    ymajor_ticks = np.linspace(300,0,num=7)
+    ax.set_yticks(ymajor_ticks)
+    ax.set_ylim(-zmin,-zmax)
+    ax.set_xlim(xmin,xmax)
+    # xmajor_ticks = np.linspace(250,1000,num=7)
+    # ax.set_xticks(xmajor_ticks)
+    
+    ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=20)
+    #xx,zz = np.loadtxt(savepath+model+'_final_slab.txt').T
+    xx,zz,xt = np.loadtxt(savepath+'Nazca_aa06_40.0_final_slab.txt').T 
+    xx=xx[zz<0]
+    zz=zz[zz<0]
+    zz = fd.moving_window_smooth(zz,3)
+    ax.plot(xx+shift,-zz,color='k',lw=5)
+    
+    ax.set_title('Time '+str(np.round(fl.time[frame-1],1))+' Myr',fontsize=20)
+    #fig.savefig(figpath+model+'frame_'+str(frame)+'_sII_gourand.pdf')
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
 if plot_phase_topo:
@@ -599,7 +590,6 @@ if plot_phase_topo:
     for ax in (ax0,ax1):
         ax.tick_params(axis='x', labelsize=23)
         ax.tick_params(axis='y', labelsize=23)
-        ax.set_xlim(250,1000)
         ax.set_xlim(xmin,xmax)
         xmajor_ticks = np.linspace(250,1000,num=7)
         ax.set_xticks(xmajor_ticks)
