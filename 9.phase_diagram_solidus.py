@@ -18,11 +18,11 @@ fig1 = 0 # basalt and eclogit
 fig2 = 0 # perdotite and serpentinite
 fig3 = 0 # sediment to schist
 fig4 = 0 # chlorite
-fig5 = 0 # chlorite, perdotite and serpentinite
+fig5 = 1 # chlorite, perdotite and serpentinite
 fig6 = 1 # ALL three figures
 if fig1:
 ###===============================basalt and eclogit ==========================
-    fig,ax = plt.subplots(1,1,figsize=(15,10))
+    fig,ax = plt.subplots(1,1,figsize=(10,10))
     axdep = ax.twinx()
     depth_limit = 200
     # depth = np.linspace(0,500e3,1000)
@@ -262,14 +262,28 @@ if fig4:
     # fig4.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/ThesisNTU/figures/'+'chlorite_phase_diagram'+'.pdf')
     # fig4.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Method/'+'chlorite_phase_diagram.pdf')
 if fig5:
-    fig5,ax = plt.subplots(1,1,figsize=(15,10))
+    fig5,ax = plt.subplots(1,1,figsize=(10,10))
     axdep = ax.twinx()
     depth_limit = 200
     
-    pres = np.linspace(0,7,100)
-    sss=np.zeros(len(pres))
-    # for q,dd in enumerate(pres):
-    TTT = 800-3.5e-8*(pres*3e4-62)**2
+    pres = np.linspace(0,7,100) # GPa
+    TTT=np.zeros(len(pres))
+    for q,dd in enumerate(pres):
+        ss1 = 700+150*dd
+        ss2 = 764.545+53.7*dd
+        ss3 = 973.447-43.478*dd
+        ss4 = -63.64*dd+1040.016
+        ss5 = -200*dd+1640
+        TTT[q] = min(ss1,ss2,ss3,ss4,ss5)
+    ax.scatter(700,0,c='#D14309',s=50)
+    ax.scatter(800,0.6,c='#D14309',s=50)
+    ax.scatter(880,2.15,c='#D14309',s=50)
+    ax.scatter(830,3.3,c='#D14309',s=50)
+    ax.scatter(760,4.4,c='#D14309',s=50)
+    ax.scatter(600,5.2,c='#D14309',s=50)
+    
+    # TTT = 800-3.5e-8*(pres*3e4-62)**2
+    # TTT = 700-4.3e-8*(pres*1.8e4-62)**2
     lab1=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
     #### KATZ 2003, dry solidus
     x=np.array([0,1,2.6,4,6,7])
@@ -294,9 +308,9 @@ if fig5:
     ax.plot(x,ttold,c=phase_change,lw=5)
     
     
-    depth = np.linspace(0,300000,100)
+    # depth = np.linspace(0,300000,100)
     presss = np.linspace(0,9.9,100)
-    sss=np.zeros(len(depth))
+    sss=np.zeros(len(presss))
     for q,dd in enumerate(presss):
         ss1 = 980+0.6e-3*(dd*3.3e4-140e3)
         ss2 = 1090-178*(1-np.exp(-dd*4.125))
@@ -334,8 +348,8 @@ if fig6:
     
     pres = np.linspace(0,7,100)
     sss=np.zeros(len(pres))
-    TTT = 800-3.5e-8*(pres*3e4-62)**2
-    lab1=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
+    TTT1 = 800-3.5e-8*(pres*3e4-62)**2
+    lab1=ax.plot(TTT1,pres,c='#D14309',lw=5,label='chlorite-peridotite')
     #### KATZ 2003, dry solidus
     x=np.array([0,1,2.6,4,6,7])
     y=np.array([1180,1200,1460,1560,1660,1750])
@@ -379,6 +393,7 @@ if fig6:
         sss[q] = max(ss1,ss2)
     lab3=axdep2.plot(sss,depth/1e3,c='#FF9900',lw=5,label='solidus')
     
+    # ----------------------------basalt-eclogite--------------------
     axdep3 = ax3.twinx()
     tempr = np.linspace(0,513)
     y = -0.0375 * tempr + 20.1
@@ -388,7 +403,8 @@ if fig6:
     x = np.linspace(515,1000)
     y = 0.0022 * x - 0.3
     lab3=ax3.plot(x,y,c=basalt_change,lw=5,label='basalt-eclogite')
-
+    
+    # ---------------------------------solidus----------------------------------
     pressure_limit = 2.45 # GPa
     pressure=np.linspace(0,pressure_limit,100)
     sss=np.zeros(len(pressure))
@@ -410,7 +426,7 @@ if fig6:
     ax3.text(570,3.5,'Eclogite',fontsize=26)
     ax.set_ylabel('Pressure (GPa)',fontsize=fontsize)
     axdep3.set_ylabel('Depth (km)',fontsize=fontsize)
-    
+    xmajor_ticks=np.array([300,600,900,1200])
     for aa in [ax,ax2,ax3]:
         aa.spines['bottom'].set_linewidth(bwith)
         aa.spines['top'].set_linewidth(bwith)
@@ -421,6 +437,7 @@ if fig6:
         aa.set_xlim(250,1250)
         aa.set_ylim(depth_limit*1000*10*3300/1e9,0)
         aa.set_xlabel('Temperature ($^\circ$C)',fontsize=fontsize)
+        aa.set_xticks(xmajor_ticks)
     for axdep in [axdep1,axdep2,axdep3]:
         axdep.set_ylim(depth_limit,0)
         axdep.tick_params(axis='y', labelsize=labelsize-5)
