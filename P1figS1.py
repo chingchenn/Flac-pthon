@@ -9,29 +9,38 @@ Created on Mon Jun 26 11:09:22 2023
 import numpy as np
 import matplotlib.pyplot as plt
 
-plt.rcParams["font.family"] = "Times New Roman"
-fontsize=30
-labelsize=25
+plt.rcParams["font.family"] = "Helvetica"
+fontsize=25
+labelsize=23
 bwith = 5
 fig6,(ax,ax2,ax3) = plt.subplots(1,3,figsize=(18,10))
 axdep1 = ax.twinx()
-depth_limit = 160
+depth_limit = 200
 
-pres = np.linspace(0,7,100)
-sss=np.zeros(len(pres))
-TTT = 800-3.5e-8*(pres*3e4-62)**2
+
+# ---------------------------------- chlorite ------------------------------
+pres = np.linspace(0,7,100) # GPa
+TTT=np.zeros(len(pres))
+for q,dd in enumerate(pres):
+    ss1 = 700+150*dd
+    ss2 = 764.545+53.7*dd
+    ss3 = 973.447-43.478*dd
+    ss4 = -63.64*dd+1040.016
+    ss5 = -200*dd+1640
+    TTT[q] = min(ss1,ss2,ss3,ss4,ss5)
 lab1=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
-#### KATZ 2003, dry solidus
-x=np.array([0,1,2.6,4,6,7])
-y=np.array([1180,1200,1460,1560,1660,1750])
-pres = np.linspace(0,2000,1000)
 
-a,b,c = np.polyfit(y, x, 2)
-yyyy = a*pres**2+b*pres+c
-lab3=ax.plot(pres[pres>1000],yyyy[pres>1000],c='green',lw=5,label='dry solidus')
 
-####
+# #### KATZ 2003, dry solidus
+# x=np.array([0,1,2.6,4,6,7])
+# y=np.array([1180,1200,1460,1560,1660,1750])
+# pres = np.linspace(0,2000,1000)
 
+# a,b,c = np.polyfit(y, x, 2)
+# yyyy = a*pres**2+b*pres+c
+# lab3=ax.plot(pres[pres>1000],yyyy[pres>1000],c='green',lw=5,label='dry solidus')
+
+##-------------------------------- serpentinite ----------------------------
 phase_change = (140/255, 20/255, 70/255)
 x = np.linspace(500,730)
 tt1 = 2.1 +(7.5-2.1)* (x - 730)/ (500-730)
@@ -48,8 +57,8 @@ for q,dd in enumerate(presss):
     ss2 = 1090-178*(1-np.exp(-dd*4.125))
     sss[q] = max(ss1,ss2)
 lab5=ax.plot(sss,presss,c='#FF9900',lw=5,label='solidus')
-lns = lab3+lab4+lab5+lab1#+lab2
-labs = [l.get_label() for l in lns]
+# lns = lab3+lab4+lab5+lab1#+lab2
+# labs = [l.get_label() for l in lns]
 #ax.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.95, 0.15))    
 
 axdep2 = ax2.twinx()
@@ -100,7 +109,7 @@ labs = [l.get_label() for l in lns]
 ax.set_ylabel('Pressure (GPa)',fontsize=fontsize)
 axdep3.set_ylabel('Depth (km)',fontsize=fontsize)
 xmajor_ticks=np.array([300,600,900,1200])
-ymajor_ticks=np.array([40,80,120,160,160])
+ymajor_ticks=np.array([40,80,120,160,200])
 for aa in [ax,ax2,ax3]:
     for axis in ['top','bottom','left','right']:
         aa.spines[axis].set_linewidth(bwith)
