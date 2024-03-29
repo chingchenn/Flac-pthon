@@ -18,11 +18,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 fig1=0  ## 4 figure, melting x location + melting phase bar + flat slab length + flat slab depth
 fig2=0
 fig3=0  ## 2 figure, melting x location + melting phase bar
-fig4=1  ## 2 figure, + flat slab length + flat slab depth
-fig5=0  ## 3 figure, combine figure
+fig4=0  ## 2 figure, + flat slab length + flat slab depth
+fig5=1  ## 3 figure, combine figure
 fig6=0  ## 1 figure, melting x location
 fig7=0
-fig8=1  ## 1 figure, dip only
+fig8=0  ## 1 figure, dip only
 fig9=0  ## 1 figure, torque only
 plt.rcParams["font.family"] = "Times New Roman"
 model_list=['Nazca_a0703','Nazca_a0701','Nazca_a0702','Ref_Nazca','Nazca_a0704','Nazca_a0705',]

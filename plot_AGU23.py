@@ -36,8 +36,8 @@ path = '/Users/chingchen/Desktop/model/'
 savepath = '/Users/chingchen/Desktop/data/'
 figpath = '/Users/chingchen/Desktop/FLAC_Works/AGU2023FLAC/'
 
-plot_rock_field = 1
-nazca_magma = 0 ## Nazca melting phase and melting location v.s. trench
+plot_rock_field = 0
+nazca_magma = 1 ## Nazca melting phase and melting location v.s. trench
 cocos_magma = 0 ## Cocos melting phase and melting location v.s. trench
 cocos_magma_molten = 0
 cocos_magma_molten_save = 0
