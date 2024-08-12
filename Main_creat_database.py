@@ -21,16 +21,16 @@ from numpy import unravel_index
 #---------------------------------- DO WHAT -----------------------------------
 ## creat data
 vtp                     = 0
-trench_location         = 0
+trench_location         = 1
 dip                     = 0
-magma                   = 0
+magma                   = 1
 melting_loc             = 0
 gravity                 = 0
 gravity_frame           = 0
-melting                 = 0
-stack_topo              = 0
-stack_gem               = 0
-slab_top_time           = 0
+melting                 = 1
+stack_topo              = 1
+stack_gem               = 1
+slab_top_time           = 1
 wedge                   = 0
 flat_duraton            = 1
 
@@ -61,7 +61,8 @@ path = '/home/jiching/geoflac/'
 #path = '/scratch2/jiching/03model/'
 #path = '/scratch2/jiching/22summer/'
 #path = '/scratch2/jiching/04model/'
-#path = '/scratch2/jiching/'
+#path = '/scratch2/jiching/23spring/'
+#path = '/scratch2/jiching/23summer/'
 #path = 'F:/model/'
 #savepath='/home/jiching/geoflac/data/'
 savepath='/scratch2/jiching/data/'
@@ -112,6 +113,31 @@ def nodes_to_elements(xmesh,zmesh):
     return ele_x, ele_z
 def oceanic_slab(frame):
     phase_oceanic = 3
+    phase_sediment = 10
+    phase_ecolgite = 13
+    phase_oceanic_1 = 17
+    phase_ecolgite_1 = 18
+    x, z = fl.read_mesh(frame)
+    ele_x, ele_z = nodes_to_elements(x,z)
+    phase = fl.read_phase(frame)
+    trench_ind = int(trench_index[frame-1])
+    crust_x = np.zeros(nex)
+    crust_z = np.zeros(nex)
+    for j in range(trench_ind,nex):
+        ind_oceanic = (phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1)
+        if j >= trench_ind+2:
+            ind_oceanic = (ele_z[j,:]<crust_z[j-1]+2)*((phase[j,:] == phase_oceanic) + (phase[j,:] == phase_ecolgite)+(phase[j,:] == phase_oceanic_1) + (phase[j,:] == phase_ecolgite_1))
+        if True in ind_oceanic:
+            kk = ele_z[j,ind_oceanic]
+            xx = ele_x[j,ind_oceanic]
+            if len(kk[kk<-2])==0:
+                continue
+            crust_x[j] = np.max(xx[kk<-2])
+            crust_z[j] = np.max(kk[kk<-2])
+    return crust_x,crust_z
+def oceanic_slab_moho(frame):
+    phase_oceanic = 3
+    phase_sediment = 10
     phase_ecolgite = 13
     phase_oceanic_1 = 17
     phase_ecolgite_1 = 18
@@ -126,10 +152,19 @@ def oceanic_slab(frame):
         if True in ind_oceanic:
             kk = ele_z[j,ind_oceanic]
             xx = ele_x[j,ind_oceanic]
-            if len(kk[kk<-15])==0:
+            if len(kk[kk<-12])==0:
                 continue
-            crust_x[j] = np.max(xx[kk<-15])
-            crust_z[j] = np.max(kk[kk<-15])
+            crust_x[j] = np.min(xx[kk<-12])
+            crust_z[j] = np.min(kk[kk<-12])
+    for uu in range(nez-1,0,-1):
+        ind_oceanic = (phase[:,uu] == phase_oceanic) + (phase[:,uu] == phase_ecolgite)+(phase[:,uu] == phase_oceanic_1) + (phase[:,uu] == phase_ecolgite_1)
+        if True in ind_oceanic:
+            kk = ele_z[ind_oceanic,uu]
+            xx = ele_x[ind_oceanic,uu]
+            if len(kk[kk<-12])==0:
+                continue
+            crust_x[j] = np.min(xx[kk<-12])
+            crust_z[j] = np.min(kk[kk<-12])
     return crust_x,crust_z
 def plate_dip(depth1,depth2):
     angle = np.zeros(end)
@@ -257,11 +292,13 @@ def melting_phase():
                         p4 +=area[xx,zz]*mm[xx,zz]/1e6
                     elif phase[xx,zz]==3: # basalt
                         p3 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==13: # eclogite
-                        p13 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==3: # basalt
-                        p3 += area[xx,zz]*mm[xx,zz]/1e6
-                    elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]!=13:
+                    #elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==13: # eclogite
+                    #    p13 += area[xx,zz]*mm[xx,zz]/1e6
+                    #elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]==3: # basalt
+                    #    p3 += area[xx,zz]*mm[xx,zz]/1e6
+                    #elif (phase[xx,zz]==10 or phase[xx,zz]==5 or phase[xx,zz]==11) and phase[xx,zz+1]!=13:
+                    #    p10 += area[xx,zz]*mm[xx,zz]/1e6
+                    elif phase[xx,zz]==10: # sediment
                         p10 += area[xx,zz]*mm[xx,zz]/1e6
                     else:
                         print(i,phase[xx,zz],phase[xx,zz+1])
@@ -309,7 +346,14 @@ def get_stack_geometry_time(i):
     ele_x, ele_z = flac.elem_coord(x,z)
     finx = crust_x-trench_x[i-1]
     finz = crust_z
-    return i,finx,finz
+    return i,finx,finz,crust_x
+def get_stack_moho_geometry_time(i):
+    moho_x,moho_z = oceanic_slab_moho(i)
+    x, z = fl.read_mesh(i)
+    ele_x, ele_z = flac.elem_coord(x,z)
+    finx = moho_x-trench_x[i-1]
+    finz = moho_z
+    return i,finx,finz,moho_x
 def read_wedgevis(trench_index,depth1=80, depth2=130):
     viswedge=np.zeros(end)
     areawedge=np.zeros(end)
@@ -378,7 +422,7 @@ def flat_slab_duration():
             if cc*(oo+0.2)<0:
                 ff1.append(ox[rr])
             cc = oo+0.2
-        if len(ff1)>=2 and (ff1[-1]-ff1[-2])>10 and ff1[-2]>400:
+        if len(ff1)>=2 and (ff1[-1]-ff1[-2])>10 and ff1[-2]>300:
             flat_time.append(fl.time[i])
             flat_length.append(ff1[-1]-ff1[-2])
             flat_depth.append(np.average(w1[(ox>=ff1[-2])*(ox<ff1[-1])]))
@@ -465,9 +509,12 @@ if stack_gem:
     print('=========== DONE =============')
 if slab_top_time:
     print('-----creat geometry in time database-----')
-    for i in [51,101,150,201,250]:
-        kk,fx,fz = get_stack_geometry_time(i)
-        fs.save_2txt(model+'_'+str(round(i/5,0))+'_final_slab',savepath,fx,fz)
+    for i in [51,76,101,126,150,176,201,226]:
+    #for i in [51,76,101,126,150]:
+        kk,fx,fz,cx = get_stack_geometry_time(i)
+        kk,fmx,fmz,mx = get_stack_moho_geometry_time(i)
+        fs.save_3txt(model+'_'+str(round(i/5,0))+'_final_slab',savepath,fx,fz,cx)
+        fs.save_3txt(model+'_'+str(int(round(i/5,0)))+'_final_moho_slab',savepath,fmx,fmz,mx)
 if wedge:
     print('-----creat wedge database-----' )
     name=model+'_wedge_data'
