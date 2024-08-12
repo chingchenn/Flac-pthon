@@ -24,8 +24,8 @@ import matplotlib.pyplot as plt
 plt.rcParams["font.family"] = "Helvetica"
 #---------------------------------- DO WHAT -----------------------------------
 # Model
-Cocos           = 0
-Nazca           = 1
+Cocos           = 1
+Nazca           = 0
 ### pdf or png
 png             = 0
 pdf             = 0
@@ -36,16 +36,16 @@ path = '/Users/chingchen/Desktop/model/'
 savepath = '/Users/chingchen/Desktop/data/'
 figpath = '/Users/chingchen/Desktop/FLAC_Works/AGU2023FLAC/'
 
-plot_rock_field = 0
-nazca_magma = 1 ## Nazca melting phase and melting location v.s. trench
-cocos_magma = 0 ## Cocos melting phase and melting location v.s. trench
-cocos_magma_molten = 0
+plot_rock_field = 1
+nazca_magma = 0 ## Nazca melting phase and melting location v.s. trench
+cocos_magma = 1 ## Cocos melting phase and melting location v.s. trench
+cocos_magma_molten = 1
 cocos_magma_molten_save = 0
-magma_inone = 0
+magma_inone = 1
 nazca_magma_save = 0
-cocos_magma_save = 0
+cocos_magma_save = 1
 magma_save  = 0
-zoomin_melting_mex = 0
+zoomin_melting_mex = 1
 zoomin_melting_mex_save = 0
 plot_2dmagma_nazca = 0
 plot_2dmagma_nazca_save = 0
@@ -74,6 +74,7 @@ if Cocos:
     xmin,xmax = 500,900
     zmin,zmax = -150,10
     model = 'Ref_Cocos'
+    model = 'Cocos_a0101'
     frame1 = 50
     frame2 = 70
     frame3 = 110
@@ -358,7 +359,7 @@ if cocos_magma:
     ax3 = fig.add_subplot(gs[1, :]) # row 1, span all columns
     ax3.plot([0,1])
     model='Ref_Cocos'
-    #model='Cocos_aa02'
+    model='Cocos_a0101'
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
     ####====================== FIG1 melting phase ======================
@@ -475,7 +476,7 @@ if magma_inone:
         ax3.scatter(ttt, ele_x[hhh]-trench_x[ii-1],c ='#708090',s=70)
     ax3.scatter(ttt, ele_x[hhh]-trench_x[ii-1],c ='#708090',s=70, label = 'chilean')
     #----------------------------------- FIG2 melting phase -----------------------------------
-    model='Ref_Cocos'
+    model='Cocos_a0101'
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
     name='melting_'+model
@@ -520,7 +521,7 @@ if magma_inone:
         fig6.savefig(figpath+'melting.pdf')
 if zoomin_melting_mex:
     fig7, (ax1)= plt.subplots(1,1,figsize=(18,5))  
-    model='Ref_Cocos'
+    model='Cocos_a0101'
     os.chdir(path+model)
     name='melting_'+model
     time,phase_p3,phase_p4,phase_p13,phase_p10 = np.loadtxt(savepath+name+'.txt').T
@@ -677,7 +678,7 @@ if plot_s1_profile_nazca:
     # fig.savefig(figpath+model+'nazca_sxx_gourand.pdf')
 
 if plot_s1_profile_cocos:
-    model = 'Ref_Cocos'
+    model = 'Cocos_a0101'
     shift = 550
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
@@ -724,13 +725,13 @@ if plot_s1_profile_cocos:
     
    
     xx,zz = np.loadtxt(savepath+model+'_final_slab.txt').T
-    xx,zz,xt = np.loadtxt(savepath+'Ref_Cocos_30.0_final_slab.txt').T 
+    xx,zz,xt = np.loadtxt(savepath+'Cocos_a0101_30.0_final_slab.txt').T 
     xx=xx[zz<0]
     zz=zz[zz<0]
     zz = fd.moving_window_smooth(zz,3)
     ax.plot(xx+shift,-zz,color='k',lw=5)
        
-    xxm,zzm,xtm = np.loadtxt(savepath+'Ref_Cocos_30_final_moho_slab.txt').T
+    xxm,zzm,xtm = np.loadtxt(savepath+'Cocos_a0101_30_final_moho_slab.txt').T
     xxmm=xxm[(zzm<0)*(xxm>0)]
     zzmm=zzm[(zzm<0)*(xxm>0)]
     zzm = fd.moving_window_smooth(zzm,3)
@@ -805,7 +806,7 @@ if plot_sII_profile_nazca:
     ax.set_ylabel('depth (km)',fontsize=fontsize)
     fig.savefig(figpath+model+'nazca_sII_gourand.pdf')
 if plot_sII_profile_cocos:
-    model = 'Ref_Cocos'
+    model = 'Cocos_a0101'
     shift = 550
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
@@ -854,13 +855,13 @@ if plot_sII_profile_cocos:
     
    
     xx,zz = np.loadtxt(savepath+model+'_final_slab.txt').T
-    xx,zz,xt = np.loadtxt(savepath+'Ref_Cocos_30.0_final_slab.txt').T 
+    xx,zz,xt = np.loadtxt(savepath+'Cocos_a0101_30.0_final_slab.txt').T 
     xx=xx[zz<0]
     zz=zz[zz<0]
     zz = fd.moving_window_smooth(zz,3)
     ax.plot(xx+shift,-zz,color='k',lw=2)
        
-    xxm,zzm,xtm = np.loadtxt(savepath+'Ref_Cocos_30_final_moho_slab.txt').T
+    xxm,zzm,xtm = np.loadtxt(savepath+'Cocos_a0101_30_final_moho_slab.txt').T
     xxmm=xxm[(zzm<0)*(xxm>0)]
     zzmm=zzm[(zzm<0)*(xxm>0)]
     zzm = fd.moving_window_smooth(zzm,3)

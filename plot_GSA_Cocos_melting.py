@@ -32,8 +32,8 @@ savepath='/home/jiching/geoflac/data/'
 savepath = '/Users/chingchen/Desktop/data/'
 figpath='/Users/chingchen/Desktop/FLAC_Works/Eclogite_flat_slab/'
 
-fig6 = 0 ## Mexico melting phase and melting location v.s. trench
-fig8 = 0 ## Mexico 2D magma fraction 
+fig6 = 1 ## Mexico melting phase and melting location v.s. trench
+fig8 = 1 ## Mexico 2D magma fraction 
 fig9 = 0 ## Loctation of melt and melting phase
 fig6_save = 0
 fig8_save = 0
@@ -71,6 +71,7 @@ if fig6:
     fig6, (ax2)= plt.subplots(1,1,figsize=(15,5))  
     
     model='Ref_Cocos'
+    model='Cocos_a0101'
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
      ####====================== FIG2 melting location ======================
@@ -173,6 +174,7 @@ if fig8:
     phase_eclogite_1 = 18
 
     model='Ref_Cocos'
+    model='Cocos_a0101'
     os.chdir(path+model)
     fl = flac.Flac()
     end = fl.nrec
@@ -189,7 +191,7 @@ if fig8:
 
     fig8, (ax1,ax2,ax5)= plt.subplots(3,1,figsize=(20,15),gridspec_kw={'height_ratios':[1,1,0.07]})
     xxx_trench = np.max(x_trench)
-    chamber_limit = 1e-3
+    chamber_limit = 1e-2
     for i in range(1,end):
         x, z = fl.read_mesh(i)
         ele_x, ele_z = flac.elem_coord(x,z)
@@ -236,6 +238,7 @@ if fig9:
     fig9, (ax2)= plt.subplots(1,1,figsize=(15,15))  
     
     model='Ref_Cocos'
+    model='Cocos_a0101'
     os.chdir(path+model)
     fl = flac.Flac();end = fl.nrec
      ####====================== FIG2 melting location ======================

@@ -58,6 +58,7 @@ figpath = '/Users/chingchen/Desktop/figure/'
 xmin,xmax=500,900
 zmin,zmax=-120,10
 model = 'Ref_Cocos'
+model = 'Cocos_a0101'
 shift = 550
 
 

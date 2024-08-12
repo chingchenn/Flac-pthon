@@ -49,7 +49,7 @@ phase_hydratedmantle = 16
 phase_oceanic_1 = 17
 phase_eclogite_1 = 18
 
-model='Ref_Cocos'
+model='Cocos_a0101'
 #model='Nazca_aa06'
 os.chdir(path+model)
 fl = flac.Flac()
@@ -224,7 +224,7 @@ ax2.scatter(x2dis1(x_change_cho),z_change_cho,c='darkgreen',s=size,label = 'chlo
 
 
 
-ax1.set_xlim(0,300) 
+ax1.set_xlim(0,350) 
 ax2.set_xlim(0,600)
 
 for ax in [ax1,ax2]:
