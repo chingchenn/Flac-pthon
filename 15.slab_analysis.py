@@ -29,7 +29,7 @@ fig_spline_quartic = 0
 path = '/scratch2/jiching/figure/'
 input = sys.argv[1]
 #-------------------read area and get grd, trace and slab info from csv--------------------
-DIR='/home/jiching/GMT/slab'
+DIR='/scratch2/jiching/GMT/slab'
 ff=pd.read_csv(DIR+'/'+'kkk.csv')
 for kk in range(len(ff)):
     if ff.name[kk] == input:
@@ -37,9 +37,9 @@ for kk in range(len(ff)):
 area,rlon1,rlon2,rlat1,rlat2,grd,lon,lat,az,mindepth,leng=ff.loc[kk].tolist()
 #-------------------------------call gmt to cut the trace----------------------------------
 cmd = '''
-cp /home/jiching/GMT/slab/depgrd/%(grd)s .
-cp /home/jiching/GMT/slab/global_model/CAM2016Litho.nc .
-cp /home/jiching/GMT/slab/global_model/depthtomoho.xyz .
+cp /scratch2/jiching/GMT/slab/depgrd/%(grd)s .
+cp /scratch2/jiching/GMT/slab/global_model/CAM2016Litho.nc .
+cp /scratch2/jiching/GMT/slab/global_model/depthtomoho.xyz .
 ''' %locals()
 os.system(cmd)
 cmd = 'gmt grdtrack -E%(lon)f/%(lat)f+a%(az)f+l%(leng)f+i0.5k -G%(grd)s>table.txt' %locals()
@@ -100,12 +100,13 @@ EOF
     gmt plot -W3p table2.txt
     rm -f line.txt table2.txt cut.nc %(area)s-moho.txt table.txt %(area)s-litho.txt CAM2016Litho.nc depthtomoho.xyz
 gmt end
-mv  %(input)s_cross_section* ~/geoflac/figure/.
+mv  %(input)s_cross_section* /scratch2/jiching/figure/.
 ''' %locals()
 if fig_GMT:
     os.system(cmd)
 #==================================================================================================
 temp2=np.loadtxt(str(input)+'_table4.txt')
+print(str(input)+'_table4.txt')
 data = temp2[~np.isnan(temp2).any(axis=1)]
 x,y,z = data.T
 sx = x[0]
@@ -326,5 +327,5 @@ if fig_spline_quartic:
     fig6.savefig(path+input+'slab_ploy+spline.png')
 
 cmd = 'rm %(grd)s %(input)s_table4.txt' %locals()
-os.system(cmd)
+#os.system(cmd)
 
