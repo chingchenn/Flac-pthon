@@ -15,10 +15,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 # path = '/Users/chingchen/Desktop/model/'+model+'/'
 path = '/Users/chingchen/Desktop/model/'
 
-fig5 = 0
-fig6 = 0
-fig7 = 1
-fig8 = 0
+fig5 = 0 # Nazca
+fig6 = 0 # Cocos
+fig7 = 0 # zoom in
+fig8 = 1 # zoom in
+fig9 = 0
 
 plt.rcParams["font.family"] = "Times New Roman"
 # model='Ref_Nazca'
@@ -349,9 +350,7 @@ if fig8:
     ppptime = time
     
     
-    name = 'magma_for_'+model+'.txt'
-    temp1 = np.loadtxt(savepath+name)
-    melt,chamber,yymelt,yychamber,rrr = temp1.T
+
     axx=ax1.twinx()
     # ax3.bar(time[total>0],yychamber[total>0],width=0.17,color='orange',alpha=0.5)
     axx.scatter(time[total>0],kkk,c='#8A2BE2')
@@ -373,13 +372,76 @@ if fig8:
         
     
     ax1.set_ylim(0,0.75)
-    ax3.set_ylim(0,7)
+    #ax3.set_ylim(0,7)
     axx.set_ylim(0,80)
     axx.grid()
     ax1.set_ylabel('Molten rocks (km$^3$/km)',fontsize=fontsize)
-    ax3.set_ylabel('Chamber volume (km$^3$/km)',fontsize=fontsize)
-    ax3.set_xlabel('Time (Myr)',fontsize=fontsize)
-    fig7.tight_layout()
+#    ax3.set_ylabel('Chamber volume (km$^3$/km)',fontsize=fontsize)
+#    ax3.set_xlabel('Time (Myr)',fontsize=fontsize)
+#    fig7.tight_layout()
+    
+    
+    # ax4.bar(ppptime,phase_p4+phase_p9,width=0.17,color='seagreen',label='peridotite')
+    # ax4.bar(ppptime,phase_p10,bottom=phase_p4+phase_p9,width=0.17,color='tomato',label='sediment')
+    # ax4.bar(ppptime,phase_p3,bottom=phase_p4+phase_p9+phase_p10,width=0.17,color='darkblue',label='basalt')
+    # ax4.set_ylim(0,0.5)
+    # kkk = fd.moving_window_smooth(phase_p3/(phase_p10+phase_p3+phase_p4)*100, 5)
+    # ax5.bar(ppptime,kkk,color='darkblue',width=0.2)
+    # # plt.close(fig7)
+    ax1.legend(fontsize=fontsize,facecolor='white')
+    # fig7.savefig('/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/Thesis_figure/Discussion/slab_melting2.pdf')    
+
+
+if fig9:
+    fig9, (ax1)= plt.subplots(1,1,figsize=(15,10))  
+    # fig7, (ax4,ax5)= plt.subplots(2,1,figsize=(12,8))  
+    
+    model='Ref_Cocos'
+    os.chdir(path+model)
+    fl = flac.Flac();end = fl.nrec
+    name='melting_'+model
+    
+    
+    time,phase_p3,phase_p4,phase_p13,phase_p10 = np.loadtxt(savepath+name+'.txt').T
+    total = (phase_p10+phase_p3+phase_p4)
+    ax1.bar(time,phase_p4,width=0.17,color='seagreen',label='peridotite')
+    ax1.bar(time,phase_p10,bottom=phase_p4,width=0.17,color='tomato',label='sediment')
+    ax1.bar(time,phase_p13,bottom=phase_p4+phase_p10,width=0.17,color='#000080',label='eclogite')
+    
+    ppptime = time
+    
+    
+    name = 'magma_for_'+model+'.txt'
+    temp1 = np.loadtxt(savepath+name)
+    melt,chamber,yymelt,yychamber,rrr = temp1.T
+    axx=ax1.twinx()
+    # ax3.bar(time[total>0],yychamber[total>0],width=0.17,color='orange',alpha=0.5)
+    #axx.scatter(time[total>0],kkk,c='#8A2BE2')
+    axx.plot(time,yychamber,c='blue',lw=3)
+    #================================figure setting================================
+    # ax1.set_title('Molten rocks v.s. time ' ,fontsize=fontsize)
+    # ax3.set_title('Chamber volume v.s. time ' ,fontsize=fontsize)
+    name=model+'_flatslab_time_len.txt'
+    time,length,depth=np.loadtxt(savepath+name).T
+    for aaa in [ax1,axx]:
+        aaa.tick_params(axis='x', labelsize=fontsize)
+        aaa.tick_params(axis='y', labelsize=fontsize)
+        aaa.spines['bottom'].set_linewidth(bwith)
+        aaa.spines['top'].set_linewidth(bwith)
+        aaa.spines['right'].set_linewidth(bwith)
+        aaa.spines['left'].set_linewidth(bwith)
+        aaa.set_xlim(0,40)
+    ax1.axvspan(time[0],time[-1],facecolor='0.5', alpha=0.1)
+        
+    
+    ax1.set_ylim(0,5)
+    #ax3.set_ylim(0,7)
+    axx.set_ylim(0,20)
+    #axx.grid()
+    ax1.set_ylabel('Molten rocks (km$^3$/km)',fontsize=fontsize)
+#    ax3.set_ylabel('Chamber volume (km$^3$/km)',fontsize=fontsize)
+#    ax3.set_xlabel('Time (Myr)',fontsize=fontsize)
+#    fig7.tight_layout()
     
     
     # ax4.bar(ppptime,phase_p4+phase_p9,width=0.17,color='seagreen',label='peridotite')
