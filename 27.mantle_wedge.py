@@ -47,10 +47,6 @@ def trench(start_vts=1,model_steps=end):
     return trench_index,trench_x,trench_z
 
 start_vts=1
-def nodes_to_elements(xmesh,zmesh):
-    ele_x = (xmesh[:fl.nx-1,:fl.nz-1] + xmesh[1:,:fl.nz-1] + xmesh[1:,1:] + xmesh[:fl.nx-1,1:]) / 4.
-    ele_z = (zmesh[:fl.nx-1,:fl.nz-1] + zmesh[1:,:fl.nz-1] + zmesh[1:,1:] + zmesh[:fl.nx-1,1:]) / 4.
-    return ele_x, ele_z
 def temp_elements(temp):
     ttt = (temp[:fl.nx-1,:fl.nz-1] + temp[1:,:fl.nz-1] + temp[1:,1:] + temp[:fl.nx-1,1:]) / 4.
     return ttt
@@ -61,7 +57,7 @@ def oceanic_slab(frame):
     phase_oceanic_1 = 17
     phase_ecolgite_1 = 18
     x, z = fl.read_mesh(i)
-    ele_x, ele_z = nodes_to_elements(x,z)
+    ele_x, ele_z = flac.elem_coord(x, z)
     phase = fl.read_phase(i)
     trench_ind = np.argmin(z[:,0]) 
     crust_x = np.zeros(nex)
@@ -102,7 +98,7 @@ for yy,model in enumerate(model_list):
         x, z = fl.read_mesh(i)
         vis=fl.read_visc(i)
         area=fl.read_area(i)
-        ele_x, ele_z = nodes_to_elements(x,z)
+        ele_x, ele_z = flac.elem_coord(x, z)
         crust_x,crust_z = oceanic_slab(i)
         temp = fl.read_temperature(i)
         ele_tem = temp_elements(temp)

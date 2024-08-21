@@ -6,6 +6,13 @@ import numpy as np
 from matplotlib import cm
 # import creat_database as cd
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib as mpl
+#matplotlib.use('Agg')
+from matplotlib import cm
+from netCDF4 import Dataset
+import function_savedata as fs
+import function_for_flac as fd
 # from Main_creat_database import oceanic_slab,nodes_to_elements
 # model = str(sys.argv[1])
 model = 'Ref_Cocos'
@@ -41,6 +48,12 @@ print(arc_thickness)
 #----------------------------------------------------------------------------
 # fig.savefig('/home/jiching/geoflac/'+'figure/'+model+'_arc_thickness.png')
 
+colors2=[
+ '#C98F49', '#92C0DF', '#2553C7', '#FFFFFF', '#6495ED',
+ '#2E8B57', '#524B52', '#9A32CD', '#6B8E23','#D4DBF4',
+ '#D8BFD8','#999999','#F2C85B','#999999','#999999',
+ '#4CC552','#999999','#999999','#999999','#999999']
+phase8= matplotlib.colors.ListedColormap(colors2)
 cmap = plt.cm.get_cmap('gist_earth')
 zmax, zmin =10, -10
 trench_x = np.zeros(end)
@@ -50,14 +63,16 @@ fig, (ax) = plt.subplots(1,1,figsize=(10,12))
 
 for i in range(end):
     x, z = fl.read_mesh(i+1)
+    ph = fl.read_phase(i+1)
+    ele_x,ele_z = flac.elem_coord(x, z)
     xmax = np.amax(x)
     xmin = np.amin(x)
 
-    xt = x[:,0]
-    zt = z[:,0]
+    xt = ele_x[:,0]
+    zt = ele_z[:,0]
     t = np.zeros(xt.shape)
     t[:] = i*0.2
-    ax.scatter(xt,t,c=zt,cmap=cmap,vmin=zmin, vmax=zmax)
+    ax.scatter(ele_x[:,0],t,c=ph[:,0],cmap=phase8,vmin=1, vmax=20,s=3)
     trench_t[i] = t[0]
     trench_x[i] = xt[np.argmin(zt)]
     arc_x[i] = xt[np.argmax(zt)]
@@ -75,6 +90,6 @@ distance=arc_x-trench_x
 #ax2.set_xlabel('Distance between arc and trench (km)')
 
 ax_cbin = fig.add_axes([0.67, 0.18, 0.23, 0.03])
-cb_plot = ax.scatter([-1],[-1],s=0.1,c=[1],cmap=cmap,vmin=zmin, vmax=zmax)
+cb_plot = ax.scatter([-1],[-1],s=0.1,c=[1],cmap=phase8,vmin=1, vmax=20)
 cb = fig.colorbar(cb_plot,cax=ax_cbin,orientation='horizontal')
 ax_cbin.set_title('Bathymetry (km)')

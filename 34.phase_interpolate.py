@@ -21,6 +21,8 @@ import matplotlib.pyplot as plt
 #model = sys.argv[1]
 # frame = int(sys.argv[2])
 model = 'Nazca_aa06'
+model = 'Nazca_v2_01'
+#model = 'Ref_Cocos'
 # frame = 10
 
 def make_phase_interploate(model,frame):
@@ -130,7 +132,7 @@ def make_phase_interploate(model,frame):
 
 frame_list=[30,60,120,140]
 # end = fl.nrec
-#for frame in range(2,221):
-for frame in frame_list:
+for frame in range(2,221,2):
+#for frame in frame_list:
     make_phase_interploate(model,frame)
     print('---------------end of '+str(frame)+'---------------')

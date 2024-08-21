@@ -26,7 +26,7 @@ if Cocos:
     max_dis = 620
     xmin = 500
     xmax = 1100
-    model = 'Cocos_a0906'
+    model = 'Cocos_x0102'
     marker_list = [186769,186775,704604,928985,960783,973829,992876,928808,928935,889439,882174,886460,864250,861514,859346]
 
 if Nazca:
@@ -121,17 +121,14 @@ axdep = ax2.twinx()
 axdep.set_ylim(0,pressure_limit*1e9/3300/10/1e3)
 ax2.legend(fontsize=labelsize)
 axdep.tick_params(axis='y', labelsize=labelsize)
-ax2.tick_params(axis='x', labelsize=labelsize)
-ax2.tick_params(axis='y', labelsize=labelsize)
+ax2.tick_params(labelsize=labelsize)
 ax2.set_xlabel('Temperature ($^\circ$C)',fontsize=labelsize)
 ax2.set_ylabel('Pressure (GPa)',fontsize=labelsize)
 axdep.set_ylabel('Depth (km)',fontsize=labelsize)
-ax2.spines['bottom'].set_linewidth(bwith)
-ax2.spines['top'].set_linewidth(bwith)
-ax2.spines['right'].set_linewidth(bwith)
-ax2.spines['left'].set_linewidth(bwith)
+for axis in ['top','bottom','left','right']:
+    ax2.spines[axis].set_linewidth(bwith)
 
-for frame in range(end-,end):
+for frame in range(end-2,end):
     # ------ read data from model -----
     x, z = fl.read_mesh(frame)
     ele_x, ele_z = flac.elem_coord(x, z)
@@ -164,24 +161,24 @@ for frame in range(end-,end):
     axdep.plot(slab_T[slab_T>0],slab_z[slab_T>0],c='green')
 
 
-# # ax2.scatter(slab_T,slab_P,c='#455E45')
-# for kk,idd in enumerate(marker_list):
-#     px = np.zeros(end)
-#     pz = np.zeros(end)
-#     pPre = np.zeros(end)
-#     pTemp = np.zeros(end)
-#     pmark= np.zeros(end)
-#     for ii,qq in enumerate(range(21,150)):
-#         mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(qq)
-#         temp = fl.read_temperature(qq)
-#         if len(mx[ID == idd])==0:
-#             continue
-#         px[ii] = mx[ID == idd]
-#         pz[ii] = mz[ID == idd]
-#         pmark[ii] = phase[ID == idd]
-#         pPre[ii] = 3300*10*(-pz[ii])*1000/1e9
-#         pTemp[ii] = flac.marker_interpolate_node(ntriag[ID==idd], a1[ID==idd], a2[ID==idd], fl.nz, temp)
-#         pTemp[ii] = pTemp[ii] - 0.4*pz[ii]
-#     # ax2.scatter(pTemp[pTemp>0],pPre[pTemp>0],c=pmark[pTemp>0],cmap = phase15,s = 40,vmin = 1,vmax = 20)
-#     # axdep.scatter(pTemp[pTemp>0],-pz[pTemp>0],c=pmark[pTemp>0],cmap = phase15,s = 40,vmin = 1,vmax = 20)
-#     ax2.plot(pTemp[pTemp>0]+0,pPre[pTemp>0],c='purple')
+# ax2.scatter(slab_T,slab_P,c='#455E45')
+for kk,idd in enumerate(marker_list):
+    px = np.zeros(end)
+    pz = np.zeros(end)
+    pPre = np.zeros(end)
+    pTemp = np.zeros(end)
+    pmark= np.zeros(end)
+    for ii,qq in enumerate(range(21,150)):
+        mx, mz, age, phase, ID, a1, a2, ntriag= fl.read_markers(qq)
+        temp = fl.read_temperature(qq)
+        if len(mx[ID == idd])==0:
+            continue
+        px[ii] = mx[ID == idd]
+        pz[ii] = mz[ID == idd]
+        pmark[ii] = phase[ID == idd]
+        pPre[ii] = 3300*10*(-pz[ii])*1000/1e9
+        pTemp[ii] = flac.marker_interpolate_node(ntriag[ID==idd], a1[ID==idd], a2[ID==idd], fl.nz, temp)
+        pTemp[ii] = pTemp[ii] - 0.4*pz[ii]
+    # ax2.scatter(pTemp[pTemp>0],pPre[pTemp>0],c=pmark[pTemp>0],cmap = phase15,s = 40,vmin = 1,vmax = 20)
+    # axdep.scatter(pTemp[pTemp>0],-pz[pTemp>0],c=pmark[pTemp>0],cmap = phase15,s = 40,vmin = 1,vmax = 20)
+    ax2.plot(pTemp[pTemp>0]+0,pPre[pTemp>0],c='purple')

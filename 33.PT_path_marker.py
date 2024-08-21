@@ -19,10 +19,10 @@ import function_savedata as fs
 import matplotlib.pyplot as plt
 
 plt.rcParams["font.family"] = "Times New Roman"
-Cocos = 0
-Nazca = 1
+Cocos = 1
+Nazca = 0
 if Cocos:
-    model = 'Cocos_a0906'
+    model = 'Cocos9'
     marker_list = [186769,186775,704604]#,928985,960783,973829,992876,928808,928935,889439,882174,886460,864250,861514,859346]
     xmin,xmax=500,950
 if Nazca: # 52238,51380,501242, 48622, 60366, 61268, 63076, 62169, 62169, 58564, 59471, 57672, 54078, 52240, 52225, 422137, 732540
