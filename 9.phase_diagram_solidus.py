@@ -10,30 +10,30 @@ import numpy as np
 import function_for_flac as f2
 import matplotlib.pyplot as plt
 
-plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.family"] = "Helvetica"
 fontsize=30
 labelsize=25
 bwith = 5
-fig1 = 0 # basalt and eclogit 
+fig1 = 1 # basalt and eclogit 
 fig2 = 0 # perdotite and serpentinite
 fig3 = 0 # sediment to schist
 fig4 = 0 # chlorite
-fig5 = 1 # chlorite, perdotite and serpentinite
-fig6 = 1 # ALL three figures
+fig5 = 0 # chlorite, perdotite and serpentinite
+fig6 = 0 # ALL three figures
 if fig1:
 ###===============================basalt and eclogit ==========================
     fig,ax = plt.subplots(1,1,figsize=(10,10))
     axdep = ax.twinx()
     depth_limit = 200
-    # depth = np.linspace(0,500e3,1000)
-    # T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
-    # lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='-',label='15 Ma Oceanic geothermal')
-    # # T = f2.half_space_cooling_T(depth, 10, 1330, 40)+0.4*depth/1e3
-    # # axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='OC 40 Ma')
-    # # T = f2.continental_geothermal_T3(depth,20,6,40)+0.4*depth/1e3
-    # # lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Conten')
-    # T = f2.continental_geothermal_T4(depth, 10,1330, 130)+0.4*depth/1e3
-    # lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Continental geothermal')
+    depth = np.linspace(0,500e3,1000)
+    T = f2.half_space_cooling_T(depth, 10, 1330, 15)+0.4*depth/1e3
+    lab1=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='-',label='15 Ma Oceanic geothermal')
+    # T = f2.half_space_cooling_T(depth, 10, 1330, 40)+0.4*depth/1e3
+    # axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle=':',label='OC 40 Ma')
+    # T = f2.continental_geothermal_T3(depth,20,6,40)+0.4*depth/1e3
+    # lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Conten')
+    T = f2.continental_geothermal_T4(depth, 10,1330, 130)+0.4*depth/1e3
+    lab2=axdep.plot(T,depth/1e3,c='gray',lw = 3,linestyle='--',label='Continental geothermal')
 
 
 
@@ -61,15 +61,15 @@ if fig1:
     ax.set_ylim(depth_limit*1000*10*3300/1e9,0)
     ax.set_xlim(200,1200)
     
-    # x = np.linspace(710,1050)
-    # y = -1.25/350*x+5
-    # ax.plot(x,y,c='#FF9900',lw=5) # solidus
+    x = np.linspace(710,1050)
+    y = -1.25/350*x+5
+    ax.plot(x,y,c='#FF9900',lw=5) # solidus
 
     # x = np.linspace(680,1050)
     # y = 0.65/400*x-0.45625
     # ax.plot(x,y,c='#FF9900',lw=5) # solidus
     
-    # lns = lab1+lab2+lab3+lab4#+lab5
+    lns = lab1+lab2+lab3+lab4#+lab5
     lns = lab3+lab4#+lab5
     labs = [l.get_label() for l in lns]
     ax.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.9, 0.4))
@@ -282,9 +282,10 @@ if fig5:
     ax.scatter(760,4.4,c='#D14309',s=50)
     ax.scatter(600,5.2,c='#D14309',s=50)
     
-    # TTT = 800-3.5e-8*(pres*3e4-62)**2
+    TTT = 800-3.5e-8*(pres*3e4-62)**2
     # TTT = 700-4.3e-8*(pres*1.8e4-62)**2
     lab1=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
+    
     #### KATZ 2003, dry solidus
     x=np.array([0,1,2.6,4,6,7])
     y=np.array([1180,1200,1460,1560,1660,1750])
@@ -344,12 +345,28 @@ if fig5:
 if fig6: 
     fig6,(ax,ax2,ax3) = plt.subplots(1,3,figsize=(18,10))
     axdep1 = ax.twinx()
-    depth_limit = 150
+    depth_limit = 200
     
-    pres = np.linspace(0,7,100)
-    sss=np.zeros(len(pres))
-    TTT1 = 800-3.5e-8*(pres*3e4-62)**2
-    lab1=ax.plot(TTT1,pres,c='#D14309',lw=5,label='chlorite-peridotite')
+    pres = np.linspace(0,7,100) # GPa
+    TTT=np.zeros(len(pres))
+    for q,dd in enumerate(pres):
+        ss1 = 700+150*dd
+        ss2 = 764.545+53.7*dd
+        ss3 = 973.447-43.478*dd
+        ss4 = -63.64*dd+1040.016
+        ss5 = -200*dd+1640
+        TTT[q] = min(ss1,ss2,ss3,ss4,ss5)
+    ax.scatter(700,0,c='#D14309',s=50)
+    ax.scatter(800,0.6,c='#D14309',s=50)
+    ax.scatter(880,2.15,c='#D14309',s=50)
+    ax.scatter(830,3.3,c='#D14309',s=50)
+    ax.scatter(760,4.4,c='#D14309',s=50)
+    ax.scatter(600,5.2,c='#D14309',s=50)
+    
+    # TTT = 800-3.5e-8*(pres*3e4-62)**2
+    # TTT = 700-4.3e-8*(pres*1.8e4-62)**2
+    lab1=ax.plot(TTT,pres,c='#D14309',lw=5,label='chlorite-peridotite')
+    
     #### KATZ 2003, dry solidus
     x=np.array([0,1,2.6,4,6,7])
     y=np.array([1180,1200,1460,1560,1660,1750])
@@ -377,9 +394,9 @@ if fig6:
         ss2 = 1090-178*(1-np.exp(-dd*4.125))
         sss[q] = max(ss1,ss2)
     lab5=ax.plot(sss,presss,c='#FF9900',lw=5,label='solidus')
-    lns = lab3+lab4+lab5+lab1#+lab2
-    labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.95, 0.15))    
+    # lns = lab3+lab4+lab5+lab1#+lab2
+    # labs = [l.get_label() for l in lns]
+    # ax.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.95, 0.15))    
 
     axdep2 = ax2.twinx()
     ax2.vlines(x=650, ymin=0, ymax=3, colors='green', ls='-', lw=5,)
@@ -419,8 +436,8 @@ if fig6:
     lab4=ax3.plot(sss,pressure,c='#FF9900',lw=5,label='solidus')
 
     lns = lab3+lab4
-    labs = [l.get_label() for l in lns]
-    ax3.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.9, 0.4))
+    # labs = [l.get_label() for l in lns]
+    # ax3.legend(lns, labs, fontsize = fontsize-7, loc='lower right',bbox_to_anchor=(0.9, 0.4))
 
     ax2.text(770,1.5,'schist',fontsize=36)
     ax3.text(570,3.5,'Eclogite',fontsize=26)
@@ -442,4 +459,4 @@ if fig6:
         axdep.set_ylim(depth_limit,0)
         axdep.tick_params(axis='y', labelsize=labelsize-5)
         axdep.set_ylim(depth_limit,0)
-    # fig6.savefig('/Users/chingchen/Desktop/Eclogite_flat_slab/phase_diagram.pdf')        
+    fig6.savefig('/Users/chingchen/Desktop/Eclogite_flat_slab/phase_diagram_v2.pdf')        
