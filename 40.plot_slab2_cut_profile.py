@@ -61,3 +61,31 @@ q2.set_ylim(mindepth,0)
 q2.tick_params(axis='both', labelsize=16)
 xmajor_ticks = np.linspace(900,0,num=10)
 q2.set_xticks(xmajor_ticks)
+
+# fig2,(q3)= plt.subplots(1,1,figsize=(18,15))
+# temp2=np.loadtxt(datapath+model+'_table4.txt')
+# data = temp2[~np.isnan(temp2).any(axis=1)]
+# x,y,z = data.T
+# sx = x[0]
+# sy = y[0]
+# mindepth=-350
+
+# q3.set_title(model,fontsize = 20)
+# q3.plot(x,z,'k',lw=3)
+
+# new_cord=np.zeros(len(x))
+# for uu in range(1,len(x)):
+#     new_cord[uu]=f2.getDistance(y[uu], x[uu], sy, sx)
+# x=new_cord[z>mindepth]
+# z=z[z>mindepth]
+# x=x[z<-10]
+# z=z[z<-10]
+# new_cord=x
+# q4 = q3.twiny()
+# q4.plot(new_cord,z,'k',lw=3)
+# q4.set_aspect('equal')
+# q3.set_ylim(mindepth,0)
+# q4.set_xlim(0,1200)
+# q3.tick_params(axis='both', labelsize=16)
+# # xmajor_ticks = np.linspace(900,0,num=10)
+# # q2.set_xticks(xmajor_ticks)
