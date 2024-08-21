@@ -34,7 +34,8 @@ png             = 0
 pdf             = 0
 
 ### plot
-plot_sxx        = 1
+plot_sxx        = 0
+plot_srII       = 1
 plot_sxz        = 0
 plot_pressure   = 0
 plot_phase      = 0
@@ -58,8 +59,8 @@ savepath='/scratch2/jiching/data/'
 savepath = '/Users/chingchen/Desktop/data/'
 figpath='/scratch2/jiching/figure/'
 figpath = '/Users/chingchen/Desktop/figure/'
-figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
-figpath='/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/AGU/POSTER/Poster_figure/'
+# figpath='/Users/chingchen/OneDrive - 國立台灣大學/Thesis_figure/Discussion/'
+# figpath='/Users/chingchen/Library/CloudStorage/OneDrive-國立台灣大學/AGU/POSTER/Poster_figure/'
 
 colors = ["#93CCB1","#550A35","#2554C7","#008B8B","#4CC552",
       "#2E8B57","#524B52","#D14309","#DC143C","#FF8C00",
@@ -94,6 +95,65 @@ if plot_sxx:
     sxx = fl.read_sxx(frame)*100
     cbsxx = plt.cm.get_cmap('seismic')
     cbsxx=ax[0].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-200,vmax=200,shading='gouraud')
+    ax[0].set_title('sxx',fontsize=25)
+    cax = plt.axes([0.945, 0.365, 0.01, 0.271])
+    cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.set_label(label='$\sigma_{xx}$ (MPa)', size=25)
+    cc1.ax.yaxis.set_label_position('left')
+    ax[0].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+    #--------------------- plotting -------------------------
+    model = 'Ref_Cocos'
+    os.chdir(path+model)
+    fl = flac.Flac()
+    time=fl.time
+    temp = fl.read_temperature(frame)
+    x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
+    sxx = fl.read_sxx(frame)*100
+    cbsxx = plt.cm.get_cmap('seismic')
+    cbsxx=ax[1].pcolormesh(ele_x,-ele_z,sxx,cmap=cbsxx,vmin=-200,vmax=200,shading='gouraud')
+    ax[1].set_title('sxx',fontsize=25)
+    cax = plt.axes([0.945, 0.365, 0.01, 0.271])
+    cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
+    cc1.ax.tick_params(labelsize=20)
+    cc1.ax.yaxis.set_label_position('left')
+    ax[1].contour(x,-z,temp,colors='0.5',levels =[200,400,600,800,1000,1200],linewidths=3)
+    # ---------------------- plot setting --------------------------
+    for qq in ax:
+        qq.set_aspect('equal')
+        qq.spines['bottom'].set_linewidth(bwith)
+        qq.spines['top'].set_linewidth(bwith)
+        qq.spines['right'].set_linewidth(bwith)
+        qq.spines['left'].set_linewidth(bwith)
+        qq.tick_params(axis='x', labelsize=23)
+        qq.tick_params(axis='y', labelsize=23)
+        qq.set_ylabel('Depth (km)',fontsize=28)
+        qq.set_title('Time '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=25)
+    xmajor_ticks = np.linspace(300,900,num=13)
+    ax[0].set_xticks(xmajor_ticks)
+    ax[0].set_ylim(150,-10)
+    ax[0].set_xlim(300,900)
+    ax[1].set_ylim(100,-10)
+    ax[1].set_xlim(500,850)
+    ax[-1].set_xlabel('Distance (km)',fontsize=30)
+    ax[0].set_title('Chile model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+    ax[1].set_title('Mexico model at '+str(np.round(fl.time[frame-1],0))+' Myr',fontsize=30)
+    fig.savefig(figpath+'Sxx_compare_of_'+str(frame)+'.pdf')
+    # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
+    # print("--- %s seconds ---" % (time.time() - start_time))
+if plot_srII:
+    #--------------------- plotting -------------------------
+    model = 'Nazca_aa06'
+    os.chdir(path+model)
+    fl = flac.Flac()
+    time=fl.time
+    temp = fl.read_temperature(frame)
+    x,z = fl.read_mesh(frame)
+    ele_x,ele_z = flac.elem_coord(x, z)
+    srII = fl.read_srII(frame)
+    cbsxx = plt.cm.get_cmap('seismic')
+    cbsxx=ax[0].pcolormesh(ele_x,-ele_z,srII,cmap=cbsxx,vmin=-20,vmax=-11,shading='gouraud')
     ax[0].set_title('sxx',fontsize=25)
     cax = plt.axes([0.945, 0.365, 0.01, 0.271])
     cc1=fig.colorbar(cbsxx, ax=ax[0],cax=cax)
@@ -250,7 +310,6 @@ if plot_pressure:
     # fig.savefig(figpath+model+'frame_'+str(frame)+'_interp_phase.pdf')
     # print("--- %s seconds ---" % (time.time() - start_time))
 if plot_phase:
-    
     #--------------------- phase plotting -------------------------
     model = 'Ref_Nazca'
     os.chdir(path+model)
