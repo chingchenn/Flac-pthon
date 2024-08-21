@@ -147,4 +147,4 @@ if plot_dip:
     ax2.set_title('Angle Variation')
     ax2.set_xlabel('Time (Myr)')
     ax2.set_ylabel('Angel ($^\circ$)')
-    fig2.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')
+    # fig2.savefig('/home/jiching/geoflac/'+'figure/'+model+'_dip.jpg')

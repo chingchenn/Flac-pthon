@@ -15,7 +15,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import function_for_flac as f2
 import function_savedata as fs
-model_list = ['ch1404','ch1406']
+model_list = ['Nazca_aa06','Nazca_aa15']
 
 color=['#2F4F4F','#4682B4','#CD5C5C','#708090',
       '#AE6378','#282130','#7E9680','#24788F',
@@ -120,5 +120,5 @@ for qq in range(len(ax)):
     ax[qq].set_xlim(0, fl.time[-1])
     ax[qq].set_ylim(-0.5e23,3e23)
 
-fig.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_torque.png')
-fs.save_2txt(model+'torque','/home/jiching/geoflac/data/',Torque_G,Torque_H)
+#fig.savefig('/home/jiching/geoflac/figure/'+model_list[0]+'_'+model_list[-1]+'_torque.png')
+#fs.save_2txt(model+'torque','/home/jiching/geoflac/data/',Torque_G,Torque_H)
